@@ -14,13 +14,20 @@
 meta:
   version: 1
   scope: "Class S SDR SDRAM PHY, point-to-point, single rank, x8/x16"
-  status: "open - P0-1 delivered, no signoff claim"
+  status: "open - P0-1 and P0-2 delivered, no signoff claim"
   architecture_record: "docs/ARCHITECTURE.md"
   companion_analysis: "docs/TIMING_BUDGET.md"
   interface: "specs/interface.yaml"
   device_specs:
     - "specs/devices/micron_mt48lc16m16a2-75.yaml"
     - "specs/devices/issi_is42s16160j-7.yaml"
+
+p0_2_verification:
+  layer2_model: "sim/sdram_timing_model.sv"
+  capture_model: "sim/read_capture.sv"
+  sweep_runner: "sim/sweep.sh"
+  report: "docs/TIMING_SWEEP.md"
+  note: "Feasibility study. T_BOARD is a placeholder, not a characterized delay. Fixed-phase limit confirmed at B = tCK - tAC."
 
 operating_points:
   - id: baseline_100_cl2
