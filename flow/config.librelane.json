@@ -1,0 +1,14 @@
+{
+    "DESIGN_NAME": "sdr_phy",
+    "VERILOG_FILES": [
+        "dir::../rtl/sdr_phy.sv"
+    ],
+    "CLOCK_PORT": "clk",
+    "CLOCK_PERIOD": 10,
+    "DESIGN_IS_CORE": false,
+    "FP_SIZING": "relative",
+    "FP_CORE_UTIL": 40,
+    "PL_TARGET_DENSITY_PCT": 50,
+    "RUN_CTS": true,
+    "//": "100 MHz sys clock, the Class S CK rate. Defaults are x8, CL 2."
+}

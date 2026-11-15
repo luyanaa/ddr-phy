@@ -1,0 +1,23 @@
+# Planning scratch. The architecture doc stays tracked.
+/PLAN
+/PLAN.*
+/plan
+/plan.*
+*.plan
+*.plan.md
+
+# Simulation and LibreLane products
+*.vcd
+*.fst
+*.lxt
+*.lxt2
+sim/obj/
+flow/runs/
+results/
+
+# Tooling
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+result

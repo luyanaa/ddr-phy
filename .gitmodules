@@ -1,0 +1,3 @@
+[submodule "third_party/litedram"]
+	path = third_party/litedram
+	url = https://github.com/enjoy-digital/litedram.git
