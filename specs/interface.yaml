@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: Apache-2.0
+# Digital interface contract between Controller and PHY.
+# Derived from rtl/sdr_phy.sv:20-58. This describes what exists today,
+# it is not a proposal.
+
+meta:
+  version: 1
+  style: "DFI-like, 1 phase, 1:1"
+  reference: "LiteDRAM GENSDRPHY (third_party/litedram/litedram/phy/gensdrphy.py)"
+  note: "Not a full DFI implementation. nphases=1, no calibration CSRs, no bank FSM in the PHY."
+
+timing:
+  nphases: 1
+  rdphase: 0
+  wrphase: 0
+  write_latency: 0
+  read_latency: "CL+1"
+  dfi_databits: DATA_BITS
+  sys_to_ck: "1:1, assign ck = clk (rtl/sdr_phy.sv:77)"
+  note: "One register on command, DQ and DM. rddata_en shifts through a CL+1 bit register."
+
+signals:
+  clock_reset:
+    - {name: clk, dir: in, width: 1}
+    - {name: rst, dir: in, width: 1}
+  dfi_command:
+    - {name: dfi_address, dir: in, width: ADDR_BITS}
+    - {name: dfi_bank, dir: in, width: BANK_BITS}
+    - {name: dfi_ras_n, dir: in, width: 1}
+    - {name: dfi_cas_n, dir: in, width: 1}
+    - {name: dfi_we_n, dir: in, width: 1}
+    - {name: dfi_cs_n, dir: in, width: RANKS}
+    - {name: dfi_cke, dir: in, width: RANKS}
+  dfi_write:
+    - {name: dfi_wrdata, dir: in, width: DATA_BITS}
+    - {name: dfi_wrdata_en, dir: in, width: 1}
+    - {name: dfi_wrdata_mask, dir: in, width: "DATA_BITS/8"}
+  dfi_read:
+    - {name: dfi_rddata_en, dir: in, width: 1}
+    - {name: dfi_rddata, dir: out, width: DATA_BITS}
+    - {name: dfi_rddata_valid, dir: out, width: 1}
+  pad_side_outputs:
+    - {name: a, dir: out, width: ADDR_BITS}
+    - {name: ba, dir: out, width: BANK_BITS}
+    - {name: ras_n, dir: out, width: 1}
+    - {name: cas_n, dir: out, width: 1}
+    - {name: we_n, dir: out, width: 1}
+    - {name: cs_n, dir: out, width: RANKS}
+    - {name: cke, dir: out, width: RANKS}
+    - {name: dm, dir: out, width: "DATA_BITS/8"}
+    - {name: dq_o, dir: out, width: DATA_BITS}
+    - {name: dq_oe, dir: out, width: 1}
+    - {name: ck, dir: out, width: 1}
+  pad_side_inputs:
+    - {name: dq_i, dir: in, width: DATA_BITS}
+  unused_dfi:
+    - {name: dfi_odt, note: "SDR has no ODT pin"}
+    - {name: dfi_reset_n, note: "SDR has no RESET# pin"}
+    - {name: dfi_act_n, note: "SDR has no ACT_n pin"}
+
+boundary:
+  tristate_driver: "outside the core netlist (rtl/sdr_phy.sv:11)"
+  pad_present: false
+  note: "Hardening flow/config.librelane.json on sdr_phy alone yields a core that cannot drive DQ."
+
+backends:
+  generic_sim:
+    status: present
+    note: "tb/tb_sdram_model.sv:104 and tb/tb_sdr_loop.sv:154 use assign dq = dq_oe ? dq_o : z - ideal inout, no contention or Hi-Z timing"
+  asic_pad:
+    status: TBD
+    maps_to: P0-3
+  fpga_io:
+    status: out_of_scope

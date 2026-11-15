@@ -1,0 +1,156 @@
+# SPDX-License-Identifier: Apache-2.0
+# Timing Contract for the SDR SDRAM PHY (P0-1).
+#
+# This is a CONTRACT, not a datasheet and not a signoff report. It records
+# which parameters exist, who owns each one, where the number comes from,
+# and whether that number is known yet. Per checklist section 1 the three
+# parameter classes are kept separate and are NOT mixed into one RTL module.
+# Every status: TBD entry is an open gate; a null value must not be filled
+# with a typ guess or a number borrowed from another speed grade.
+#
+# Status vocabulary is shared with specs/devices/*.yaml.
+# Companion analysis: docs/TIMING_BUDGET.md
+
+meta:
+  version: 1
+  scope: "Class S SDR SDRAM PHY, point-to-point, single rank, x8/x16"
+  status: "open - P0-1 delivered, no signoff claim"
+  architecture_record: "docs/ARCHITECTURE.md"
+  companion_analysis: "docs/TIMING_BUDGET.md"
+  interface: "specs/interface.yaml"
+  device_specs:
+    - "specs/devices/micron_mt48lc16m16a2-75.yaml"
+    - "specs/devices/issi_is42s16160j-7.yaml"
+
+operating_points:
+  - id: baseline_100_cl2
+    device: micron_mt48lc16m16a2-75
+    tCK_ns: 10.0
+    CL: 2
+    tAC_max_ns: 6.0
+    tOH_min_ns: 3.0
+    ideal_setup_ceiling_ns: 4.0
+    ideal_hold_ceiling_ns: 3.0
+    derivation: "tCK - tAC_max ; tOH_min"
+    status: "project baseline (flow/config.librelane.json CLOCK_PERIOD 10)"
+    note: "tCK equals tCK(2) min exactly; the DRAM itself has no frequency margin"
+  - id: fast_133_cl3
+    device: micron_mt48lc16m16a2-75
+    tCK_ns: 7.5
+    CL: 3
+    tAC_max_ns: 5.4
+    tOH_min_ns: 3.0
+    ideal_setup_ceiling_ns: 2.1
+    ideal_hold_ceiling_ns: 3.0
+    derivation: "tCK - tAC_max ; tOH_min"
+    status: "extension target"
+    note: "tCK equals tCK(3) min exactly"
+  - id: issi_133_cl2
+    device: issi_is42s16160j-7
+    tCK_ns: 7.5
+    CL: 2
+    tAC_max_ns: 5.4
+    tOH_min_ns: 2.5
+    ideal_setup_ceiling_ns: 2.1
+    ideal_hold_ceiling_ns: 2.5
+    derivation: "tCK - tAC_max ; tOH_min"
+    status: "alternative device"
+
+operating_points_caveat: "Ceilings assume zero round-trip delay, zero RX setup/hold and zero uncertainty. They are upper bounds, not achievable margins."
+
+parameter_classes:
+
+  protocol:
+    owner: controller
+    note: "Geometry and DRAM command semantics. Already RTL parameters in rtl/sdr_phy.sv."
+    params:
+      - {id: DATA_BITS, value: 8, unit: bits, src: RTL, status: fixed, note: "sdr_phy supports x16; sdr_ctrl.sv:88 rejects DATA_BITS != 8"}
+      - {id: ADDR_BITS, value: 13, unit: bits, src: RTL, status: fixed}
+      - {id: BANK_BITS, value: 2, unit: bits, src: RTL, status: fixed}
+      - {id: RANKS, value: 1, unit: ranks, src: RTL, status: fixed}
+      - {id: CL, value: 2, unit: cycles, src: RTL, status: fixed, note: "2 or 3"}
+      - {id: BL, value: 1, unit: beats, src: RTL, status: fixed, note: "sim/sdram_model.sv:170 refuses BL>1 writes"}
+      - {id: nphases, value: 1, unit: phases, src: RTL, status: fixed}
+      - {id: write_latency, value: 0, unit: cycles, src: RTL, status: fixed}
+      - {id: read_latency, value: "CL+1", unit: cycles, src: RTL, status: fixed, note: "CL cycles belong to the DRAM; +1 is the DQ input register and round trip"}
+
+  timing:
+    owner: "PHY + board"
+    note: "Clock phase, capture phase, OE and device AC limits. NONE of this is in the RTL today."
+    params:
+      - {id: tCK, value: 10.0, unit: ns, src: RTL, status: fixed}
+      - {id: tAC_max, value: 6.0, unit: ns, src: DEVICE, status: known, note: "CL=2, Micron -75. CL=3 is 5.4."}
+      - {id: tOH_min, value: 3.0, unit: ns, src: DEVICE, status: known}
+      - {id: tDS_min, value: 1.5, unit: ns, src: DEVICE, status: known}
+      - {id: tDH_min, value: 0.8, unit: ns, src: DEVICE, status: known}
+      - {id: tHZ_max, value: 6.0, unit: ns, src: DEVICE, status: known}
+      - {id: tLZ_min, value: 1.0, unit: ns, src: DEVICE, status: known}
+      - {id: tAS_min, value: 1.5, unit: ns, src: DEVICE, status: known}
+      - {id: tAH_min, value: 0.8, unit: ns, src: DEVICE, status: known}
+      - {id: tCMS_min, value: 1.5, unit: ns, src: DEVICE, status: known}
+      - {id: tCMH_min, value: 0.8, unit: ns, src: DEVICE, status: known}
+      - {id: ck_phase, value: null, unit: ns, src: TBD, status: TBD, note: "forwarded CK phase vs core clock; rtl/sdr_phy.sv:77 is assign ck = clk"}
+      - {id: delta_capture, value: null, unit: ns, src: TBD, status: TBD, note: "capture edge offset; positive improves setup and degrades hold"}
+      - {id: tCLK_fwd_min, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: tCLK_fwd_max, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: tDQ_return_min, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: tDQ_return_max, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: tDQ_tx_min, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: tDQ_tx_max, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: tRX_setup, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: tRX_hold, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: t_uncertainty, value: null, unit: ns, src: TBD, status: TBD, note: "jitter + OCV + PVT + skew + SSN"}
+      - {id: tOE_on, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: tOE_off, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: dq_bit_skew, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: cmd_addr_skew, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: clk_jitter, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: clk_dcd, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: board_flight, value: null, unit: ns, src: TBD, status: TBD}
+      - {id: package_rlc, value: null, unit: expr, src: TBD, status: TBD}
+      - {id: termination, value: null, unit: expr, src: TBD, status: TBD}
+
+  process:
+    owner: "PDK backend"
+    note: "Pad and analog backend. Entirely absent; see docs/ARCHITECTURE.md section 5."
+    params:
+      - {id: io_standard, value: LVTTL, unit: "-", src: ARCH, status: fixed}
+      - {id: vddio_v, value: 3.3, unit: V, src: ARCH, status: fixed}
+      - {id: pad_type, value: null, unit: "-", src: TBD, status: TBD}
+      - {id: drive_strength, value: null, unit: "-", src: TBD, status: TBD}
+      - {id: level_shifter, value: null, unit: "-", src: TBD, status: TBD}
+      - {id: esd, value: null, unit: "-", src: TBD, status: TBD}
+      - {id: powerup_hiz, value: null, unit: "-", src: TBD, status: TBD}
+      - {id: delay_cell, value: null, unit: "-", src: TBD, status: TBD}
+      - {id: pll_dll, value: null, unit: "-", src: TBD, status: TBD}
+      - {id: pad_slew, value: null, unit: "-", src: TBD, status: TBD}
+
+capability_gates:
+  - id: G1
+    rule: "Backend must provide a 3.3 V bidirectional LVTTL pad with ESD, level shifter and power-up Hi-Z."
+    status: TBD
+    maps_to: P0-3
+  - id: G2
+    rule: "No backend may fall back to a core standard cell to drive an external DQ."
+    status: declared
+  - id: G3
+    rule: "A backend without a qualified IO macro is marked unsupported, not auto-downgraded."
+    status: declared
+  - id: G4
+    rule: "A backend without a characterized delay/phase cell may claim fixed-phase only, not calibrated phase."
+    status: declared
+
+signoff_gates:
+  - id: S1
+    rule: "Every TBD in parameter_classes.timing and .process is verified or explicitly tagged as an assumption."
+    status: open
+  - id: S2
+    rule: "Read/write budgets are recomputed with min/max pairing and emitted as reports/timing_margin.json."
+    status: open
+  - id: S3
+    rule: "Each operating point is classified fixed-phase-feasible / infeasible / needs-lower-frequency."
+    status: open
+  - id: S4
+    rule: "SDC paths (CMD TX, Write DQ TX, Read DQ RX, OE turnaround) exist and close at all PVT corners."
+    status: open
+    maps_to: P0-5

@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: Apache-2.0
+# ISSI IS42S16160J / IS42S83200J, -7 speed grade, AC timing.
+#
+# PRIMARY TABLE: "AC ELECTRICAL CHARACTERISTICS", -7 column, from the
+# IS42S83200J / IS42S16160J / IS45S... datasheet as rendered by the
+# alldatasheet.net HTML mirror, page header "Rev. D 02/27/2025".
+# Table notes (1,2,3,5) are NOT reproduced.
+#
+# REVISION CAVEAT: sim/sdram_checker.sv:20 cites "Rev. C4 (09/17/2020)".
+# The -7 numbers agree (tRCD 15, tRP 15, tRAS 37, trc 60). Reconcile the
+# revision against an ISSI-hosted PDF before signoff.
+#
+# DO NOT MIX TABLES: this part has no separate tRFC. Refresh recovery uses
+# trc = 60 ns. Micron's 66 ns tRFC does not apply here. See also
+# sim/sdram_checker.sv:20-22.
+
+meta:
+  part: IS42S16160J
+  speed_grade: "-7"
+  organization: "256Mb SDRAM, 16Meg x16 (also covers IS42S83200J x8), 4 banks, 8192 rows"
+  io_standard: LVTTL
+  vddq_v: 3.3
+  gear: SDR
+  table: "AC ELECTRICAL CHARACTERISTICS, -7 column, Rev. D 02/27/2025"
+  mirror: "https://www.alldatasheet.net/html-pdf/2257691/ISSI/IS42S16160J-7BLI/2279/18/IS42S16160J-7BLI.html"
+
+sources:
+  T7: "ISSI IS42S16160J AC ELECTRICAL CHARACTERISTICS, -7 column (alldatasheet.net mirror, Rev. D 02/27/2025)"
+  CHK: "sim/sdram_checker.sv header (cites Rev. C4 09/17/2020)"
+
+parameters:
+  - {id: tCK_CL2_min,   value: 7.5,  unit: ns, src: T7, status: verified}
+  - {id: tCK_CL3_min,   value: 7.0,  unit: ns, src: T7, status: verified}
+  - {id: tAC_CL2_max,   value: 5.4,  unit: ns, src: T7, status: verified, note: "unlike Micron -75, CL=2 is 5.4 not 6.0"}
+  - {id: tAC_CL3_max,   value: 5.4,  unit: ns, src: T7, status: verified}
+  - {id: tOH_CL2_min,   value: 2.5,  unit: ns, src: T7, status: verified}
+  - {id: tOH_CL3_min,   value: 2.5,  unit: ns, src: T7, status: verified}
+  - {id: tLZ_min,       value: 0.0,  unit: ns, src: T7, status: verified}
+  - {id: tHZ_min,       value: 2.5,  unit: ns, src: T7, status: verified, note: "two-sided spec, min 2.5 / max 5.4"}
+  - {id: tHZ_max,       value: 5.4,  unit: ns, src: T7, status: verified}
+  - {id: tDS_min,       value: 1.5,  unit: ns, src: T7, status: verified}
+  - {id: tDH_min,       value: 0.8,  unit: ns, src: T7, status: verified}
+  - {id: tAS_min,       value: 1.5,  unit: ns, src: T7, status: verified}
+  - {id: tAH_min,       value: 0.8,  unit: ns, src: T7, status: verified}
+  - {id: tCKS_min,      value: 1.5,  unit: ns, src: T7, status: verified}
+  - {id: tCKH_min,      value: 0.8,  unit: ns, src: T7, status: verified}
+  - {id: tCMS_min,      value: 1.5,  unit: ns, src: T7, status: verified}
+  - {id: tCMH_min,      value: 0.8,  unit: ns, src: T7, status: verified}
+  - {id: tCH_min,       value: 2.5,  unit: ns, src: T7, status: verified}
+  - {id: tCL_min,       value: 2.5,  unit: ns, src: T7, status: verified}
+  - {id: tT_min,        value: 0.3,  unit: ns, src: T7, status: verified}
+  - {id: tT_max,        value: 1.2,  unit: ns, src: T7, status: verified}
+  - {id: tRCD_min,      value: 15.0, unit: ns, src: T7, status: verified}
+  - {id: tRP_min,       value: 15.0, unit: ns, src: T7, status: verified}
+  - {id: tRAS_min,      value: 37.0, unit: ns, src: T7, status: verified}
+  - {id: tRAS_max,      value: 100000.0, unit: ns, src: T7, status: verified}
+  - {id: tRC_min,       value: 60.0, unit: ns, src: T7, status: verified, note: "REF to REF / ACT to ACT; also used for refresh recovery"}
+  - {id: tRRD_min,      value: 14.0, unit: ns, src: T7, status: verified}
+  - {id: tDPL_min,      value: 14.0, unit: ns, src: T7, status: verified}
+  - {id: tDAL_min,      value: 30.0, unit: ns, src: T7, status: verified}
+  - {id: tMRD_min,      value: 14.0, unit: ns, src: T7, status: verified}
+  - {id: tDDE_min,      value: 7.0,  unit: ns, src: T7, status: verified}
+  - {id: tXSR_min,      value: 70.0, unit: ns, src: T7, status: verified}
+  - {id: tREF_max_ms,   value: 64.0, unit: ms, src: T7, status: verified, note: "Ta <= 85C commercial/industrial"}
+  - {id: tREF_max_ms_hot, value: 32.0, unit: ms, src: T7, status: verified, note: "Ta > 85C, A2 grade only"}
+  - {id: tREF_rows,     value: 8192, unit: rows, src: T7, status: verified}
+  - {id: tRFC_min,      value: null, unit: ns, src: T7, status: TBD, note: "no separate tRFC in this table; use tRC = 60 ns. Do not import 66 ns from Micron."}

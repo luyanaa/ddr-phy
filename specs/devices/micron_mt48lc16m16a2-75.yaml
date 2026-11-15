@@ -1,0 +1,90 @@
+# SPDX-License-Identifier: Apache-2.0
+# Micron MT48LC16M16A2, -75 speed grade, AC timing.
+#
+# PRIMARY TABLE: "Table 20: Electrical Characteristics and Recommended AC
+# Operating Conditions (-7E, -75)", Micron 256Mb: x4/x8/x16 SDRAM datasheet.
+# Only the -75 column is transcribed. Table notes are NOT reproduced.
+# Source is the alldatasheet.co.uk HTML rendering of the manufacturer PDF.
+#
+# REVISION CAVEAT: that mirror page header reads "256MSDRAM_2.fm - Rev. L
+# 10/07", while sim/sdram_checker.sv:9 cites "Micron 256Mb_sdr.pdf Rev. W
+# (05/15)". The transcribed -75 numbers agree with the checker. Reconcile
+# the revision against a Micron-hosted PDF before using any number here as
+# a signoff limit.
+#
+# STATUS VOCABULARY (shared across specs/):
+#   verified - read from a datasheet AC table in this session (via mirror)
+#   cited    - quoted from a repo file or the user checklist, not read from
+#              the primary table here
+#   derived  - computed from verified/cited values; formula recorded
+#   TBD      - unknown; value is null. Do NOT substitute a typ value.
+# "verified" means transcribed from a manufacturer table on a mirror, not
+# checked against a Micron-hosted PDF.
+
+meta:
+  part: MT48LC16M16A2
+  speed_grade: "-75"
+  organization: "256Mb SDRAM, x16, 4 banks, 8192 rows"
+  io_standard: LVTTL
+  vddq_v: 3.3
+  gear: SDR
+  table: "Table 20, AC Operating Conditions (-7E, -75), -75 column"
+  mirror: "https://www.alldatasheet.co.uk/html-pdf/226490/MICRON/MT48LC16M16A2/11850/52/MT48LC16M16A2.html"
+
+sources:
+  T20: "Micron 256Mb SDRAM datasheet Table 20, -75 column (alldatasheet.co.uk mirror)"
+  CHK: "sim/sdram_checker.sv header (cites Rev. W 05/15, Table 12/13), tCK = 10 ns"
+  USER: "user-provided checklist section 4.2"
+
+parameters:
+  - {id: tCK_CL2_min,      value: 10.0,  unit: ns,   src: T20, status: verified, note: "CL=2 min cycle. Project 100 MHz baseline sits exactly on this limit."}
+  - {id: tCK_CL3_min,      value: 7.5,   unit: ns,   src: T20, status: verified}
+  - {id: tAC_CL2_max,      value: 6.0,   unit: ns,   src: T20, status: verified, note: "CL=2 only. Do not reuse the 5.4 ns CL=3 figure."}
+  - {id: tAC_CL3_max,      value: 5.4,   unit: ns,   src: T20, status: verified}
+  - {id: tOH_min_loaded,   value: 3.0,   unit: ns,   src: T20, status: verified, note: "with load"}
+  - {id: tOHN_min_noload,  value: 1.8,   unit: ns,   src: T20, status: verified, note: "no load, note 28"}
+  - {id: tHZ_CL2_max,      value: 6.0,   unit: ns,   src: T20, status: verified}
+  - {id: tHZ_CL3_max,      value: 5.4,   unit: ns,   src: T20, status: verified}
+  - {id: tLZ_min,          value: 1.0,   unit: ns,   src: T20, status: verified}
+  - {id: tDS_min,          value: 1.5,   unit: ns,   src: T20, status: verified}
+  - {id: tDH_min,          value: 0.8,   unit: ns,   src: T20, status: verified}
+  - {id: tAS_min,          value: 1.5,   unit: ns,   src: T20, status: verified}
+  - {id: tAH_min,          value: 0.8,   unit: ns,   src: T20, status: verified}
+  - {id: tCMS_min,         value: 1.5,   unit: ns,   src: T20, status: verified}
+  - {id: tCMH_min,         value: 0.8,   unit: ns,   src: T20, status: verified}
+  - {id: tCKS_min,         value: 1.5,   unit: ns,   src: T20, status: verified}
+  - {id: tCKH_min,         value: 0.8,   unit: ns,   src: T20, status: verified}
+  - {id: tCH_min,          value: 2.5,   unit: ns,   src: T20, status: verified}
+  - {id: tCL_min,          value: 2.5,   unit: ns,   src: T20, status: verified}
+  - {id: tT_min,           value: 0.3,   unit: ns,   src: T20, status: verified}
+  - {id: tT_max,           value: 1.2,   unit: ns,   src: T20, status: verified}
+  - {id: tRCD_min,         value: 20.0,  unit: ns,   src: T20, status: verified}
+  - {id: tRP_min,          value: 20.0,  unit: ns,   src: T20, status: verified}
+  - {id: tRAS_min,         value: 44.0,  unit: ns,   src: T20, status: verified}
+  - {id: tRAS_max,         value: 120000.0, unit: ns, src: T20, status: verified}
+  - {id: tRC_min,          value: 66.0,  unit: ns,   src: T20, status: verified}
+  - {id: tRRD_min,         value: 15.0,  unit: ns,   src: T20, status: verified}
+  - {id: tRFC_min,         value: 66.0,  unit: ns,   src: T20, status: verified}
+  - {id: tWR_min_expr,     value: "1 CLK + 7.5 ns", unit: expr, src: T20, status: verified, note: "note 24, auto-precharge form"}
+  - {id: tWR_absolute_min, value: 15.0,  unit: ns,   src: T20, status: verified, note: "note 25, precharge form"}
+  - {id: tXSR_min,         value: 75.0,  unit: ns,   src: T20, status: verified}
+  - {id: tREF_max_ms,      value: 64.0,  unit: ms,   src: T20, status: verified}
+  - {id: tREF_rows,        value: 8192,  unit: rows, src: T20, status: verified}
+  - {id: tDPL_min,         value: 2,     unit: tCK,  src: CHK, status: cited,   note: "checker default; Table 13 tDPL = 2 tCK"}
+  - {id: tMRD_min,         value: 2,     unit: tCK,  src: CHK, status: cited,   note: "Table 13 note 21 says JEDEC/PC100 require 3"}
+  - {id: tCCD_min,         value: 1,     unit: tCK,  src: CHK, status: cited}
+
+clock_counts_at_tCK_10ns:
+  tCK_ns: 10.0
+  tRCD: 2
+  tRP: 2
+  tRAS: 5
+  tRC: 7
+  tRRD: 2
+  tRFC: 7
+  tWR: 2
+  tMRD: 2
+  tCCD: 1
+  src: CHK
+  derivation: "ceil(datasheet_ns / tCK)"
+  note: "Matches the parameter defaults in sim/sdram_checker.sv."
