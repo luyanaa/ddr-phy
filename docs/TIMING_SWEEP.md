@@ -117,7 +117,7 @@ width(未截断时) = tCK - tAC + tOH - 2U
 
 - `B` 仍是占位；`specs/timing_contract.yaml` 的 28 个 TBD 项、4 个签核 gate 全部保持 open。
 - 没有 min/max PVT 配对、没有 jitter/DCD 真实分布、没有封装/PCB/端接、没有 SI/PI、没有 SDF。
-- 没有把相位映射回 `rtl/sdr_phy.sv`（P0-4），没有 SDC/STA（P0-5）。
+- SDC 草稿已由 `generator/emit_sdc.py` 生成但未接入 PnR；`cap_clk` 已在 `rtl/sdram_phy_top.sv` 暴露为接口，`rtl/sdr_phy.sv` 仍在 `posedge clk` 采样 `dq_i`，`Δ` 尚未作用到核心（G6 开放）。多 corner STA 仍未闭合。
 - 写路径的 `ck = clk` 问题（`docs/TIMING_BUDGET.md` §5）本轮没有解决，只验证了写侧 `tDS/tDH` 检查器能报违规。
 
 ## 8. 不这样做

@@ -22,4 +22,18 @@ iverilog -g2012 -Ptb_bist_loop.DATA_BITS=16 -o sim/obj/tb_bist_x16 \
     rtl/sdr_bist.sv rtl/sdr_ctrl.sv rtl/sdr_phy.sv sim/sdram_model.sv tb/tb_bist_loop.sv
 vvp sim/obj/tb_bist_x16
 
+iverilog -g2012 -o sim/obj/tb_burst \
+    sim/sdram_model.sv tb/tb_burst.sv
+vvp sim/obj/tb_burst
+
+iverilog -g2012 -o sim/obj/tb_refresh \
+    rtl/sdr_ctrl.sv rtl/sdr_phy.sv sim/sdram_model.sv tb/tb_refresh.sv
+vvp sim/obj/tb_refresh
+
+iverilog -g2012 -o sim/obj/tb_phy_top \
+    rtl/sdr_phy.sv rtl/clock_forward.sv rtl/read_capture_ctrl.sv \
+    rtl/dq_turnaround.sv rtl/phy_io_adapter.sv sim/pad_cell_generic.sv \
+    rtl/sdram_phy_top.sv tb/tb_phy_top.sv
+vvp sim/obj/tb_phy_top
+
 echo PHY_DONE

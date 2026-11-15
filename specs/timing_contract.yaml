@@ -76,7 +76,7 @@ parameter_classes:
       - {id: BANK_BITS, value: 2, unit: bits, src: RTL, status: fixed}
       - {id: RANKS, value: 1, unit: ranks, src: RTL, status: fixed}
       - {id: CL, value: 2, unit: cycles, src: RTL, status: fixed, note: "2 or 3"}
-      - {id: BL, value: 1, unit: beats, src: RTL, status: fixed, note: "sim/sdram_model.sv:170 refuses BL>1 writes"}
+      - {id: BL, value: 1, unit: beats, src: RTL, status: fixed, note: "model supports BL 1/2/4/8 writes (tb/tb_burst.sv); controller/PHY default remains BL=1"}
       - {id: nphases, value: 1, unit: phases, src: RTL, status: fixed}
       - {id: write_latency, value: 0, unit: cycles, src: RTL, status: fixed}
       - {id: read_latency, value: "CL+1", unit: cycles, src: RTL, status: fixed, note: "CL cycles belong to the DRAM; +1 is the DQ input register and round trip"}

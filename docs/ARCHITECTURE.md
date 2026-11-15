@@ -338,7 +338,7 @@ flow/                    LibreLane，还没跑
 docs/                    本文件
 ```
 
-已经跑通的闭环是 `rtl/sdr_ctrl.sv`，不是 `litedram_gen` 出来的网表，也没有例化 LiteDRAM。它抄的是 `GENSDRPHY` 的 DFI 时序（写延迟 0，读延迟 CL+1，`rddata_en` 和 READ 同一拍）和 `get_sdr_phy_init_sequence` 在 nphases=1 下的命令顺序（BL=1，MR = CL<<4）。CKE 后的空拍是 8，MRS 后的空拍是 4，不是 20000 和 200。初始化之后没有刷新。LiteDRAM 本身不改。以后若要完整控制器，仍用 `litedram_gen` 配 `GENSDRPHY` 的几何，再用 `sdr_phy` 换掉 FPGA IO；这一步还没做。DDR1 不走生成器的 PHY 选项：用 LiteDRAM 的 Python 核和 DDR 模块类，PHY 换成 `ddr1_phy`。不要为了 ASIC 去改 bank machine。
+已经跑通的闭环是 `rtl/sdr_ctrl.sv`，不是 `litedram_gen` 出来的网表，也没有例化 LiteDRAM。它抄的是 `GENSDRPHY` 的 DFI 时序（写延迟 0，读延迟 CL+1，`rddata_en` 和 READ 同一拍）和 `get_sdr_phy_init_sequence` 在 nphases=1 下的命令顺序（BL=1，MR = CL<<4）。CKE 后的空拍是 8，MRS 后的空拍是 4，不是 20000 和 200。初始化之后默认不刷新（`T_REFI = 0`，保持闭环测试可复现）；设置 `T_REFI > 0` 后按 tREFI 发 AUTO REFRESH，刷新前先预充所有 bank。LiteDRAM 本身不改。以后若要完整控制器，仍用 `litedram_gen` 配 `GENSDRPHY` 的几何，再用 `sdr_phy` 换掉 FPGA IO；这一步还没做。DDR1 不走生成器的 PHY 选项：用 LiteDRAM 的 Python 核和 DDR 模块类，PHY 换成 `ddr1_phy`。不要为了 ASIC 去改 bank machine。
 
 带 CPU 的芯片通过 Wishbone 访问 DFI 注入器完成初始化，然后打开硬件路径。没有 CPU 的测试芯片用 LiteDRAM 自带的 BIST。
 
@@ -362,7 +362,7 @@ IHP 现成 IO 的 100 MHz 输入仿真、sky130 公开板对库 GPIO 的频率�
 
 ## 10. 分期
 
-1. P0。架构在本文件。Class S 数字核 `rtl/sdr_phy.sv`、引脚级模型、命令间隔检查器、`sdr_ctrl` 闭环，以及 sky130 HD 功能门级仿真已经有。行为仿真、间隔检查和这一层门级功能仿真通过。pad 原理图还没画。DDR1 RTL 和 LibreLane 都还没开始。下一步仍是四套工艺各画一个 CMOS 双向 pad，再在 sky130、IHP、ics55 上各画一个 VREF 接收器。尺寸仍然空着。
+1. P0。架构在本文件。Class S 数字核 `rtl/sdr_phy.sv`、引脚级模型、命令间隔检查器、`sdr_ctrl` 闭环，以及 sky130 HD 功能门级仿真已经有。行为仿真、间隔检查和这一层门级功能仿真通过。pad 原理图还没画。DDR1 RTL 还没开始；LibreLane 已在 P0-5 实跑（原始配置 80/80 完成，草稿 SDC 接上会在 PostCTS 失败，见 `docs/STA_PLAN.md` §5）。下一步仍是四套工艺各画一个 CMOS 双向 pad，再在 sky130、IHP、ics55 上各画一个 VREF 接收器。尺寸仍然空着。
 2. P1。`sdr_phy` 加四套 pad。x8、100 MHz。第 9 节第 1、2、3 步已经过，第 4 步的 sky130 HD 功能门级也已经过。没有 SDF。pad 和第 5 步还没有。gf180 用 3.3 V 标准单元，不用 5 V GPIO。LibreLane 的 `gf180-as-7t3v3` 要先在 `./pdks/gf180mcuD` 组好 3.3 V 视图；5 V 标准单元不是一条规格。这一步之前不开 DDR1 RTL。
 3. P2。`ddr1_phy` 加行为级 DDR 模型。那是另一个模型，不是现在这个 SDR 模型。仍不接 pad 延迟。`ck90` 在仿真里用理想时钟源。
 4. P3。把 DDR1 pad 和一条尚未定实现的 `ck90` 接上 P2。只在 sky130、IHP、ics55。IHP 必须先有 2.5 V 下的器件仿真，否则停在这一步前面。
@@ -397,4 +397,4 @@ IHP 现成 IO 的 100 MHz 输入仿真、sky130 公开板对库 GPIO 的频率�
 - ECOS PLL 的许可，以及两路输出能不能用作同频不同相。
 - 目录中 DDR PHY 的许可与交付时间。在此之前不做适配器。
 - 实际流片的 pad 数。本设计按一颗 x8 加电源来算；若某次 MPW 少于约 40 个信号 pad，先减地址并行位，不要改成串行协议。
-- BL>1 的写节拍。现在的模型直接报 `BAD_MRS`，不会生成后续拍。
+- ~~BL>1 的写节拍~~ 已解决：`sim/sdram_model.sv` 的写突发流水线支持 BL 2/4/8（`tb/tb_burst.sv`）。

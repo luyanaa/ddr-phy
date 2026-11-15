@@ -14,9 +14,12 @@
 //     order is not.
 //
 // One row stays open per bank. A request to a different row of that bank
-// precharges, then activates. There is no refresh after init: a test must
-// finish before tREFI. tRCD, tRP and tRFC are inserted as idle cycles, not
-// checked against a datasheet.
+// precharges, then activates. tRCD, tRP and tRFC are inserted as idle
+// cycles, not checked against a datasheet.
+//
+// T_REFI = 0 (default) disables periodic refresh, preserving the original
+// closed-loop tests. With T_REFI > 0 the controller closes all banks,
+// issues AUTO REFRESH and waits tRFC every T_REFI sys clocks after init.
 
 `default_nettype none
 
@@ -29,7 +32,8 @@ module sdr_ctrl #(
     parameter integer CL        = 2,
     parameter integer T_RCD     = 2,
     parameter integer T_RP      = 2,
-    parameter integer T_RFC     = 4
+    parameter integer T_RFC     = 4,
+    parameter integer T_REFI    = 0
 ) (
     input  wire                     clk,
     input  wire                     rst,
@@ -81,6 +85,8 @@ module sdr_ctrl #(
     localparam [3:0] S_PRE   = 4'd8;
     localparam [3:0] S_ACT   = 4'd9;
     localparam [3:0] S_WAIT  = 4'd10;
+    localparam [3:0] S_RFSH_PRE = 4'd11;
+    localparam [3:0] S_RFSH_CMD = 4'd12;
 
     generate
         if (!(CL == 2 || CL == 3)) begin : g_bad_cl
@@ -101,6 +107,9 @@ module sdr_ctrl #(
         if (T_RCD < 1 || T_RP < 1 || T_RFC < 1) begin : g_bad_timing
             invalid_timing_parameter this_module_does_not_exist();
         end
+        if (T_REFI < 0) begin : g_bad_refi
+            invalid_refi_parameter this_module_does_not_exist();
+        end
     endgenerate
 
     assign dfi_odt     = 1'b0;
@@ -120,6 +129,7 @@ module sdr_ctrl #(
     reg [DATA_BITS-1:0]    req_wdata;
     reg                    bank_open [0:BANKS-1];
     reg [ROW_BITS-1:0]     bank_row  [0:BANKS-1];
+    reg [31:0]             ref_cnt;
 
     integer bi;
 
@@ -128,6 +138,7 @@ module sdr_ctrl #(
     wire [BANK_BITS-1:0] user_bank = user_addr[COL_BITS+ROW_BITS +: BANK_BITS];
 
     wire hit = bank_open[req_ba] && (bank_row[req_ba] == req_row);
+    wire refresh_due = (T_REFI > 0) && init_done && (ref_cnt >= T_REFI);
 
     // Synchronous set, not a reset to zero. A reset value of 0 on ras_n,
     // cas_n, we_n and cs_n is an illegal command, not a NOP.
@@ -158,6 +169,7 @@ module sdr_ctrl #(
             dfi_wrdata_en  <= 1'b0;
             dfi_wrdata_mask<= {(DATA_BITS/8){1'b0}};
             dfi_rddata_en  <= 1'b0;
+            ref_cnt        <= 32'd0;
             for (bi = 0; bi < BANKS; bi = bi + 1)
                 bank_open[bi] <= 1'b0;
         end else begin
@@ -173,6 +185,9 @@ module sdr_ctrl #(
             dfi_rddata_en   <= 1'b0;
             user_rvalid     <= 1'b0;
 
+            if (init_done && T_REFI > 0)
+                ref_cnt <= ref_cnt + 32'd1;
+
             if (dfi_rddata_valid) begin
                 user_rdata <= dfi_rddata;
                 user_rvalid<= 1'b1;
@@ -183,9 +198,10 @@ module sdr_ctrl #(
             // cycle after this, or later if the row has to be opened.
             // ready stays high for the whole idle cycle so a request can
             // be presented without a combinational ready/valid loop.
-            user_ready <= (state == S_IDLE) && init_done && !have_req && !read_busy;
-            if (init_done && !have_req && !read_busy && user_valid &&
-                state == S_IDLE) begin
+            user_ready <= (state == S_IDLE) && init_done && !have_req &&
+                            !read_busy && !refresh_due;
+            if (init_done && !have_req && !read_busy && !refresh_due &&
+                user_valid && state == S_IDLE) begin
                 have_req  <= 1'b1;
                 req_we    <= user_we;
                 req_ba    <= user_bank;
@@ -264,7 +280,9 @@ module sdr_ctrl #(
                 end
                 S_IDLE: begin
                     dfi_cke <= 1'b1;
-                    if (have_req && !read_busy) begin
+                    if (refresh_due && !have_req && !read_busy) begin
+                        state <= S_RFSH_PRE;
+                    end else if (have_req && !read_busy) begin
                         if (!hit && bank_open[req_ba])
                             state <= S_PRE;
                         else if (!hit)
@@ -285,6 +303,30 @@ module sdr_ctrl #(
                             have_req <= 1'b0;
                         end
                     end
+                end
+                S_RFSH_PRE: begin
+                    // Close every bank before AUTO REFRESH: the SDRAM model
+                    // raises REF_OPEN if any row is still active.
+                    dfi_cke            <= 1'b1;
+                    dfi_cs_n           <= 1'b0;
+                    dfi_ras_n          <= 1'b0;
+                    dfi_we_n           <= 1'b0;
+                    dfi_address[10]    <= 1'b1;
+                    for (bi = 0; bi < BANKS; bi = bi + 1)
+                        bank_open[bi] <= 1'b0;
+                    state     <= S_WAIT;
+                    wait_next <= S_RFSH_CMD;
+                    wait_n    <= T_RP[7:0];
+                end
+                S_RFSH_CMD: begin
+                    dfi_cke   <= 1'b1;
+                    dfi_cs_n  <= 1'b0;
+                    dfi_ras_n <= 1'b0;
+                    dfi_cas_n <= 1'b0;
+                    ref_cnt   <= 32'd0;
+                    state     <= S_WAIT;
+                    wait_next <= S_IDLE;
+                    wait_n    <= T_RFC[7:0];
                 end
                 S_PRE: begin
                     dfi_cke   <= 1'b1;
