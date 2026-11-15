@@ -10,5 +10,5 @@
     "FP_CORE_UTIL": 40,
     "PL_TARGET_DENSITY_PCT": 50,
     "RUN_CTS": true,
-    "//": "100 MHz sys clock, the Class S CK rate. Defaults are x8, CL 2."
+    "//": "100 MHz sys clock, the Class S CK rate. Defaults are x8, CL 2. flow/sdr_phy.sdc is a GENERATED DRAFT with 28 TBD placeholders at 0.0; it is deliberately NOT wired in via PNR_SDC_FILE/SIGNOFF_SDC_FILE. A control experiment showed wiring it in breaks PostCTS with DPL-0036 while the unmodified flow completes 80/80. Wire it in only after generator/emit_sdc.py --check passes. See docs/STA_PLAN.md section 5."
 }

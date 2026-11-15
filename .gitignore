@@ -21,3 +21,8 @@ __pycache__/
 *.pyc
 .DS_Store
 result
+
+# Micron MT48LC16M16A2 behavioral model: "All rights reserved",
+# no redistribution grant. Fetched locally for evaluation only.
+# See docs/DRAM_MODEL_REFERENCES.md.
+/third_party/reference/mt48lc16m16a2.v

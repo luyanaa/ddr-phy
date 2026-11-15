@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: Apache-2.0
+# Backend capability record. Sources: docs/ARCHITECTURE.md sections 2/5/6/7
+# and the local PDK views probed on 2026-11-15. No device sizes, drive
+# currents or pad delays are invented here: any unknown number is null.
+#
+# decision is computed by generator/check_capabilities.py, not hand-written.
+# A backend is GO only when every gate is closed and every pad flag is true.
+
+name: ics55
+pdk: icsprout55-pdk
+scl: ics55_LLSC_H7CL
+status: unsupported
+capability_level: none
+is_behavioral: false
+
+core_voltage_v: 1.2
+vddio_v: 3.3
+io_standard: LVTTL
+level_shifter_required: true
+
+existing_io_library:
+  name: ICsprout_55LLULP1233_IO_251013
+  present_locally: true
+  role: "structural reference only - P65_1233 GPIO drive currents not extracted to text"
+  path: "/grid/icsprout55-pdk/libs.ref/ICsprout_55LLULP1233_IO_251013"
+
+devices:
+  drive_devices: "nm3p3_lp / pm3p3_lp layout names; nmod3p3_lp / pmod3p3_lp SPICE names (2.5 V overdriven to 3.3 V)"
+  esd: "2.5 V diodes dio_2p5_*; 3.3 V diode card missing from foundry SPICE list"
+  note: "Foundry SPICE is not Apache-2.0 and is evaluation-only; widths chosen with it cannot be a tapeout signoff."
+
+pad:
+  schematic_drawn: false
+  netlist_characterized: false
+  spice_verified: false
+  drive_strength_selected: false
+  esd_verified: false
+  level_shifter_verified: false
+  powerup_hiz_verified: false
+  toe_on_ps: null
+  toe_off_ps: null
+
+phase_control:
+  pll_dll_available: false
+  delay_cell_characterized: false
+  capture_modes: []
+
+open_gates: ["G1", "G2", "G4", "G5", "G6"]
+allowed_claims: []
+disallowed_claims:
+  - "3.3 V LVTTL pad ready for tapeout"
+  - "fixed-phase SDR PHY signoff"
+  - "133 MHz operation"
+notes: "3.3 V ESD SPICE card is missing (LVS recognises dio_3p3_pp_nw_lp). The 55nm-ddr3-ddr2-phy directory has no macro, timing model, RTL or license and is not silicon validated."

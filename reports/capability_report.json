@@ -1,0 +1,245 @@
+{
+  "overall_decision": "NO_GO",
+  "generated_by": "generator/check_capabilities.py",
+  "gates": {
+    "G1": "3.3 V bidirectional LVTTL pad with ESD, level shifter and power-up Hi-Z",
+    "G2": "no backend may fall back to a core standard cell to drive external DQ",
+    "G3": "a backend without a qualified IO macro is marked unsupported, not downgraded",
+    "G4": "no characterized delay/phase cell -> fixed-phase only (here: none)",
+    "G5": "pad timing (tOE_on/off, slew, input threshold) characterized",
+    "G6": "clock forwarding path and read capture phase from characterized delay/PLL"
+  },
+  "backends": [
+    {
+      "name": "generic_sim",
+      "pdk": "none",
+      "scl": "none",
+      "status": "simulation_only",
+      "capability_level": "sim_only",
+      "decision": "SIM_ONLY",
+      "open_gates": [
+        "G5",
+        "G6"
+      ],
+      "blockers": [
+        "behavioral backend: simulation only, never tapeout"
+      ],
+      "pad": {
+        "schematic_drawn": true,
+        "netlist_characterized": true,
+        "spice_verified": true,
+        "drive_strength_selected": true,
+        "esd_verified": true,
+        "level_shifter_verified": true,
+        "powerup_hiz_verified": true,
+        "toe_on_ps": null,
+        "toe_off_ps": null
+      },
+      "phase_control": {
+        "pll_dll_available": false,
+        "delay_cell_characterized": false,
+        "capture_modes": [
+          "fixed_phase_ideal"
+        ]
+      },
+      "allowed_claims": [
+        "functional simulation of the adapter contract"
+      ]
+    },
+    {
+      "name": "gf180mcu",
+      "pdk": "gf180mcuD",
+      "scl": "gf180mcu_as_sc_mcu7t3v3",
+      "status": "unsupported",
+      "capability_level": "none",
+      "decision": "NO_GO",
+      "open_gates": [
+        "G1",
+        "G2",
+        "G4",
+        "G5",
+        "G6"
+      ],
+      "blockers": [
+        "open gate G1: 3.3 V bidirectional LVTTL pad with ESD, level shifter and power-up Hi-Z",
+        "open gate G2: no backend may fall back to a core standard cell to drive external DQ",
+        "open gate G4: no characterized delay/phase cell -> fixed-phase only (here: none)",
+        "open gate G5: pad timing (tOE_on/off, slew, input threshold) characterized",
+        "open gate G6: clock forwarding path and read capture phase from characterized delay/PLL",
+        "pad.schematic_drawn is not true",
+        "pad.netlist_characterized is not true",
+        "pad.spice_verified is not true",
+        "pad.drive_strength_selected is not true",
+        "pad.esd_verified is not true",
+        "pad.powerup_hiz_verified is not true",
+        "pad.toe_on_ps is null (uncharacterized)",
+        "pad.toe_off_ps is null (uncharacterized)",
+        "phase_control.capture_modes is empty"
+      ],
+      "pad": {
+        "schematic_drawn": false,
+        "netlist_characterized": false,
+        "spice_verified": false,
+        "drive_strength_selected": false,
+        "esd_verified": false,
+        "level_shifter_verified": true,
+        "powerup_hiz_verified": false,
+        "toe_on_ps": null,
+        "toe_off_ps": null
+      },
+      "phase_control": {
+        "pll_dll_available": false,
+        "delay_cell_characterized": false,
+        "capture_modes": []
+      },
+      "allowed_claims": []
+    },
+    {
+      "name": "ics55",
+      "pdk": "icsprout55-pdk",
+      "scl": "ics55_LLSC_H7CL",
+      "status": "unsupported",
+      "capability_level": "none",
+      "decision": "NO_GO",
+      "open_gates": [
+        "G1",
+        "G2",
+        "G4",
+        "G5",
+        "G6"
+      ],
+      "blockers": [
+        "open gate G1: 3.3 V bidirectional LVTTL pad with ESD, level shifter and power-up Hi-Z",
+        "open gate G2: no backend may fall back to a core standard cell to drive external DQ",
+        "open gate G4: no characterized delay/phase cell -> fixed-phase only (here: none)",
+        "open gate G5: pad timing (tOE_on/off, slew, input threshold) characterized",
+        "open gate G6: clock forwarding path and read capture phase from characterized delay/PLL",
+        "pad.schematic_drawn is not true",
+        "pad.netlist_characterized is not true",
+        "pad.spice_verified is not true",
+        "pad.drive_strength_selected is not true",
+        "pad.esd_verified is not true",
+        "pad.level_shifter_verified is not true",
+        "pad.powerup_hiz_verified is not true",
+        "pad.toe_on_ps is null (uncharacterized)",
+        "pad.toe_off_ps is null (uncharacterized)",
+        "phase_control.capture_modes is empty"
+      ],
+      "pad": {
+        "schematic_drawn": false,
+        "netlist_characterized": false,
+        "spice_verified": false,
+        "drive_strength_selected": false,
+        "esd_verified": false,
+        "level_shifter_verified": false,
+        "powerup_hiz_verified": false,
+        "toe_on_ps": null,
+        "toe_off_ps": null
+      },
+      "phase_control": {
+        "pll_dll_available": false,
+        "delay_cell_characterized": false,
+        "capture_modes": []
+      },
+      "allowed_claims": []
+    },
+    {
+      "name": "ihp130",
+      "pdk": "ihp-sg13g2",
+      "scl": "sg13g2_stdcell",
+      "status": "unsupported",
+      "capability_level": "none",
+      "decision": "NO_GO",
+      "open_gates": [
+        "G1",
+        "G2",
+        "G4",
+        "G5",
+        "G6"
+      ],
+      "blockers": [
+        "open gate G1: 3.3 V bidirectional LVTTL pad with ESD, level shifter and power-up Hi-Z",
+        "open gate G2: no backend may fall back to a core standard cell to drive external DQ",
+        "open gate G4: no characterized delay/phase cell -> fixed-phase only (here: none)",
+        "open gate G5: pad timing (tOE_on/off, slew, input threshold) characterized",
+        "open gate G6: clock forwarding path and read capture phase from characterized delay/PLL",
+        "pad.schematic_drawn is not true",
+        "pad.netlist_characterized is not true",
+        "pad.spice_verified is not true",
+        "pad.drive_strength_selected is not true",
+        "pad.esd_verified is not true",
+        "pad.level_shifter_verified is not true",
+        "pad.powerup_hiz_verified is not true",
+        "pad.toe_on_ps is null (uncharacterized)",
+        "pad.toe_off_ps is null (uncharacterized)",
+        "phase_control.capture_modes is empty"
+      ],
+      "pad": {
+        "schematic_drawn": false,
+        "netlist_characterized": false,
+        "spice_verified": false,
+        "drive_strength_selected": false,
+        "esd_verified": false,
+        "level_shifter_verified": false,
+        "powerup_hiz_verified": false,
+        "toe_on_ps": null,
+        "toe_off_ps": null
+      },
+      "phase_control": {
+        "pll_dll_available": false,
+        "delay_cell_characterized": false,
+        "capture_modes": []
+      },
+      "allowed_claims": []
+    },
+    {
+      "name": "sky130",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "status": "unsupported",
+      "capability_level": "none",
+      "decision": "NO_GO",
+      "open_gates": [
+        "G1",
+        "G2",
+        "G4",
+        "G5",
+        "G6"
+      ],
+      "blockers": [
+        "open gate G1: 3.3 V bidirectional LVTTL pad with ESD, level shifter and power-up Hi-Z",
+        "open gate G2: no backend may fall back to a core standard cell to drive external DQ",
+        "open gate G4: no characterized delay/phase cell -> fixed-phase only (here: none)",
+        "open gate G5: pad timing (tOE_on/off, slew, input threshold) characterized",
+        "open gate G6: clock forwarding path and read capture phase from characterized delay/PLL",
+        "pad.schematic_drawn is not true",
+        "pad.netlist_characterized is not true",
+        "pad.spice_verified is not true",
+        "pad.drive_strength_selected is not true",
+        "pad.esd_verified is not true",
+        "pad.level_shifter_verified is not true",
+        "pad.powerup_hiz_verified is not true",
+        "pad.toe_on_ps is null (uncharacterized)",
+        "pad.toe_off_ps is null (uncharacterized)",
+        "phase_control.capture_modes is empty"
+      ],
+      "pad": {
+        "schematic_drawn": false,
+        "netlist_characterized": false,
+        "spice_verified": false,
+        "drive_strength_selected": false,
+        "esd_verified": false,
+        "level_shifter_verified": false,
+        "powerup_hiz_verified": false,
+        "toe_on_ps": null,
+        "toe_off_ps": null
+      },
+      "phase_control": {
+        "pll_dll_available": false,
+        "delay_cell_characterized": false,
+        "capture_modes": []
+      },
+      "allowed_claims": []
+    }
+  ]
+}

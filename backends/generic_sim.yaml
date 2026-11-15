@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: Apache-2.0
+# Backend capability record. Sources: docs/ARCHITECTURE.md sections 2/5/6/7
+# and the local PDK views probed on 2026-11-15. No device sizes, drive
+# currents or pad delays are invented here: any unknown number is null.
+#
+# decision is computed by generator/check_capabilities.py, not hand-written.
+# A backend is GO only when every gate is closed and every pad flag is true.
+
+name: generic_sim
+pdk: none
+scl: none
+status: simulation_only
+capability_level: sim_only
+is_behavioral: true
+
+core_voltage_v: null
+vddio_v: 3.3
+io_standard: LVTTL
+level_shifter_required: false
+
+existing_io_library:
+  name: sim/pad_cell_generic.sv
+  present_locally: true
+  role: "behavioral inout with OE delays and power-up Hi-Z - simulation only"
+  path: "sim/pad_cell_generic.sv"
+
+devices:
+  drive_devices: "none (behavioral)"
+  esd: "none"
+  note: "No transistor-level devices. This backend can never be taped out."
+
+pad:
+  schematic_drawn: true
+  netlist_characterized: true
+  spice_verified: true
+  drive_strength_selected: true
+  esd_verified: true
+  level_shifter_verified: true
+  powerup_hiz_verified: true
+  toe_on_ps: null
+  toe_off_ps: null
+
+phase_control:
+  pll_dll_available: false
+  delay_cell_characterized: false
+  capture_modes: ["fixed_phase_ideal"]
+
+open_gates: ["G5", "G6"]
+allowed_claims: ["functional simulation of the adapter contract"]
+disallowed_claims:
+  - "3.3 V LVTTL pad ready for tapeout"
+  - "fixed-phase SDR PHY signoff"
+  - "133 MHz operation"
+notes: "Verification-only backend. It exercises the digital pad-adapter interface, OE timing and contention detection, but proves nothing about silicon."

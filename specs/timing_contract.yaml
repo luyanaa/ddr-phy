@@ -132,6 +132,30 @@ parameter_classes:
       - {id: pll_dll, value: null, unit: "-", src: TBD, status: TBD}
       - {id: pad_slew, value: null, unit: "-", src: TBD, status: TBD}
 
+modeling_plan:
+  note: "How each TBD term is to be characterized. Methods only: no numbers are invented here."
+  references:
+    - "docs/SI_PI_PACKAGE_PCB.md"
+    - "docs/DRAM_MODEL_REFERENCES.md"
+  methods:
+    package_rlc: "IBIS [Package] R_pkg/L_pkg/C_pkg as default; [Pin] R_pin/L_pin/C_pin per pin; [Package Model] for coupled networks"
+    board_flight: "RLGC transmission line from stackup; t_flight ~= l*sqrt(L'C') ~= l*sqrt(eps_eff)/c; FR-4 roughly 5-7 ps/mm"
+    termination: "board-level series/parallel from SI; DDR2 on-die ODT follows DFI odt"
+    dq_bit_skew: "post-layout EM extraction or TDR/VNA, per byte lane"
+    cmd_addr_skew: "same, plus multi-drop/DIMM topology if a module is ever used"
+    clk_jitter: "PLL/DLL phase noise plus measurement; adpll_gen currently returns FAIL_UNCHARACTERIZED"
+    clk_dcd: "duty-cycle distortion from pad/clock-tree SPICE"
+    t_uncertainty: "sum of jitter + OCV + PVT + SSN + skew, not one guessed number"
+    tOE_on: "pad SPICE with real load"
+    tOE_off: "pad SPICE plus package/PCB Hi-Z transition"
+    tRX_setup: "input pad plus capture FF from PDK Liberty"
+    tRX_hold: "same, min corner"
+    tCLK_fwd_min: "CK output pad + package + PCB, min corner"
+    tCLK_fwd_max: "same, max corner"
+    tDQ_return_min: "DQ input pad + package + PCB, min corner"
+    tDQ_return_max: "same, max corner"
+  limitation: "A lumped single-pin RLC has no mutual L/C; SSO/ground bounce and crosstalk need coupled RLC, multiport S-parameters or 3D EM. IBIS V/I,V/T buffer models and linear S-parameter networks are different model classes: joint active-driver plus passive-interconnect simulation needs an IBIS-capable solver or a verified IBIS-to-SPICE conversion. ngspice cannot consume arbitrary Touchstone files directly as a wideband transient device."
+
 capability_gates:
   - id: G1
     rule: "Backend must provide a 3.3 V bidirectional LVTTL pad with ESD, level shifter and power-up Hi-Z."

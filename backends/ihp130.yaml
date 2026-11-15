@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: Apache-2.0
+# Backend capability record. Sources: docs/ARCHITECTURE.md sections 2/5/6/7
+# and the local PDK views probed on 2026-11-15. No device sizes, drive
+# currents or pad delays are invented here: any unknown number is null.
+#
+# decision is computed by generator/check_capabilities.py, not hand-written.
+# A backend is GO only when every gate is closed and every pad flag is true.
+
+name: ihp130
+pdk: ihp-sg13g2
+scl: sg13g2_stdcell
+status: unsupported
+capability_level: none
+is_behavioral: false
+
+core_voltage_v: 1.2
+vddio_v: 3.3
+io_standard: LVTTL
+level_shifter_required: true
+
+existing_io_library:
+  name: sg13g2_io
+  present_locally: true
+  role: "structural reference only - library GPIO has no VREF receiver and is not this design's pad"
+  path: "~/.ciel/ihp-sg13g2/libs.ref/sg13g2_io"
+
+devices:
+  drive_devices: "sg13_hv_nmos / sg13_hv_pmos (PSP, max Vds 3.3 V)"
+  esd: "sg13g2_esd.lib diodevdd_2kv/4kv, diodevss_2kv/4kv"
+  note: "Library 100 MHz input simulation applies to the library cell, not to a hand-drawn pad. No 2.5 V device exists."
+
+pad:
+  schematic_drawn: false
+  netlist_characterized: false
+  spice_verified: false
+  drive_strength_selected: false
+  esd_verified: false
+  level_shifter_verified: false
+  powerup_hiz_verified: false
+  toe_on_ps: null
+  toe_off_ps: null
+
+phase_control:
+  pll_dll_available: false
+  delay_cell_characterized: false
+  capture_modes: []
+
+open_gates: ["G1", "G2", "G4", "G5", "G6"]
+allowed_claims: []
+disallowed_claims:
+  - "3.3 V LVTTL pad ready for tapeout"
+  - "fixed-phase SDR PHY signoff"
+  - "133 MHz operation"
+notes: "HV device models and ESD diodes exist locally. For DDR1 the 2.5 V operating point is uncharacterized; SDR also needs a hand-drawn pad."

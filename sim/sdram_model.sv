@@ -62,9 +62,18 @@ module sdram_model #(
     reg [DATA_BITS-1:0] slot_d  [0:PIPE-1];
     reg                 slot_oe [0:PIPE-1];
     reg [DATA_BITS-1:0] dq_q;
-    reg                 oe_q;
+    reg [DM_BITS-1:0]  oe_q;
+    reg [DM_BITS-1:0]  dqm_r1, dqm_r2;
 
-    assign dq = oe_q ? dq_q : {DATA_BITS{1'bz}};
+    // Per-byte output enable so read DQM can suppress one byte without
+    // releasing the others. dqm_r2 is the DQM sample from two CK edges
+    // before the data-out edge, which is the SDR read mask latency.
+    genvar g;
+    generate
+        for (g = 0; g < DM_BITS; g = g + 1) begin : g_dq_byte
+            assign dq[8*g +: 8] = oe_q[g] ? dq_q[8*g +: 8] : {8{1'bz}};
+        end
+    endgenerate
 
     function automatic integer word_at;
         input integer b;
@@ -92,6 +101,7 @@ module sdram_model #(
     integer word;
     integer slot;
     integer b;
+    integer j;
     reg [DATA_BITS-1:0] nxt_d  [0:PIPE-1];
     reg                 nxt_oe [0:PIPE-1];
     reg [DATA_BITS-1:0] beat_d;
@@ -102,7 +112,9 @@ module sdram_model #(
         fault_code = OK;
         burst_len  = 4'd1;
         cas_lat    = 3'd2;
-        oe_q       = 1'b0;
+        oe_q       = {DM_BITS{1'b0}};
+        dqm_r1      = {DM_BITS{1'b0}};
+        dqm_r2      = {DM_BITS{1'b0}};
         dq_q       = {DATA_BITS{1'b0}};
         for (i = 0; i < BANKS; i = i + 1)
             bank_open[i] = 1'b0;
@@ -128,8 +140,11 @@ module sdram_model #(
         nxt_d[PIPE-1]  = {DATA_BITS{1'b0}};
         nxt_oe[PIPE-1] = 1'b0;
 
-        dq_q <= slot_d[0];
-        oe_q <= slot_oe[0];
+        dq_q   <= slot_d[0];
+        dqm_r1 <= dm;
+        dqm_r2 <= dqm_r1;
+        for (j = 0; j < DM_BITS; j = j + 1)
+            oe_q[j] <= slot_oe[0] && !dqm_r2[j];
 
         any_open = 1'b0;
         for (i = 0; i < BANKS; i = i + 1)

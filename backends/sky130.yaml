@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: Apache-2.0
+# Backend capability record. Sources: docs/ARCHITECTURE.md sections 2/5/6/7
+# and the local PDK views probed on 2026-11-15. No device sizes, drive
+# currents or pad delays are invented here: any unknown number is null.
+#
+# decision is computed by generator/check_capabilities.py, not hand-written.
+# A backend is GO only when every gate is closed and every pad flag is true.
+
+name: sky130
+pdk: sky130A
+scl: sky130_fd_sc_hd
+status: unsupported
+capability_level: none
+is_behavioral: false
+
+core_voltage_v: 1.8
+vddio_v: 3.3
+io_standard: LVTTL
+level_shifter_required: true
+
+existing_io_library:
+  name: sky130_fd_io
+  present_locally: true
+  role: "structural reference only - not this design's pad"
+  path: "~/.ciel/ciel/sky130/versions/*/sky130A/libs.ref/sky130_fd_io"
+
+devices:
+  drive_devices: "sky130_fd_pr__nfet_g5v0d10v5 / pfet_g5v0d10v5 (5 V gate class)"
+  esd: "diode_pd2nw_11v0 / diode_pw2nd_11v0 + ESD variants"
+  note: "5 V / 11 V are device classes, not operating voltages. No separate 2.5 V IO model and no SSTL cell."
+
+pad:
+  schematic_drawn: false
+  netlist_characterized: false
+  spice_verified: false
+  drive_strength_selected: false
+  esd_verified: false
+  level_shifter_verified: false
+  powerup_hiz_verified: false
+  toe_on_ps: null
+  toe_off_ps: null
+
+phase_control:
+  pll_dll_available: false
+  delay_cell_characterized: false
+  capture_modes: []
+
+open_gates: ["G1", "G2", "G4", "G5", "G6"]
+allowed_claims: []
+disallowed_claims:
+  - "3.3 V LVTTL pad ready for tapeout"
+  - "fixed-phase SDR PHY signoff"
+  - "133 MHz operation"
+notes: "Thick-oxide devices and ESD diodes exist locally, but no hand-drawn pad schematic, no characterized netlist, no level-shifter verification. gf180-style 5 V GPIO is not a substitute here either."

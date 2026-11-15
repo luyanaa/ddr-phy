@@ -54,7 +54,7 @@ module sdr_ctrl #(
     output wire                     dfi_act_n,
     output reg  [DATA_BITS-1:0]     dfi_wrdata,
     output reg                      dfi_wrdata_en,
-    output reg                      dfi_wrdata_mask,
+    output reg  [DATA_BITS/8-1:0]     dfi_wrdata_mask,
     output reg                      dfi_rddata_en,
     input  wire [DATA_BITS-1:0]     dfi_rddata,
     input  wire                     dfi_rddata_valid
@@ -86,7 +86,7 @@ module sdr_ctrl #(
         if (!(CL == 2 || CL == 3)) begin : g_bad_cl
             invalid_cl_parameter this_module_does_not_exist();
         end
-        if (DATA_BITS != 8) begin : g_bad_dq
+        if (DATA_BITS % 8 != 0 || DATA_BITS < 8) begin : g_bad_dq
             invalid_data_width this_module_does_not_exist();
         end
         if (COL_BITS < 1 || COL_BITS > 10) begin : g_bad_col
@@ -156,7 +156,7 @@ module sdr_ctrl #(
             dfi_cke        <= 1'b0;
             dfi_wrdata     <= {DATA_BITS{1'b0}};
             dfi_wrdata_en  <= 1'b0;
-            dfi_wrdata_mask<= 1'b0;
+            dfi_wrdata_mask<= {(DATA_BITS/8){1'b0}};
             dfi_rddata_en  <= 1'b0;
             for (bi = 0; bi < BANKS; bi = bi + 1)
                 bank_open[bi] <= 1'b0;
@@ -169,7 +169,7 @@ module sdr_ctrl #(
             dfi_we_n        <= 1'b1;
             dfi_cs_n        <= 1'b1;
             dfi_wrdata_en   <= 1'b0;
-            dfi_wrdata_mask <= 1'b0;
+            dfi_wrdata_mask <= {(DATA_BITS/8){1'b0}};
             dfi_rddata_en   <= 1'b0;
             user_rvalid     <= 1'b0;
 
