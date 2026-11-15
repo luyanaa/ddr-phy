@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: Apache-2.0
+# Stub: names from docs/ARCHITECTURE.md section 5.1, NOT yet verified.
+# Foundry SPICE is evaluation-only (not Apache-2.0) -> cannot be a
+# tapeout signoff source.
+backend: ics55
+pdk: icsprout55-pdk
+status: TBD
+decision: NO_GO
+core_v: 1.2
+vddio_v: 3.3
+level_shifter_required: true
+model_include: "TBD"
+license: "foundry SPICE evaluation-only; 3.3 V ESD diode card missing from foundry list"
+forbidden: ["core standard cell as pad driver", "dio_2p5_* used as a 3.3 V ESD diode"]
+slots:
+  NMOS_IO:        {device: nmod3p3_lp, symbol: null, verified: false}
+  PMOS_IO:        {device: pmod3p3_lp, symbol: null, verified: false}
+  NMOS_CORE:      {device: null, symbol: null, verified: false}
+  PMOS_CORE:      {device: null, symbol: null, verified: false}
+  DIODE_TO_VSSIO: {device: null, symbol: null, verified: false, note: "3.3 V SPICE card missing"}
+  DIODE_TO_VDDIO: {device: null, symbol: null, verified: false, note: "LVS has dio_3p3_pp_nw_lp, foundry SPICE does not"}
+  DIODE_CLAMP:    {device: null, symbol: null, verified: false}
+  RES_SERIES:     {device: null, symbol: null, verified: false}
+  PREDRIVER:      {device: null, symbol: null, verified: false}
+  RX_INV:         {device: null, symbol: null, verified: false}
+sdr: {status: IN_SCOPE, note: "section 6: DO but 3.3 V rating needs simulation first"}
+ddr1: {status: IN_SCOPE, note: "only PDK with devices named 2.5 V (nm2p5_lp/pm2p5_lp + dio_2p5_*)", vref_receiver: "topology only"}

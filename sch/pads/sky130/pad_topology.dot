@@ -1,0 +1,15 @@
+digraph pad_topology {
+  rankdir=LR;
+  label="sky130 - generated topology, NOT characterized";
+  labelloc=t;
+  node [shape=box];
+  "core OUT/OE_N" -> "level shifter";
+  "pre-driver" -> "tri-state output";
+  "tri-state output" -> "series R";
+  "series R" -> "PAD";
+  "PAD" -> "ESD diodes + clamp";
+  "PAD" -> "SDR CMOS RX";
+  "SDR CMOS RX" -> "core IN";
+  "level shifter" -> "pre-driver";
+  "DDR1: PAD/VREF diff pair -> single-ended -> core IN" [shape=note, style=dashed];
+}

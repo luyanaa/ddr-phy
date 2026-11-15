@@ -1,0 +1,258 @@
+{
+  "generated_by": "generator/emit_pads.py",
+  "backend": "sky130",
+  "simulatable": false,
+  "signoff": false,
+  "unresolved_params": [
+    "W_N_OUT",
+    "L_N_OUT",
+    "NF_N_OUT",
+    "W_P_OUT",
+    "L_P_OUT",
+    "NF_P_OUT",
+    "PDRV_STAGES",
+    "W_N_PDRV",
+    "W_P_PDRV",
+    "L_PDRV",
+    "R_SERIES",
+    "W_R_SERIES",
+    "ESD_AREA_UP",
+    "ESD_AREA_DN",
+    "ESD_CLAMP_W",
+    "W_RX_N",
+    "W_RX_P",
+    "RX_HYST",
+    "W_VREF_N",
+    "W_VREF_P",
+    "I_TAIL",
+    "W_TAIL",
+    "W_LOAD",
+    "VREF_CM_MIN",
+    "VREF_CM_MAX",
+    "VREF_OFFSET",
+    "VREF_HYST",
+    "GUARD_RING_WIDTH",
+    "GUARD_RING_SPACING",
+    "NF_DEVICE",
+    "M_DEVICE"
+  ],
+  "params": [
+    {
+      "id": "W_N_OUT",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "load simulation"
+    },
+    {
+      "id": "L_N_OUT",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "PDK device limits"
+    },
+    {
+      "id": "NF_N_OUT",
+      "unit": "fingers",
+      "value": null,
+      "status": "TBD",
+      "reason": "layout"
+    },
+    {
+      "id": "W_P_OUT",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "load simulation"
+    },
+    {
+      "id": "L_P_OUT",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "PDK device limits"
+    },
+    {
+      "id": "NF_P_OUT",
+      "unit": "fingers",
+      "value": null,
+      "status": "TBD",
+      "reason": "layout"
+    },
+    {
+      "id": "PDRV_STAGES",
+      "unit": "count",
+      "value": null,
+      "status": "TBD",
+      "reason": "slew/load simulation"
+    },
+    {
+      "id": "W_N_PDRV",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "progressive widening"
+    },
+    {
+      "id": "W_P_PDRV",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "progressive widening"
+    },
+    {
+      "id": "L_PDRV",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "PDK device limits"
+    },
+    {
+      "id": "R_SERIES",
+      "unit": "ohm",
+      "value": null,
+      "status": "TBD",
+      "reason": "board-level SI"
+    },
+    {
+      "id": "W_R_SERIES",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "resistor geometry"
+    },
+    {
+      "id": "ESD_AREA_UP",
+      "unit": "m2",
+      "value": null,
+      "status": "TBD",
+      "reason": "ESD target"
+    },
+    {
+      "id": "ESD_AREA_DN",
+      "unit": "m2",
+      "value": null,
+      "status": "TBD",
+      "reason": "ESD target"
+    },
+    {
+      "id": "ESD_CLAMP_W",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "power clamp sizing"
+    },
+    {
+      "id": "W_RX_N",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "input threshold simulation"
+    },
+    {
+      "id": "W_RX_P",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "input threshold simulation"
+    },
+    {
+      "id": "RX_HYST",
+      "unit": "V",
+      "value": null,
+      "status": "TBD",
+      "reason": "Schmitt option"
+    },
+    {
+      "id": "W_VREF_N",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "VREF receiver sizing"
+    },
+    {
+      "id": "W_VREF_P",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "VREF receiver sizing"
+    },
+    {
+      "id": "I_TAIL",
+      "unit": "A",
+      "value": null,
+      "status": "TBD",
+      "reason": "common-mode range"
+    },
+    {
+      "id": "W_TAIL",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "tail current mirror"
+    },
+    {
+      "id": "W_LOAD",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "load device"
+    },
+    {
+      "id": "VREF_CM_MIN",
+      "unit": "V",
+      "value": null,
+      "status": "TBD",
+      "reason": "common-mode range"
+    },
+    {
+      "id": "VREF_CM_MAX",
+      "unit": "V",
+      "value": null,
+      "status": "TBD",
+      "reason": "common-mode range"
+    },
+    {
+      "id": "VREF_OFFSET",
+      "unit": "V",
+      "value": null,
+      "status": "TBD",
+      "reason": "mismatch"
+    },
+    {
+      "id": "VREF_HYST",
+      "unit": "V",
+      "value": null,
+      "status": "TBD",
+      "reason": "optional hysteresis"
+    },
+    {
+      "id": "GUARD_RING_WIDTH",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "latch-up rules"
+    },
+    {
+      "id": "GUARD_RING_SPACING",
+      "unit": "m",
+      "value": null,
+      "status": "TBD",
+      "reason": "latch-up rules"
+    },
+    {
+      "id": "NF_DEVICE",
+      "unit": "fingers",
+      "value": null,
+      "status": "TBD",
+      "reason": "generic unresolved finger count; each device sized separately"
+    },
+    {
+      "id": "M_DEVICE",
+      "unit": "count",
+      "value": null,
+      "status": "TBD",
+      "reason": "generic unresolved multiplier; not a sizing decision"
+    }
+  ]
+}

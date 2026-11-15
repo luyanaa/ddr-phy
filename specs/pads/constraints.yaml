@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: Apache-2.0
+# Composite constraint model for the pad layout solver.
+#
+# "Composite" means the constraints are NOT independent: they share derived
+# quantities, so one sizing parameter drives several constraint classes at
+# once (geometry, ESD, latch-up, power EM, matching, pad ring, DRC).
+# The solver walks this dependency graph and propagates unresolved inputs.
+#
+# HARD RULE: no PDK DRC / ESD / EM numeric value is invented here. Every
+# rule input is null with status TBD. Sources: docs/ARCHITECTURE.md
+# sections 5, 5.1 and specs/pads/topology.yaml.
+
+meta:
+  version: 1
+  status: "composite constraint model - inputs unresolved"
+  classes: [geometry, esd, latch_up, power_em, matching, pad_ring, drc]
+  note: "This is a constraint model, not a DRC deck. No rule is certified."
+
+# PDK rule inputs. Distinct from the 31 design params in topology.yaml.
+pdk_rules:
+  - {id: PAD_PITCH,           unit: um,   value: null, status: TBD, reason: "pad ring / package"}
+  - {id: PAD_OPENING,         unit: um,   value: null, status: TBD, reason: "pad opening geometry"}
+  - {id: DRC_MIN_SPACING,     unit: um,   value: null, status: TBD, reason: "PDK DRC spacing rule"}
+  - {id: DRC_MIN_WIDTH,       unit: um,   value: null, status: TBD, reason: "PDK DRC width rule"}
+  - {id: ESD_AREA_MIN,        unit: um2,  value: null, status: TBD, reason: "ESD qualification target"}
+  - {id: METAL_JMAX,          unit: A/um, value: null, status: TBD, reason: "metal EM current density"}
+  - {id: IO_CURRENT,          unit: A,    value: null, status: TBD, reason: "pad drive current"}
+  - {id: GUARD_RING_RULE_MIN, unit: um,   value: null, status: TBD, reason: "latch-up rule"}
+  - {id: DQ_BIT_SKEW_MAX,     unit: ps,   value: null, status: TBD, reason: "timing budget"}
+  - {id: RAIL_WIDTH,          unit: um,   value: null, status: TBD, reason: "EM/IR rail width"}
+
+# Derived quantities, evaluated in dependency order. 'args' may name
+# design params, PDK rules, or previously derived ids. Ops are a closed
+# whitelist handled by the solver - no expression evaluation on file data.
+derived:
+  - {id: W_N_TOTAL,             op: product, args: [W_N_OUT, NF_N_OUT, M_DEVICE], unit: um}
+  - {id: W_P_TOTAL,             op: product, args: [W_P_OUT, NF_P_OUT, M_DEVICE], unit: um}
+  - {id: DRIVER_WIDTH,          op: sum,     args: [W_N_TOTAL, W_P_TOTAL], unit: um}
+  - {id: ESD_UP_SIDE,           op: sqrt,    args: [ESD_AREA_UP], unit: um}
+  - {id: ESD_DN_SIDE,           op: sqrt,    args: [ESD_AREA_DN], unit: um}
+  - {id: RAIL_WIDTH_2X,         op: scale,   args: [RAIL_WIDTH], factor: 2, unit: um}
+  - {id: GUARD_SPACING_2X,      op: scale,   args: [GUARD_RING_SPACING], factor: 2, unit: um}
+  - {id: GUARD_WIDTH_2X,        op: scale,   args: [GUARD_RING_WIDTH], factor: 2, unit: um}
+  - {id: CELL_WIDTH,            op: sum,     args: [DRIVER_WIDTH, GUARD_SPACING_2X, RAIL_WIDTH_2X], unit: um}
+  - {id: CELL_HEIGHT,           op: sum,     args: [L_N_OUT, L_P_OUT, GUARD_WIDTH_2X, ESD_UP_SIDE, ESD_DN_SIDE], unit: um}
+  - {id: RAIL_WIDTH_FROM_EM,    op: div,     args: [IO_CURRENT, METAL_JMAX], unit: um}
+
+# Composite constraints. severity: blocking | advisory | structural.
+# check: le | ge | eq | structural (structural = topology invariant, no numbers).
+constraints:
+  - {id: cell_width_fits_pitch,   class: geometry,  severity: blocking,   check: le, lhs: CELL_WIDTH, rhs: PAD_PITCH,          note: "cell must fit one pad pitch"}
+  - {id: cell_height_fits_open,   class: geometry,  severity: blocking,   check: le, lhs: CELL_HEIGHT, rhs: PAD_OPENING,       note: "cell must fit the pad opening"}
+  - {id: driver_width_drc,        class: drc,       severity: blocking,   check: ge, lhs: DRIVER_WIDTH, rhs: DRC_MIN_WIDTH,   note: "output driver meets minimum width"}
+  - {id: esd_up_area,             class: esd,       severity: blocking,   check: ge, lhs: ESD_AREA_UP, rhs: ESD_AREA_MIN,     note: "PAD-to-VDDIO diode area"}
+  - {id: esd_dn_area,             class: esd,       severity: blocking,   check: ge, lhs: ESD_AREA_DN, rhs: ESD_AREA_MIN,     note: "PAD-to-VSSIO diode area"}
+  - {id: latchup_spacing,         class: latch_up,  severity: blocking,   check: ge, lhs: GUARD_RING_SPACING, rhs: DRC_MIN_SPACING, note: "guard ring spacing"}
+  - {id: latchup_ring_width,      class: latch_up,  severity: advisory,   check: ge, lhs: GUARD_RING_WIDTH, rhs: GUARD_RING_RULE_MIN, note: "guard ring width"}
+  - {id: rail_em,                 class: power_em,  severity: blocking,   check: ge, lhs: RAIL_WIDTH, rhs: RAIL_WIDTH_FROM_EM, note: "VDDIO/VSSIO rail width from EM"}
+  - {id: pad_pitch_drc,           class: pad_ring,  severity: advisory,   check: ge, lhs: PAD_PITCH, rhs: DRC_MIN_SPACING,  note: "pitch satisfies DRC spacing"}
+  - {id: dq_lane_identity,        class: matching,  severity: blocking,   check: structural, note: "all DQ lanes use identical cell geometry and placement topology; DQ_BIT_SKEW_MAX is TBD"}
+  - {id: separate_io_rails,       class: pad_ring,  severity: advisory,   check: structural, note: "VDDIO/VSSIO separate from VDD/VSS; power-up Hi-Z gating present"}
+
+# What a real layout run must add before any DRC-clean claim.
+not_yet:
+  - "read gf180mcuD DRC/LVS rules into pdk_rules"
+  - "fill all 31 design params from load simulation"
+  - "define PAD_OE_CTRL and expand the pre-driver to PDRV_STAGES"
+  - "confirm diode orientation, bulk ties and resistor third terminal"
+  - "run PEX/SPICE, EM/IR, latch-up and ESD checks"
+  - "produce DRC/LVS-clean GDS and a pad-ring integration"

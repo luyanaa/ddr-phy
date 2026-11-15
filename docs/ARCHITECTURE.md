@@ -10,7 +10,7 @@
 |---|---|---|---|---|
 | S | SDR SDRAM | 与 `GENSDRPHY` 相同的 DFI，1:1 | sky130、gf180mcu、IHP SG13G2（130 nm）、ICsprout 55，全部自研 CMOS pad | VDDIO = 3.3 V |
 | D | DDR SDRAM（DDR1） | 新的 1:2 DFI。LiteDRAM 有 DDR 模块类和仿真模型，没有能搬上 ASIC 的 PHY | sky130、IHP、ICsprout 55 | VDDIO = 2.5 V。不要用 3.3 V CMOS 去推 |
-| D 排除 | 同上 | 同上 | gf180mcu | 本期不做 DDR1 |
+| D 远期 | 同上 | 同上 | gf180mcu | 远期计划，本期不做 DDR1 |
 | D2 | DDR2 | LiteDRAM DDR2 DFI，1:2，带 ODT | 以后再看，仍然只有 55 nm 值得做 | 要另一套 1.8 V SSTL IO，不在本期 |
 
 第一版硅目标仍然是一颗点对点 x8。SDR 的 CK = 100 MHz，控制器同频。DDR1 的第一个电气目标也是 CK = 100 MHz（两沿都工作时接口是 200 MT/s），控制器为 CK/2。这不是颗粒的速度档，只是现有 I/O 证据能支撑的起点：IHP 库单元的输入仿真只回答过“100 MHz 值得验，该 corner 下 200 MHz 没看到问题”，而且那是现成 pad，不是我们还没画尺寸的单元。DDR2 仍然排在自研 SSTL_18 之后，第一个数字目标仍是 DDR2-400，只在 55 nm。
@@ -253,7 +253,7 @@ sky130 的 5 V 栅器件可以工作在 3.3 V 或 2.5 V，这只说明电压没�
 |  | SDR，3.3 V CMOS，CK 100 MHz | DDR1，2.5 V，CK 100 MHz | DDR2，1.8 V SSTL |
 |---|---|---|---|
 | sky130 | 做。自研 pad，5 V 栅器件，核心 1.8 V，要搬移 | 做。同一对管，VDDIO 改为 2.5 V。不是被表征过的 2.5 V IO 库 | 以后。不要把 1.8 V GPIO 当成 SSTL |
-| gf180mcu | 做。自研 pad，`nfet_03v3` / `pfet_03v3`，数字用 3.3 V 标准单元。现成 5 V GPIO 不用 | 不做 | 不做 |
+| gf180mcu | 做。自研 pad，`nfet_03v3` / `pfet_03v3`，数字用 3.3 V 标准单元。现成 5 V GPIO 不用 | 远期 | 不做 |
 | IHP SG13G2 | 做。HV 管的 Vds 额定就是 3.3 V。现成 GPIO 的 100 MHz 结论不能当成自研单元的 Fmax | 电路上做，但要标成未表征。没有 2.5 V 器件，2.5 V 只是落在 3.3 V 额定内 | 不做 |
 | ICsprout 55 | 做。用过驱 3.3 V 的那对管，先仿真再谈额定。3.3 V 二极管卡还缺 | 做。这是四套里唯一器件名就是 2.5 V 的一档 | 以后。目录中的 DDR PHY 不能用 |
 
@@ -333,7 +333,7 @@ tb/tb_sdram_checker.sv   间隔检查器。每条规则一个实例
 tb/tb_sdr_loop.sv        控制器、PHY、模型闭环
 rtl/ddr1_phy.sv          Class D，还没写
 rtl/ddr2_phy.sv          Class D2，更晚
-sch/pads/                四套工艺的原理图，还没画
+sch/pads/                生成器产出的拓扑模板；gf180mcuD 已生成，尺寸仍空着
 flow/                    LibreLane，还没跑
 docs/                    本文件
 ```
@@ -362,7 +362,7 @@ IHP 现成 IO 的 100 MHz 输入仿真、sky130 公开板对库 GPIO 的频率�
 
 ## 10. 分期
 
-1. P0。架构在本文件。Class S 数字核 `rtl/sdr_phy.sv`、引脚级模型、命令间隔检查器、`sdr_ctrl` 闭环，以及 sky130 HD 功能门级仿真已经有。行为仿真、间隔检查和这一层门级功能仿真通过。pad 原理图还没画。DDR1 RTL 还没开始；LibreLane 已在 P0-5 实跑（原始配置 80/80 完成，草稿 SDC 接上会在 PostCTS 失败，见 `docs/STA_PLAN.md` §5）。下一步仍是四套工艺各画一个 CMOS 双向 pad，再在 sky130、IHP、ics55 上各画一个 VREF 接收器。尺寸仍然空着。
+1. P0。架构在本文件。Class S 数字核 `rtl/sdr_phy.sv`、引脚级模型、命令间隔检查器、`sdr_ctrl` 闭环，以及 sky130 HD 功能门级仿真已经有。行为仿真、间隔检查和这一层门级功能仿真通过。pad 原理图还没有可签核的尺寸；sch/pads/ 已有生成器产出的拓扑模板（见 docs/PAD_GENERATOR.md）。DDR1 RTL 还没开始；LibreLane 已在 P0-5 实跑（原始配置 80/80 完成，草稿 SDC 接上会在 PostCTS 失败，见 `docs/STA_PLAN.md` §5）。下一步仍是四套工艺各画一个 CMOS 双向 pad，再在 sky130、IHP、ics55 上各画一个 VREF 接收器。尺寸仍然空着。
 2. P1。`sdr_phy` 加四套 pad。x8、100 MHz。第 9 节第 1、2、3 步已经过，第 4 步的 sky130 HD 功能门级也已经过。没有 SDF。pad 和第 5 步还没有。gf180 用 3.3 V 标准单元，不用 5 V GPIO。LibreLane 的 `gf180-as-7t3v3` 要先在 `./pdks/gf180mcuD` 组好 3.3 V 视图；5 V 标准单元不是一条规格。这一步之前不开 DDR1 RTL。
 3. P2。`ddr1_phy` 加行为级 DDR 模型。那是另一个模型，不是现在这个 SDR 模型。仍不接 pad 延迟。`ck90` 在仿真里用理想时钟源。
 4. P3。把 DDR1 pad 和一条尚未定实现的 `ck90` 接上 P2。只在 sky130、IHP、ics55。IHP 必须先有 2.5 V 下的器件仿真，否则停在这一步前面。

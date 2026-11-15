@@ -1,0 +1,85 @@
+{
+  "generated_by": "generator/emit_pads.py",
+  "backend": "ihp130",
+  "pdk": "ihp-sg13g2",
+  "status": "TBD",
+  "decision": "NO_GO",
+  "simulatable": false,
+  "signoff": false,
+  "device_map_bound": false,
+  "level_shifter": true,
+  "core_v": 1.2,
+  "vddio_v": 3.3,
+  "sdr": {
+    "status": "IN_SCOPE",
+    "note": "section 6: DO; HV devices, level shifter needed"
+  },
+  "ddr1": {
+    "status": "TBD",
+    "reason": "2.5 V operating point uncharacterized; no 2.5 V device",
+    "vref_receiver": "topology only"
+  },
+  "license": "TBD - sg13g2_io; not checked",
+  "forbidden": [
+    "core standard cell as pad driver"
+  ],
+  "slots": {
+    "NMOS_IO": {
+      "device": "sg13_hv_nmos",
+      "symbol": null,
+      "verified": false
+    },
+    "PMOS_IO": {
+      "device": "sg13_hv_pmos",
+      "symbol": null,
+      "verified": false
+    },
+    "NMOS_CORE": {
+      "device": null,
+      "symbol": null,
+      "verified": false
+    },
+    "PMOS_CORE": {
+      "device": null,
+      "symbol": null,
+      "verified": false
+    },
+    "DIODE_TO_VSSIO": {
+      "device": "diodevss_2kv",
+      "symbol": null,
+      "verified": false
+    },
+    "DIODE_TO_VDDIO": {
+      "device": "diodevdd_2kv",
+      "symbol": null,
+      "verified": false
+    },
+    "DIODE_CLAMP": {
+      "device": null,
+      "symbol": null,
+      "verified": false
+    },
+    "RES_SERIES": {
+      "device": null,
+      "symbol": null,
+      "verified": false
+    },
+    "PREDRIVER": {
+      "device": null,
+      "symbol": null,
+      "verified": false
+    },
+    "RX_INV": {
+      "device": null,
+      "symbol": null,
+      "verified": false
+    }
+  },
+  "unresolved_param_count": 31,
+  "files": [
+    "required_params.json",
+    "pad_topology.dot",
+    "char_tb.spice",
+    "DEVICE_MAP_TBD.md"
+  ]
+}

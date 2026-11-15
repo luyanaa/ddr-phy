@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Stub: names from docs/ARCHITECTURE.md section 5.1, NOT yet verified
+# against the local PDK. No characterization, no sizes.
+backend: sky130
+pdk: sky130A
+status: TBD
+decision: NO_GO
+core_v: 1.8
+vddio_v: 3.3
+level_shifter_required: true
+model_include: "TBD"
+license: "TBD - sky130_fd_io / sky130_ef_io views; not checked"
+forbidden: ["core standard cell as pad driver", "treating 5 V/11 V device class names as operating voltages"]
+slots:
+  NMOS_IO:        {device: sky130_fd_pr__nfet_g5v0d10v5, symbol: null, verified: false}
+  PMOS_IO:        {device: sky130_fd_pr__pfet_g5v0d10v5, symbol: null, verified: false}
+  NMOS_CORE:      {device: null, symbol: null, verified: false}
+  PMOS_CORE:      {device: null, symbol: null, verified: false}
+  DIODE_TO_VSSIO: {device: diode_pw2nd_11v0, symbol: null, verified: false}
+  DIODE_TO_VDDIO: {device: diode_pd2nw_11v0, symbol: null, verified: false}
+  DIODE_CLAMP:    {device: null, symbol: null, verified: false}
+  RES_SERIES:     {device: null, symbol: null, verified: false}
+  PREDRIVER:      {device: null, symbol: null, verified: false}
+  RX_INV:         {device: null, symbol: null, verified: false}
+sdr: {status: IN_SCOPE, note: "section 6: DO with self-drawn pad and level shifter"}
+ddr1: {status: TBD, reason: "2.5 V operating point not a characterized IO library", vref_receiver: "topology only"}

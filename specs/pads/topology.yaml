@@ -1,0 +1,103 @@
+# SPDX-License-Identifier: Apache-2.0
+# Shared SDR/DDR1 pad topology. ONE schematic for all four PDKs; only
+# device names, well polarity, supplies and rails change per backend.
+# Source: docs/ARCHITECTURE.md sections 5, 5.1, 6 and 12.
+#
+# HARD RULE: no width, finger count, drive current, series resistance,
+# ESD area, guard-ring spacing, pre-driver stage count, VREF current or
+# input threshold is chosen here. Every numeric degree of freedom is a
+# parameter with value: null. The generator must refuse to emit a
+# characterized/signoff claim while any of them is null.
+
+meta:
+  version: 1
+  status: "topology template - not characterized, not simulatable"
+  shared_across: [sky130, gf180mcu, ihp130, ics55]
+  note: "Section 5 of ARCHITECTURE.md is the prose form of this topology."
+  do_not:
+    - "do not copy library GPIO finger widths or drive-current grades"
+    - "do not instantiate a core standard cell as the pad driver"
+    - "do not treat an existing GPIO macro as this design's pad"
+
+ports:
+  core_side: [OUT, OE_N, IN]
+  pad_side: [PAD]
+  supplies: [VDD, VSS, VDDIO, VSSIO]
+  ddr1_only: [VREF]
+  notes: "VREF is input-only: ESD diodes plus metal, no output driver, no DAC/ADC."
+
+rails:
+  vddio_v: 3.3
+  separate_vddio_from_core: true
+  note: "VDDIO and core VDD are separate rails even when nominally equal; VSSIO is separate from VSS."
+
+# Device slots. Each backend binds a real device name or null (null is
+# legal only when the slot's condition is false for that backend).
+slots:
+  - {id: NMOS_IO,   role: "3.3 V (or 2.5 V) IO-domain NMOS", required: true}
+  - {id: PMOS_IO,   role: "IO-domain PMOS", required: true}
+  - {id: NMOS_CORE, role: "core-domain NMOS for level shifter", required_when: LEVEL_SHIFTER}
+  - {id: PMOS_CORE, role: "core-domain PMOS for level shifter", required_when: LEVEL_SHIFTER}
+  - {id: DIODE_TO_VSSIO, role: "PAD-to-VSSIO primary ESD diode", required: true, note: "orientation to be confirmed in schematic review"}
+  - {id: DIODE_TO_VDDIO, role: "PAD-to-VDDIO primary ESD diode", required: true, note: "orientation to be confirmed in schematic review"}
+  - {id: DIODE_CLAMP,    role: "VDDIO-to-VSSIO power clamp", required: true}
+  - {id: RES_SERIES,     role: "on-chip series damping resistor placeholder", required: true, note: "may live on the board instead; on-chip device must still be reserved"}
+  - {id: PREDRIVER,      role: "cascaded thick-oxide pre-driver", required: true, note: "stage count unresolved; emitted as one representative stage"}
+  - {id: RX_INV,         role: "SDR CMOS/Schmitt receiver", required: true}
+
+# Numeric degrees of freedom. ALL values are null. Filling any of them
+# requires load simulation / PDK characterization, not a guess.
+params:
+  - {id: W_N_OUT,          unit: m,    value: null, status: TBD, reason: "load simulation"}
+  - {id: L_N_OUT,          unit: m,    value: null, status: TBD, reason: "PDK device limits"}
+  - {id: NF_N_OUT,         unit: fingers, value: null, status: TBD, reason: "layout"}
+  - {id: W_P_OUT,          unit: m,    value: null, status: TBD, reason: "load simulation"}
+  - {id: L_P_OUT,          unit: m,    value: null, status: TBD, reason: "PDK device limits"}
+  - {id: NF_P_OUT,         unit: fingers, value: null, status: TBD, reason: "layout"}
+  - {id: PDRV_STAGES,      unit: count, value: null, status: TBD, reason: "slew/load simulation"}
+  - {id: W_N_PDRV,         unit: m,    value: null, status: TBD, reason: "progressive widening"}
+  - {id: W_P_PDRV,         unit: m,    value: null, status: TBD, reason: "progressive widening"}
+  - {id: L_PDRV,           unit: m,    value: null, status: TBD, reason: "PDK device limits"}
+  - {id: R_SERIES,         unit: ohm,  value: null, status: TBD, reason: "board-level SI"}
+  - {id: W_R_SERIES,       unit: m,    value: null, status: TBD, reason: "resistor geometry"}
+  - {id: ESD_AREA_UP,      unit: m2,   value: null, status: TBD, reason: "ESD target"}
+  - {id: ESD_AREA_DN,      unit: m2,   value: null, status: TBD, reason: "ESD target"}
+  - {id: ESD_CLAMP_W,      unit: m,    value: null, status: TBD, reason: "power clamp sizing"}
+  - {id: W_RX_N,           unit: m,    value: null, status: TBD, reason: "input threshold simulation"}
+  - {id: W_RX_P,           unit: m,    value: null, status: TBD, reason: "input threshold simulation"}
+  - {id: RX_HYST,          unit: V,    value: null, status: TBD, reason: "Schmitt option"}
+  - {id: W_VREF_N,         unit: m,    value: null, status: TBD, reason: "VREF receiver sizing"}
+  - {id: W_VREF_P,         unit: m,    value: null, status: TBD, reason: "VREF receiver sizing"}
+  - {id: I_TAIL,           unit: A,    value: null, status: TBD, reason: "common-mode range"}
+  - {id: W_TAIL,           unit: m,    value: null, status: TBD, reason: "tail current mirror"}
+  - {id: W_LOAD,           unit: m,    value: null, status: TBD, reason: "load device"}
+  - {id: VREF_CM_MIN,      unit: V,    value: null, status: TBD, reason: "common-mode range"}
+  - {id: VREF_CM_MAX,      unit: V,    value: null, status: TBD, reason: "common-mode range"}
+  - {id: VREF_OFFSET,      unit: V,    value: null, status: TBD, reason: "mismatch"}
+  - {id: VREF_HYST,        unit: V,    value: null, status: TBD, reason: "optional hysteresis"}
+  - {id: GUARD_RING_WIDTH, unit: m,    value: null, status: TBD, reason: "latch-up rules"}
+  - {id: GUARD_RING_SPACING, unit: m,  value: null, status: TBD, reason: "latch-up rules"}
+  - {id: NF_DEVICE,     unit: fingers, value: null, status: TBD, reason: "generic unresolved finger count; each device sized separately"}
+  - {id: M_DEVICE,      unit: count, value: null, status: TBD, reason: "generic unresolved multiplier; not a sizing decision"}
+
+blocks:
+  - {id: level_shifter_c2i, condition: LEVEL_SHIFTER, out: "predriver"}
+  - {id: predriver,         out: "tri_state_output"}
+  - {id: tri_state_output,  out: "series_resistor", note: "OE invalid -> both devices off; power-up Hi-Z until both rails present"}
+  - {id: series_resistor,   out: PAD}
+  - {id: esd,               note: "primary diodes to VDDIO/VSSIO + VDDIO-VSSIO clamp"}
+  - {id: receiver_sdr,      out: "level_shifter_i2c", note: "do not assume threshold at VDDIO/2"}
+  - {id: receiver_vref,     condition: DDR1, out: "level_shifter_i2c", note: "PAD vs VREF differential pair; all inputs in VDDIO domain"}
+  - {id: level_shifter_i2c, condition: LEVEL_SHIFTER, out: IN}
+  - {id: powerup_hiz,       note: "both VDD and VDDIO present before output enabled"}
+  - {id: guard_ring,        layout_only: true}
+
+characterization:
+  - "tOE_on / tOE_off and output slew into real load"
+  - "drive strength and rise/fall asymmetry over PVT"
+  - "input threshold crossing (not VDDIO/2)"
+  - "power-up Hi-Z until both rails present"
+  - "ESD path continuity and latch-up guard ring"
+  - "VREF common-mode range, offset, hysteresis, single-ended conversion"
+  - "SSO / ground bounce with multiple DQ switching"
+characterization_note: "None of these has been run. This list is what the generated char_tb.spice must eventually measure."

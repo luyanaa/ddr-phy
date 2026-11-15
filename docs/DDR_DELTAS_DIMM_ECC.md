@@ -133,6 +133,7 @@ PHY[71:0] -> Syndrome -> Correct/Detect -> Data[63:0]   (读)
 ## 6. 与本项目分期的关系
 
 - **P0（当前）**：单颗点对点 SDR，x8/x16，无 DIMM、无 ECC、无 SPD、无 DQS。ARCHITECTURE.md §8 已写明这些。
+- **gf180mcu DDR1**：按用户要求改为 DEFERRED_LONG_TERM（P4+），不再是硬排除；§6 的 2.5 V SSTL_2 / VREF 缺口依然成立，仍 NO_GO。
 - **P2**：`rtl/ddr1_phy.sv` 需要 §2/§3 的 DQS 双向、byte-lane 时序域、SSTL_2 pad；但 G1/G5/G6 仍开放。
 - **P3**：接 DDR1 pad 与 `ck90`；只在 sky130 / IHP / ics55，且 IHP 要先有 2.5 V 器件仿真。
 - **P4**：DDR2，只在 55 nm 且要另一套 1.8 V IO，目标 DDR2-400；AL/WL/ODT/Gating 都在这一档。

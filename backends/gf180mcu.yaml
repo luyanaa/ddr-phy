@@ -10,6 +10,8 @@ name: gf180mcu
 pdk: gf180mcuD
 scl: gf180mcu_as_sc_mcu7t3v3
 status: unsupported
+topology_template_generated: true
+topology_template_note: "sch/pads/gf180mcuD is a generated topology template; schematic_drawn stays false and toe_on/off stay null. See docs/PAD_GENERATOR.md."
 capability_level: none
 is_behavioral: false
 

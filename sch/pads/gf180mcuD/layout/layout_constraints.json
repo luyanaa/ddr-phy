@@ -1,0 +1,383 @@
+{
+  "generated_by": "generator/solve_layout.py",
+  "backend": "gf180mcuD",
+  "mode": "symbolic",
+  "drc_clean": false,
+  "unresolved_param_count": 41,
+  "unresolved_params": [
+    "DQ_BIT_SKEW_MAX",
+    "DRC_MIN_SPACING",
+    "DRC_MIN_WIDTH",
+    "ESD_AREA_DN",
+    "ESD_AREA_MIN",
+    "ESD_AREA_UP",
+    "ESD_CLAMP_W",
+    "GUARD_RING_RULE_MIN",
+    "GUARD_RING_SPACING",
+    "GUARD_RING_WIDTH",
+    "IO_CURRENT",
+    "I_TAIL",
+    "L_N_OUT",
+    "L_PDRV",
+    "L_P_OUT",
+    "METAL_JMAX",
+    "M_DEVICE",
+    "NF_DEVICE",
+    "NF_N_OUT",
+    "NF_P_OUT",
+    "PAD_OPENING",
+    "PAD_PITCH",
+    "PDRV_STAGES",
+    "RAIL_WIDTH",
+    "RX_HYST",
+    "R_SERIES",
+    "VREF_CM_MAX",
+    "VREF_CM_MIN",
+    "VREF_HYST",
+    "VREF_OFFSET",
+    "W_LOAD",
+    "W_N_OUT",
+    "W_N_PDRV",
+    "W_P_OUT",
+    "W_P_PDRV",
+    "W_RX_N",
+    "W_RX_P",
+    "W_R_SERIES",
+    "W_TAIL",
+    "W_VREF_N",
+    "W_VREF_P"
+  ],
+  "derived": {
+    "W_N_TOTAL": null,
+    "W_P_TOTAL": null,
+    "DRIVER_WIDTH": null,
+    "ESD_UP_SIDE": null,
+    "ESD_DN_SIDE": null,
+    "RAIL_WIDTH_2X": null,
+    "GUARD_SPACING_2X": null,
+    "GUARD_WIDTH_2X": null,
+    "CELL_WIDTH": null,
+    "CELL_HEIGHT": null,
+    "RAIL_WIDTH_FROM_EM": null
+  },
+  "derived_unresolved": {
+    "W_N_TOTAL": [
+      "W_N_OUT",
+      "NF_N_OUT",
+      "M_DEVICE"
+    ],
+    "W_P_TOTAL": [
+      "W_P_OUT",
+      "NF_P_OUT",
+      "M_DEVICE"
+    ],
+    "DRIVER_WIDTH": [
+      "W_N_TOTAL",
+      "W_P_TOTAL"
+    ],
+    "ESD_UP_SIDE": [
+      "ESD_AREA_UP"
+    ],
+    "ESD_DN_SIDE": [
+      "ESD_AREA_DN"
+    ],
+    "RAIL_WIDTH_2X": [
+      "RAIL_WIDTH"
+    ],
+    "GUARD_SPACING_2X": [
+      "GUARD_RING_SPACING"
+    ],
+    "GUARD_WIDTH_2X": [
+      "GUARD_RING_WIDTH"
+    ],
+    "CELL_WIDTH": [
+      "DRIVER_WIDTH",
+      "GUARD_SPACING_2X",
+      "RAIL_WIDTH_2X"
+    ],
+    "CELL_HEIGHT": [
+      "L_N_OUT",
+      "L_P_OUT",
+      "GUARD_WIDTH_2X",
+      "ESD_UP_SIDE",
+      "ESD_DN_SIDE"
+    ],
+    "RAIL_WIDTH_FROM_EM": [
+      "IO_CURRENT",
+      "METAL_JMAX"
+    ]
+  },
+  "constraints": [
+    {
+      "id": "cell_width_fits_pitch",
+      "class": "geometry",
+      "severity": "blocking",
+      "check": "le",
+      "note": "cell must fit one pad pitch",
+      "upstream": [
+        "GUARD_RING_SPACING",
+        "M_DEVICE",
+        "NF_N_OUT",
+        "NF_P_OUT",
+        "PAD_PITCH",
+        "RAIL_WIDTH",
+        "W_N_OUT",
+        "W_P_OUT"
+      ],
+      "lhs": "CELL_WIDTH",
+      "rhs": "PAD_PITCH",
+      "status": "unresolved",
+      "unresolved_operands": [
+        "lhs",
+        "rhs"
+      ]
+    },
+    {
+      "id": "cell_height_fits_open",
+      "class": "geometry",
+      "severity": "blocking",
+      "check": "le",
+      "note": "cell must fit the pad opening",
+      "upstream": [
+        "ESD_AREA_DN",
+        "ESD_AREA_UP",
+        "GUARD_RING_WIDTH",
+        "L_N_OUT",
+        "L_P_OUT",
+        "PAD_OPENING"
+      ],
+      "lhs": "CELL_HEIGHT",
+      "rhs": "PAD_OPENING",
+      "status": "unresolved",
+      "unresolved_operands": [
+        "lhs",
+        "rhs"
+      ]
+    },
+    {
+      "id": "driver_width_drc",
+      "class": "drc",
+      "severity": "blocking",
+      "check": "ge",
+      "note": "output driver meets minimum width",
+      "upstream": [
+        "DRC_MIN_WIDTH",
+        "M_DEVICE",
+        "NF_N_OUT",
+        "NF_P_OUT",
+        "W_N_OUT",
+        "W_P_OUT"
+      ],
+      "lhs": "DRIVER_WIDTH",
+      "rhs": "DRC_MIN_WIDTH",
+      "status": "unresolved",
+      "unresolved_operands": [
+        "lhs",
+        "rhs"
+      ]
+    },
+    {
+      "id": "esd_up_area",
+      "class": "esd",
+      "severity": "blocking",
+      "check": "ge",
+      "note": "PAD-to-VDDIO diode area",
+      "upstream": [
+        "ESD_AREA_MIN",
+        "ESD_AREA_UP"
+      ],
+      "lhs": "ESD_AREA_UP",
+      "rhs": "ESD_AREA_MIN",
+      "status": "unresolved",
+      "unresolved_operands": [
+        "lhs",
+        "rhs"
+      ]
+    },
+    {
+      "id": "esd_dn_area",
+      "class": "esd",
+      "severity": "blocking",
+      "check": "ge",
+      "note": "PAD-to-VSSIO diode area",
+      "upstream": [
+        "ESD_AREA_DN",
+        "ESD_AREA_MIN"
+      ],
+      "lhs": "ESD_AREA_DN",
+      "rhs": "ESD_AREA_MIN",
+      "status": "unresolved",
+      "unresolved_operands": [
+        "lhs",
+        "rhs"
+      ]
+    },
+    {
+      "id": "latchup_spacing",
+      "class": "latch_up",
+      "severity": "blocking",
+      "check": "ge",
+      "note": "guard ring spacing",
+      "upstream": [
+        "DRC_MIN_SPACING",
+        "GUARD_RING_SPACING"
+      ],
+      "lhs": "GUARD_RING_SPACING",
+      "rhs": "DRC_MIN_SPACING",
+      "status": "unresolved",
+      "unresolved_operands": [
+        "lhs",
+        "rhs"
+      ]
+    },
+    {
+      "id": "latchup_ring_width",
+      "class": "latch_up",
+      "severity": "advisory",
+      "check": "ge",
+      "note": "guard ring width",
+      "upstream": [
+        "GUARD_RING_RULE_MIN",
+        "GUARD_RING_WIDTH"
+      ],
+      "lhs": "GUARD_RING_WIDTH",
+      "rhs": "GUARD_RING_RULE_MIN",
+      "status": "unresolved",
+      "unresolved_operands": [
+        "lhs",
+        "rhs"
+      ]
+    },
+    {
+      "id": "rail_em",
+      "class": "power_em",
+      "severity": "blocking",
+      "check": "ge",
+      "note": "VDDIO/VSSIO rail width from EM",
+      "upstream": [
+        "IO_CURRENT",
+        "METAL_JMAX",
+        "RAIL_WIDTH"
+      ],
+      "lhs": "RAIL_WIDTH",
+      "rhs": "RAIL_WIDTH_FROM_EM",
+      "status": "unresolved",
+      "unresolved_operands": [
+        "lhs",
+        "rhs"
+      ]
+    },
+    {
+      "id": "pad_pitch_drc",
+      "class": "pad_ring",
+      "severity": "advisory",
+      "check": "ge",
+      "note": "pitch satisfies DRC spacing",
+      "upstream": [
+        "DRC_MIN_SPACING",
+        "PAD_PITCH"
+      ],
+      "lhs": "PAD_PITCH",
+      "rhs": "DRC_MIN_SPACING",
+      "status": "unresolved",
+      "unresolved_operands": [
+        "lhs",
+        "rhs"
+      ]
+    },
+    {
+      "id": "dq_lane_identity",
+      "class": "matching",
+      "severity": "blocking",
+      "check": "structural",
+      "note": "all DQ lanes use identical cell geometry and placement topology; DQ_BIT_SKEW_MAX is TBD",
+      "status": "structural",
+      "upstream": []
+    },
+    {
+      "id": "separate_io_rails",
+      "class": "pad_ring",
+      "severity": "advisory",
+      "check": "structural",
+      "note": "VDDIO/VSSIO separate from VDD/VSS; power-up Hi-Z gating present",
+      "status": "structural",
+      "upstream": []
+    }
+  ],
+  "constraint_status_counts": {
+    "unresolved": 9,
+    "structural": 2
+  },
+  "pdk_rule_inputs": [
+    {
+      "id": "PAD_PITCH",
+      "unit": "um",
+      "value": null,
+      "status": "TBD",
+      "reason": "pad ring / package"
+    },
+    {
+      "id": "PAD_OPENING",
+      "unit": "um",
+      "value": null,
+      "status": "TBD",
+      "reason": "pad opening geometry"
+    },
+    {
+      "id": "DRC_MIN_SPACING",
+      "unit": "um",
+      "value": null,
+      "status": "TBD",
+      "reason": "PDK DRC spacing rule"
+    },
+    {
+      "id": "DRC_MIN_WIDTH",
+      "unit": "um",
+      "value": null,
+      "status": "TBD",
+      "reason": "PDK DRC width rule"
+    },
+    {
+      "id": "ESD_AREA_MIN",
+      "unit": "um2",
+      "value": null,
+      "status": "TBD",
+      "reason": "ESD qualification target"
+    },
+    {
+      "id": "METAL_JMAX",
+      "unit": "A/um",
+      "value": null,
+      "status": "TBD",
+      "reason": "metal EM current density"
+    },
+    {
+      "id": "IO_CURRENT",
+      "unit": "A",
+      "value": null,
+      "status": "TBD",
+      "reason": "pad drive current"
+    },
+    {
+      "id": "GUARD_RING_RULE_MIN",
+      "unit": "um",
+      "value": null,
+      "status": "TBD",
+      "reason": "latch-up rule"
+    },
+    {
+      "id": "DQ_BIT_SKEW_MAX",
+      "unit": "ps",
+      "value": null,
+      "status": "TBD",
+      "reason": "timing budget"
+    },
+    {
+      "id": "RAIL_WIDTH",
+      "unit": "um",
+      "value": null,
+      "status": "TBD",
+      "reason": "EM/IR rail width"
+    }
+  ]
+}
