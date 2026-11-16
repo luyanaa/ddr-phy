@@ -147,6 +147,7 @@ Micron TN 的一句话值得记住：数据手册本身不足以完成设计，�
 
 - `tb/tb_micron_diff.sv` 把同一套 DFI 流量同时送进两个 PHY：一个接自研 `sim/sdram_model.sv`，一个接 Micron `mt48lc16m16a2`（x16，使用低字节，`Dqm[0]`）。逐拍比较 `dfi_rddata_valid` 和 `dfi_rddata`。
 - 覆盖 CL2/CL3、单读写、写屏蔽（DQM）、周期刷新（`T_REFI=40`）以及 READ→WRITE turnaround（`dq_turnaround` 的 busy 接回控制器）。控制器新增 `user_wmask`，把用户写屏蔽送到 DFI/PHY。
+- `tb/tb_micron_burst.sv` 另做模型级 Burst 差分（BL=2/4/8）；它绕过控制器，因为 `sdr_ctrl` 还没有 BL>1 事务路径。
 - `sim/micron_diff.sh` 在模型存在时编译/运行 CL2 和 CL3；模型不存在时打印 `SKIP` 并以 0 退出。模型仍在 `.gitignore`，不提交。
 - 测试把 `T_RFC` 设为 7 拍（10 ns 下 70 ns），以满足 Micron -7E 模型的 tRFC；这**不是**把模型的 -7E 参数写进本项目 -75 contract。
 - 通过只证明这条命令/数据 trace 在两个模型上一致；不证明 tAC/tOH/tDS/tDH、PVT、pad 或板级时序。模型报 `ERROR:` 时脚本失败。

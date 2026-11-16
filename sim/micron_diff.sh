@@ -31,4 +31,21 @@ for cl in 2 3; do
     grep -q 'PASS micron_diff' sim/obj/micron_diff_cl$cl.log
     echo "PASS micron_diff CL$cl"
 done
+
+# Model-level burst differential (bypasses the controller, which has no BL>1 path).
+iverilog -g2012 -I third_party/reference -DINIT_CLEAR_MEM_BANKS \
+    -o sim/obj/tb_micron_burst \
+    sim/sdram_model.sv "$MODEL" tb/tb_micron_burst.sv
+vvp sim/obj/tb_micron_burst > sim/obj/micron_burst.log 2>&1 || {
+    cat sim/obj/micron_burst.log >&2
+    echo "FAIL micron_burst: simulator exit non-zero" >&2
+    exit 1
+}
+if grep -q 'ERROR:' sim/obj/micron_burst.log; then
+    grep 'ERROR:' sim/obj/micron_burst.log >&2
+    echo "FAIL micron_burst: Micron model reported timing errors" >&2
+    exit 1
+fi
+grep -q 'PASS micron_burst' sim/obj/micron_burst.log
+echo "PASS micron_burst BL2/4/8"
 echo MICRON_DIFF_DONE
