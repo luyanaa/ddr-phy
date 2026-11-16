@@ -54,6 +54,7 @@ module tb_turnaround_ctrl;
         .clk(clk), .rst(rst),
         .user_valid(user_valid), .user_ready(user_ready), .user_we(user_we),
         .user_addr(user_addr), .user_wdata(user_wdata),
+        .user_wmask(1'b0),
         .user_rdata(user_rdata), .user_rvalid(user_rvalid),
         .dfi_address(dfi_address), .dfi_bank(dfi_bank),
         .dfi_ras_n(dfi_ras_n), .dfi_cas_n(dfi_cas_n), .dfi_we_n(dfi_we_n),

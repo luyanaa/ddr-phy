@@ -53,6 +53,7 @@ module tb_bist_loop;
         .clk(clk), .rst(rst),
         .user_valid(u_valid), .user_ready(u_ready), .user_we(u_we),
         .user_addr(u_addr), .user_wdata(u_wdata),
+        .user_wmask({DATA_BITS/8{1'b0}}),
         .user_rdata(u_rdata), .user_rvalid(u_rvalid),
         .dfi_address(dfi_a), .dfi_bank(dfi_ba),
         .dfi_ras_n(dfi_ras), .dfi_cas_n(dfi_cas), .dfi_we_n(dfi_we),

@@ -12,8 +12,13 @@
 `timescale 1ns/1ps
 `default_nettype none
 
+`ifndef CL
+`define CL 2
+`endif
+
 module tb_micron_diff;
     localparam integer AB = 13;
+    localparam integer CL = `CL;
     localparam integer BB = 2;
     localparam integer DB = 8;
     localparam integer RB = 4;
@@ -28,6 +33,7 @@ module tb_micron_diff;
     wire user_ready;
     reg [UB-1:0] user_addr = 0;
     reg [DB-1:0] user_wdata = 0;
+    reg [DB/8-1:0] user_wmask = 0;
     wire [DB-1:0] user_rdata;
     wire user_rvalid;
 
@@ -53,6 +59,7 @@ module tb_micron_diff;
     wire dq_oe_ref;
     wire fault_own;
     wire [2:0] fault_code_own;
+    wire turnaround_busy, dq_oe_gated;
 
     integer errors = 0;
     integer guard;
@@ -65,12 +72,13 @@ module tb_micron_diff;
 
     sdr_ctrl #(
         .ADDR_BITS(AB), .BANK_BITS(BB), .DATA_BITS(DB),
-        .ROW_BITS(RB), .COL_BITS(CB), .CL(2),
-        .T_RCD(2), .T_RP(2), .T_RFC(7)
+        .ROW_BITS(RB), .COL_BITS(CB), .CL(CL),
+        .T_RCD(2), .T_RP(2), .T_RFC(7), .T_REFI(40)
     ) ctrl (
         .clk(clk), .rst(rst),
         .user_valid(user_valid), .user_ready(user_ready), .user_we(user_we),
         .user_addr(user_addr), .user_wdata(user_wdata),
+        .user_wmask(user_wmask),
         .user_rdata(user_rdata), .user_rvalid(user_rvalid),
         .dfi_address(dfi_a), .dfi_bank(dfi_ba),
         .dfi_ras_n(dfi_ras), .dfi_cas_n(dfi_cas), .dfi_we_n(dfi_we),
@@ -79,10 +87,10 @@ module tb_micron_diff;
         .dfi_wrdata(dfi_wrdata), .dfi_wrdata_en(dfi_wren),
         .dfi_wrdata_mask(dfi_wrmask), .dfi_rddata_en(dfi_rden),
         .dfi_rddata(dfi_rddata_own), .dfi_rddata_valid(dfi_rdvalid_own),
-        .phy_turnaround_busy(1'b0)
+        .phy_turnaround_busy(turnaround_busy)
     );
 
-    sdr_phy #(.ADDR_BITS(AB), .BANK_BITS(BB), .DATA_BITS(DB), .RANKS(1), .CL(2)) phy_own (
+    sdr_phy #(.ADDR_BITS(AB), .BANK_BITS(BB), .DATA_BITS(DB), .RANKS(1), .CL(CL)) phy_own (
         .clk(clk), .rst(rst),
         .dfi_address(dfi_a), .dfi_bank(dfi_ba),
         .dfi_ras_n(dfi_ras), .dfi_cas_n(dfi_cas), .dfi_we_n(dfi_we),
@@ -97,8 +105,17 @@ module tb_micron_diff;
     );
 
     // The command and DQ pins are shared; only the data path is duplicated.
-    assign dq_own = dq_oe_own ? dq_o_own : {DB{1'bz}};
+    assign dq_own = (dq_oe_own && dq_oe_gated) ? dq_o_own : {DB{1'bz}};
     assign dq_i_own = dq_own;
+
+    dq_turnaround #(
+        .GUARD_CYCLES(2), .READ_TAIL_CYCLES(1),
+        .DQM_OFF_CYCLES(0), .T_OE_OFF_CYCLES(0)
+    ) turn (
+        .clk(clk), .rst(rst),
+        .wrdata_en(dfi_wren), .rddata_en(dfi_rden),
+        .dq_oe_gated(dq_oe_gated), .turnaround_busy(turnaround_busy)
+    );
 
     sdram_model #(
         .ADDR_BITS(AB), .BANK_BITS(BB), .DATA_BITS(DB),
@@ -110,7 +127,7 @@ module tb_micron_diff;
         .fault_code(fault_code_own)
     );
 
-    sdr_phy #(.ADDR_BITS(AB), .BANK_BITS(BB), .DATA_BITS(DB), .RANKS(1), .CL(2)) phy_ref (
+    sdr_phy #(.ADDR_BITS(AB), .BANK_BITS(BB), .DATA_BITS(DB), .RANKS(1), .CL(CL)) phy_ref (
         .clk(clk), .rst(rst),
         .dfi_address(dfi_a), .dfi_bank(dfi_ba),
         .dfi_ras_n(dfi_ras), .dfi_cas_n(dfi_cas), .dfi_we_n(dfi_we),
@@ -123,7 +140,7 @@ module tb_micron_diff;
         .dq_o(dq_o_ref), .dq_oe(dq_oe_ref), .dq_i(dq_i_ref), .ck()
     );
 
-    assign dq_ref[7:0]  = dq_oe_ref ? dq_o_ref : 8'bz;
+    assign dq_ref[7:0]  = (dq_oe_ref && dq_oe_gated) ? dq_o_ref : 8'bz;
     assign dq_ref[15:8] = 8'bz;
     assign dq_i_ref = dq_ref[7:0];
 
@@ -153,9 +170,11 @@ module tb_micron_diff;
         input [RB-1:0] row;
         input [CB-1:0] col;
         input [DB-1:0] data;
+        input [DB/8-1:0] mask;
         begin
             @(negedge clk);
-            user_we = 1; user_addr = {bank,row,col}; user_wdata = data; user_valid = 1;
+            user_we = 1; user_addr = {bank,row,col}; user_wdata = data;
+            user_wmask = mask; user_valid = 1;
             guard = 0;
             while (!(user_ready === 1'b1) && guard < 40) begin @(posedge clk); #1; guard = guard + 1; end
             `CHECK(user_ready === 1'b1)
@@ -182,6 +201,20 @@ module tb_micron_diff;
         end
     endtask
 
+    task automatic read_issue;
+        input [BB-1:0] bank;
+        input [RB-1:0] row;
+        input [CB-1:0] col;
+        begin
+            @(negedge clk);
+            user_we = 0; user_addr = {bank,row,col}; user_valid = 1;
+            guard = 0;
+            while (!(user_ready === 1'b1) && guard < 40) begin @(posedge clk); #1; guard = guard + 1; end
+            `CHECK(user_ready === 1'b1)
+            @(negedge clk); user_valid = 0;
+        end
+    endtask
+
     initial begin
         repeat (2) @(posedge clk);
         @(negedge clk); rst = 0;
@@ -190,11 +223,25 @@ module tb_micron_diff;
         `CHECK(user_ready === 1'b1)
         `CHECK(fault_own === 1'b0)
 
-        write_word(2'd0, 4'd1, 4'd3, 8'hA5);
+        write_word(2'd0, 4'd1, 4'd3, 8'hA5, 1'b0);
         read_word (2'd0, 4'd1, 4'd3, 8'hA5);
-        write_word(2'd0, 4'd1, 4'd4, 8'h5A);
+        write_word(2'd0, 4'd1, 4'd4, 8'h5A, 1'b0);
         read_word (2'd0, 4'd1, 4'd4, 8'h5A);
+        write_word(2'd0, 4'd1, 4'd3, 8'h5A, 1'b1); // masked write must not change
         read_word (2'd0, 4'd1, 4'd3, 8'hA5);
+
+        // Let at least two periodic refreshes elapse; the controller closes
+        // banks first. The Micron model's tRFC checks are caught by the
+        // script's ERROR grep.
+        guard = 0;
+        while (guard < 120) begin @(posedge clk); #1; guard = guard + 1; end
+        read_word (2'd0, 4'd1, 4'd3, 8'hA5);
+
+        // Back-to-back READ then WRITE: the controller must hold the write
+        // until turnaround_busy clears, and both models must see the write.
+        read_issue(2'd0, 4'd1, 4'd4);
+        write_word(2'd0, 4'd1, 4'd4, 8'hC3, 1'b0);
+        read_word (2'd0, 4'd1, 4'd4, 8'hC3);
         `CHECK(fault_own === 1'b0)
 
         #20;

@@ -47,6 +47,7 @@ module sdr_ctrl #(
     input  wire                     user_we,
     input  wire [COL_BITS+ROW_BITS+BANK_BITS-1:0] user_addr,
     input  wire [DATA_BITS-1:0]     user_wdata,
+    input  wire [DATA_BITS/8-1:0]   user_wmask,
     output reg  [DATA_BITS-1:0]     user_rdata,
     output reg                      user_rvalid,
 
@@ -135,6 +136,7 @@ module sdr_ctrl #(
     reg [ROW_BITS-1:0]     req_row;
     reg [COL_BITS-1:0]     req_col;
     reg [DATA_BITS-1:0]    req_wdata;
+    reg [DATA_BITS/8-1:0]  req_wmask;
     reg                    bank_open [0:BANKS-1];
     reg [ROW_BITS-1:0]     bank_row  [0:BANKS-1];
     reg [31:0]             ref_cnt;
@@ -163,6 +165,7 @@ module sdr_ctrl #(
             req_row        <= {ROW_BITS{1'b0}};
             req_col        <= {COL_BITS{1'b0}};
             req_wdata      <= {DATA_BITS{1'b0}};
+            req_wmask      <= {(DATA_BITS/8){1'b0}};
             user_ready     <= 1'b0;
             user_rdata     <= {DATA_BITS{1'b0}};
             user_rvalid    <= 1'b0;
@@ -218,6 +221,7 @@ module sdr_ctrl #(
                 req_row   <= user_row;
                 req_col   <= user_col;
                 req_wdata <= user_wdata;
+                req_wmask <= user_wmask;
             end
 
             case (state)
@@ -305,8 +309,9 @@ module sdr_ctrl #(
                             dfi_address <= {{(ADDR_BITS-COL_BITS){1'b0}}, req_col};
                             if (req_we) begin
                                 dfi_we_n      <= 1'b0;
-                                dfi_wrdata    <= req_wdata;
-                                dfi_wrdata_en <= 1'b1;
+                                dfi_wrdata      <= req_wdata;
+                                dfi_wrdata_en   <= 1'b1;
+                                dfi_wrdata_mask <= req_wmask;
                             end else begin
                                 dfi_rddata_en <= 1'b1;
                                 read_busy     <= 1'b1;

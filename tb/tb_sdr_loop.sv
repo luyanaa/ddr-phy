@@ -92,6 +92,7 @@ module tb_sdr_loop;
         .user_we(user_we),
         .user_addr(user_addr),
         .user_wdata(user_wdata),
+        .user_wmask(1'b0),
         .user_rdata(user_rdata),
         .user_rvalid(user_rvalid),
         .dfi_address(dfi_address),
