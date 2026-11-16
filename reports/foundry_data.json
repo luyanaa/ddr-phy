@@ -8,7 +8,16 @@
     "license": "Apache-2.0 (GF180MCU PDK); values + citations only, no text copied",
     "retrieved_on": "2026-11-16",
     "evidence_class": "foundry_doc",
-    "note": "Filled values are foundry-documented design-rule defaults, NOT a DRC-clean claim and NOT an assembly-house commitment."
+    "note": "Filled values are foundry-documented design-rule defaults, NOT a DRC-clean claim and NOT an assembly-house commitment.",
+    "assembly_search": {
+      "question": "public bonding diagram and pad pitch data?",
+      "searched_on": "2026-11-16",
+      "found": "GF180MCU DRM 9.0/9.2, gf180mcu_fd_io features, wafer.space slot specs + slots.json, wafer.space/gf180mcu-project-template slot_1x1.yaml, wafer.space/chip-on-board-wire-bonded-pcbs (Apache-2.0), IEEE SSCS Chipathon 2025 padring",
+      "pad_pitch_value": null,
+      "pad_pitch_status": "NO explicit center-to-center pitch found in any public source",
+      "reason": "DRM 9.0 explicitly says pad size and pitch are limited by the assembly house; only IO cell width (75um), bond pad opening (60x60um and PAD.1=40um), pad counts and die dimensions are published. wafer.space pins 74 pads to fixed coordinates in slot_1x1.yaml but does not state a pitch number.",
+      "license": "Apache-2.0 (wafer.space template / COB PCBs / GF180MCU PDK); values + citations only"
+    }
   },
   "data": [
     {
@@ -66,7 +75,13 @@
         "Explicitly 'default numbers for DRC purpose only ... VARIABLE ... acceptable to their assembly house'.",
         "Gold-bump value is 4, not 40 - depends on assembly technology."
       ],
-      "blocked_by": "Assembly-house confirmation required; do not freeze a DRC default as a design constraint."
+      "blocked_by": "Assembly-house confirmation required; do not freeze a DRC default as a design constraint.",
+      "assembly_sources": [
+        "gf180mcu_fd_io/features.html: bond pad opening 60x60um; IO cell width 75um x height 350um (inclusive of bond pad); design grid 0.005um",
+        "wafer.space/chip-on-board-wire-bonded-pcbs (Apache-2.0): 74-pad TT-convention padframe, 14x16mm PCB, 70-pin 0.4mm-pitch mezzanine; wirebond rules: no crossing wires, angle <=45deg, max wire length <3mm, min 1mm or 2x die thickness",
+        "wafer.space/gf180mcu-project-template slot_1x1.yaml: DIE_AREA [0,0,3932,5122], CORE_AREA [442,442,3490,4680]; 17/17/20/20 pads on S/N/E/W = 74 total, pinned to fixed coordinates for COB"
+      ],
+      "note": "Two different opening values are published (DRM PAD.1=40 vs IO library 60x60) - they describe different things or different pad cells; no assembly-house confirmation reconciles them. Keep TBD."
     },
     {
       "id": "PAD_PITCH",
@@ -84,7 +99,17 @@
         "No center-to-center pitch value is given; foundry explicitly defers to the assembly house.",
         "PAD.2 is an edge-to-edge spacing, NOT a pitch. Deriving 40+9=49um would be an unlabelled inference."
       ],
-      "blocked_by": "No assembly-house / packaging data (bond diagram, package pad pitch)."
+      "blocked_by": "No assembly-house / packaging data (bond diagram, package pad pitch). Public sources give pad COUNTS and die size but no center-to-center pitch.",
+      "assembly_sources": [
+        "wafer.space slot specs / slots.json: 1x1 die 3932x5122um, seal ring ~26um per side, 56 IO + 18 power = 74 pads; quarter slot 1936x2531um with 48 IO",
+        "gf180mcu_fd_io/features.html: IO cell width 75um (pitch would be >= 75um + spacing), corner cell 355x355um",
+        "IEEE SSCS Chipathon 2025: padring 2040x2040um usable, 88 pins (22 per side), QFN-88 reference",
+        "DRM 9.2 PAD.2 pad-opening-to-pad-opening = 9um, PAD.20 pad-metal-to-pad-metal = 5um; both are EDGE-TO-EDGE spacings, NOT center-to-center pitch"
+      ],
+      "derived_only": [
+        "From 1x1 die 3932um minus 2x355um corners, 17 pads -> average 189.5um spacing; from 5122um minus corners, 20 pads -> 220.6um. These are DERIVED averages, NOT a stated pitch, and depend on corner/filler assumptions. Do NOT fill."
+      ],
+      "note": "wafer.space COB requires the default pad ring with pads at fixed coordinates (do not change pad count/position), so a real pitch exists in their GDS/PCB - but it is not published as a number in the inspected docs."
     },
     {
       "id": "ESD_AREA_MIN",

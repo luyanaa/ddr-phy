@@ -38,7 +38,7 @@ at the same time; see constraint_graph.dot.
 
 ## Not a layout yet
 
-- fill the 8 deferred pdk_rules: EM/ESD/latch-up/package data and design specs (see reports/pdk_rule_evidence.md)
+- fill the 6 remaining TBD pdk_rules: assembly-house pad data, ESD HBM target and design specs (see docs/FOUNDRY_PACKAGE_DATA.md)
 - fill all 31 design params from load simulation
 - define PAD_OE_CTRL and expand the pre-driver to PDRV_STAGES
 - confirm diode orientation, bulk ties and resistor third terminal

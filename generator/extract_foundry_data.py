@@ -97,7 +97,8 @@ def apply_to_constraints(fill_map, d, errors):
     block += ["  deferred:"]
     for x in d["data"]:
         if x["decision"] == "defer":
-            block.append("    %s: %s" % (x["id"], x.get("blocked_by", "see note")[:70]))
+            reason = x.get("blocked_by", "see note")[:70].strip().rstrip(".")
+            block.append("    %s: %s" % (x["id"], reason))
     block += [MARK_END, ""]
     new = "\n".join(block)
     if MARK_BEGIN in text:
@@ -160,6 +161,18 @@ def main():
             md.append("- **%s**: %s" % (x["id"], x.get("blocked_by", x.get("note", ""))))
             if x.get("source_url"):
                 md.append("  - source: %s (%s)" % (x["source_url"], x.get("drm_section", "")))
+            for a in x.get("assembly_sources", []):
+                md.append("  - assembly: %s" % a)
+            for a in x.get("derived_only", []):
+                md.append("  - derived (NOT filled): %s" % a)
+    a_search = d["meta"].get("assembly_search")
+    if a_search:
+        md += ["", "## Assembly / bonding diagram search (%s)" % a_search["searched_on"],
+               "", "**Q: %s**" % a_search["question"],
+               "", "- found: %s" % a_search["found"],
+               "- explicit pad pitch value: %s" % a_search["pad_pitch_value"],
+               "- status: %s" % a_search["pad_pitch_status"],
+               "- reason: %s" % a_search["reason"], ""]
     md += ["", "## Honesty boundaries", "",
            "- Docs site says work in progress / Experimental Preview.",
            "- DRM 9.2: bond-pad numbers are DRC defaults, VARIABLE, must be confirmed with the assembly house.",

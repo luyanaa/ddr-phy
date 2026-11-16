@@ -181,9 +181,9 @@ foundry_data_summary:
     METAL_JMAX: 0.67 mA/um
   deferred:
     PAD_OPENING: Assembly-house confirmation required; do not freeze a DRC default as a
-    PAD_PITCH: No assembly-house / packaging data (bond diagram, package pad pitch).
+    PAD_PITCH: No assembly-house / packaging data (bond diagram, package pad pitch)
     ESD_AREA_MIN: ESD target level (HBM kV) is a system requirement, not foundry data; T
-    IO_CURRENT: Design decision.
-    DQ_BIT_SKEW_MAX: System timing budget.
-    RAIL_WIDTH: IO_CURRENT (design input).
+    IO_CURRENT: Design decision
+    DQ_BIT_SKEW_MAX: System timing budget
+    RAIL_WIDTH: IO_CURRENT (design input)
 # === END GENERATED foundry_data ===

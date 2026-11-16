@@ -50,6 +50,7 @@
 
 - **文档是 Experimental Preview**：这些是 DRC 默认值，不是已签核的 foundry 承诺。
 - **封装厂数据仍然缺**：pad size/pitch 由 assembly house 限定，需要 bond diagram、封装 pad pitch、CUP 与否。本轮"寻找 foundry/封装厂数据"的净结果是——**foundry DRM 找到了，但真正的封装厂特定数据没有**；PAD_PITCH/PAD_OPENING 仍 TBD 正是这个原因。
+- **后续专项检索**（`docs/BONDING_DIAGRAM_SEARCH.md`）：公开 bonding diagram / padframe 资料确实存在（wafer.space COB 仓库、模板 slot_1x1.yaml、DRM 9.2、Chipathon padring），但**没有任何来源给出 center-to-center pad pitch 数值**；推导的 ~190/220um 是平均间隔不是 pitch，不填。
 - **web 来源不可离线复核**：与 `verified`（本机 `metal.rb:72` 实时核对）不同，`foundry_doc` 是较弱的证据等级，已用不同 status 区分。
 - **ESD 目标仍缺**：HBM kV 是系统需求，TLP→HBM 相关性未验证。
 
