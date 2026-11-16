@@ -51,13 +51,13 @@
       "bbox_um": null
     },
     {
-      "name": "X_PDRV_N",
-      "device": "nfet_03v3",
+      "name": "X_PDRV_P_GP1",
+      "device": "pfet_03v3",
       "nets": [
-        "n_pdrv",
+        "n_gp_s1",
         "n_gp",
-        "VSSIO",
-        "VSSIO"
+        "VDDIO",
+        "VDDIO"
       ],
       "kind": "instance",
       "symbolic_box": [
@@ -69,13 +69,13 @@
       "bbox_um": null
     },
     {
-      "name": "X_PDRV_P",
-      "device": "pfet_03v3",
+      "name": "X_PDRV_N_GP1",
+      "device": "nfet_03v3",
       "nets": [
-        "n_pdrv",
+        "n_gp_s1",
         "n_gp",
-        "VDDIO",
-        "VDDIO"
+        "VSSIO",
+        "VSSIO"
       ],
       "kind": "instance",
       "symbolic_box": [
@@ -87,11 +87,11 @@
       "bbox_um": null
     },
     {
-      "name": "X_OUT_P",
+      "name": "X_PDRV_P_GP2",
       "device": "pfet_03v3",
       "nets": [
-        "n_pre",
-        "n_gp",
+        "n_gp_drv",
+        "n_gp_s1",
         "VDDIO",
         "VDDIO"
       ],
@@ -105,11 +105,11 @@
       "bbox_um": null
     },
     {
-      "name": "X_OUT_N",
+      "name": "X_PDRV_N_GP2",
       "device": "nfet_03v3",
       "nets": [
-        "n_pre",
-        "n_gn",
+        "n_gp_drv",
+        "n_gp_s1",
         "VSSIO",
         "VSSIO"
       ],
@@ -117,6 +117,114 @@
       "symbolic_box": [
         25,
         15,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_PDRV_P_GN1",
+      "device": "pfet_03v3",
+      "nets": [
+        "n_gn_s1",
+        "n_gn",
+        "VDDIO",
+        "VDDIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        50,
+        15,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_PDRV_N_GN1",
+      "device": "nfet_03v3",
+      "nets": [
+        "n_gn_s1",
+        "n_gn",
+        "VSSIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        0,
+        30,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_PDRV_P_GN2",
+      "device": "pfet_03v3",
+      "nets": [
+        "n_gn_drv",
+        "n_gn_s1",
+        "VDDIO",
+        "VDDIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        25,
+        30,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_PDRV_N_GN2",
+      "device": "nfet_03v3",
+      "nets": [
+        "n_gn_drv",
+        "n_gn_s1",
+        "VSSIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        50,
+        30,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_OUT_P",
+      "device": "pfet_03v3",
+      "nets": [
+        "n_pre",
+        "n_gp_drv",
+        "VDDIO",
+        "VDDIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        0,
+        45,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_OUT_N",
+      "device": "nfet_03v3",
+      "nets": [
+        "n_pre",
+        "n_gn_drv",
+        "VSSIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        25,
+        45,
         20,
         10
       ],
@@ -133,7 +241,7 @@
       "kind": "instance",
       "symbolic_box": [
         50,
-        15,
+        45,
         20,
         10
       ],
@@ -149,7 +257,7 @@
       "kind": "diode",
       "symbolic_box": [
         0,
-        30,
+        60,
         20,
         10
       ],
@@ -165,7 +273,7 @@
       "kind": "diode",
       "symbolic_box": [
         25,
-        30,
+        60,
         20,
         10
       ],
@@ -181,7 +289,7 @@
       "kind": "diode",
       "symbolic_box": [
         50,
-        30,
+        60,
         20,
         10
       ],
@@ -199,7 +307,7 @@
       "kind": "instance",
       "symbolic_box": [
         0,
-        45,
+        75,
         20,
         10
       ],
@@ -217,7 +325,7 @@
       "kind": "instance",
       "symbolic_box": [
         25,
-        45,
+        75,
         20,
         10
       ],
@@ -233,8 +341,11 @@
     "VDDIO",
     "VSSIO",
     "n_gn",
+    "n_gn_drv",
+    "n_gn_s1",
     "n_gp",
-    "n_pdrv",
+    "n_gp_drv",
+    "n_gp_s1",
     "n_pre"
   ],
   "rails": [

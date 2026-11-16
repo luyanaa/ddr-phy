@@ -79,6 +79,25 @@ def diode_line(dev, name, slot, *, a=None, c=None, area, pad=None,
         area="@@P_%s@@" % area, pad=pad, vdd=vdd, vss=vss)
 
 
+def pdrv_chain(dev, stages=2):
+    """Even-stage non-inverting inverter chain on each output gate path."""
+    if stages < 1 or stages % 2:
+        raise ValueError("PDRV_STAGES must be a positive even number")
+    out = []
+    for gate, tag in (("n_gp", "GP"), ("n_gn", "GN")):
+        prev = gate
+        for i in range(1, stages + 1):
+            nxt = ("%s_drv" % gate) if i == stages else ("%s_s%d" % (gate, i))
+            out.append(mos_line(dev, "PDRV_P_%s%d" % (tag, i), "PMOS_IO",
+                                nxt, prev, "VDDIO", "VDDIO",
+                                "W_P_PDRV", "L_PDRV", "NF_DEVICE"))
+            out.append(mos_line(dev, "PDRV_N_%s%d" % (tag, i), "NMOS_IO",
+                                nxt, prev, "VSSIO", "VSSIO",
+                                "W_N_PDRV", "L_PDRV", "NF_DEVICE"))
+            prev = nxt
+    return "\n".join(out)
+
+
 def tokens_for(topo, dev):
     t = {}
     t["BACKEND"] = dev["backend"]
@@ -117,17 +136,12 @@ def tokens_for(topo, dev):
         "LS_P2_LINE": mos_line(dev, "LS_P2", "PMOS_IO",
                                "n_lsp", "n_lsn", "VDDIO", "VDDIO",
                                "W_P_PDRV", "L_PDRV", "NF_DEVICE"),
-        "PDRV_N_LINE": mos_line(dev, "PDRV_N", "NMOS_IO",
-                                "n_pdrv", "n_gp", "VSSIO", "VSSIO",
-                                "W_N_PDRV", "L_PDRV", "NF_DEVICE"),
-        "PDRV_P_LINE": mos_line(dev, "PDRV_P", "PMOS_IO",
-                                "n_pdrv", "n_gp", "VDDIO", "VDDIO",
-                                "W_P_PDRV", "L_PDRV", "NF_DEVICE"),
+        "PDRV_CHAIN_LINES": pdrv_chain(dev, 2),
         "OUT_P_LINE": mos_line(dev, "OUT_P", "PMOS_IO",
-                               "n_pre", "n_gp", "VDDIO", "VDDIO",
+                               "n_pre", "n_gp_drv", "VDDIO", "VDDIO",
                                "W_P_OUT", "L_P_OUT", "NF_P_OUT"),
         "OUT_N_LINE": mos_line(dev, "OUT_N", "NMOS_IO",
-                               "n_pre", "n_gn", "VSSIO", "VSSIO",
+                               "n_pre", "n_gn_drv", "VSSIO", "VSSIO",
                                "W_N_OUT", "L_N_OUT", "NF_N_OUT"),
         "RX_N_LINE": mos_line(dev, "RX_N", "NMOS_IO",
                               "IN", "PAD", "VSSIO", "VSSIO",

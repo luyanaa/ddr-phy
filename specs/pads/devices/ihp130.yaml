@@ -48,6 +48,7 @@ char:
   includes:
     - {lib: "libs.tech/ngspice/models/cornerMOShv.lib", section: "mos_tt"}
     - {lib: "libs.tech/ngspice/models/cornerMOSlv.lib", section: "mos_tt"}
+    - {include: "libs.tech/ngspice/models/sg13g2_esd.lib"}
 slots:
   NMOS_IO:        {device: sg13_hv_nmos, symbol: null, verified: ".subckt sg13_hv_nmos d g s b w.. l.. ng.. m.."}
   PMOS_IO:        {device: sg13_hv_pmos, symbol: null, verified: ".subckt sg13_hv_pmos d g s b w.. l.. ng.. m.."}

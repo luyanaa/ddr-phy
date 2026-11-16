@@ -24,7 +24,7 @@ params:
   - {id: W_P_OUT,          value: 82.5,  unit: um,  basis: "82.5 um x M=4 = 330 um measured Class-I PMOS"}
   - {id: L_P_OUT,          value: 0.5,   unit: um,  basis: "g5v0d10v5 driver L"}
   - {id: NF_P_OUT,         value: 1,     unit: count, basis: "nf splits W; m is the multiplier"}
-  - {id: PDRV_STAGES,      value: 1,     unit: count, basis: "placeholder; pre-driver excluded"}
+  - {id: PDRV_STAGES,      value: 2,     unit: count, basis: "two-stage non-inverting chain; pre-driver placeholder"}
   - {id: W_N_PDRV,         value: 0.5,   unit: um,  basis: "pre-driver placeholder"}
   - {id: W_P_PDRV,         value: 1,     unit: um,  basis: "pre-driver placeholder"}
   - {id: L_PDRV,           value: 0.5,   unit: um,  basis: "pre-driver/receiver L placeholder"}

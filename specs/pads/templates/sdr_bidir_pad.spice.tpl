@@ -51,9 +51,8 @@
 X_OE_CTRL n_gp n_gn OUT OE_N PU_OK VDDIO VSSIO PAD_OE_CTRL
 
 @if PREDRIVER@
-* --- pre-driver: ONE representative stage; repeat PDRV_STAGES times ---
-@@PDRV_N_LINE@@
-@@PDRV_P_LINE@@
+* --- pre-driver chain (even stage count preserves polarity) ---
+@@PDRV_CHAIN_LINES@@
 @endif@
 
 * --- tri-state output (PMOS to VDDIO, NMOS to VSSIO) ---

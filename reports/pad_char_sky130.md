@@ -5,22 +5,24 @@ The sizing fixture and load are placeholders; ESD is not qualified.
 
 - fixture: `specs/pads/sizing/sky130.first_pass.yaml` (status: design_assumption)
 - load: 1 kohm to VDDIO/2 + 1 pF (light first-pass load); ideal series R = 22 ohm
-- ESD diodes: omitted from this electrical slice (separate gate)
-- level shifter / pre-driver: excluded; gates driven open-loop
+- ESD: reverse leakage measured in a separate DC deck; stress/qualification not done
+- level shifter excluded; pre-driver included; OE logic replaced by open-loop PWL gate drive
 
 | measure | value | unit |
 |---|---|---|
-| t_oe_on | 1.04779e-10 | s |
-| t_oe_off | 2.90736e-09 | s |
-| tr_pad | 1.15245e-10 | s |
-| tf_pad | 1.19108e-10 | s |
+| t_oe_on | 1.02945e-09 | s |
+| t_oe_off | 4.73906e-09 | s |
+| tr_pad | 5.00901e-10 | s |
+| tf_pad | 8.18257e-10 | s |
 | vth_pad | 1.51361 | V |
 | ihiz_max | 1.35486e-11 | A |
+| iesd_max | 1.3655e-11 | A |
 
-`t_oe_on` / `t_oe_off` are open-loop gate-drive proxies, not the real
-OE/pre-driver path. `tr_pad` / `tf_pad` are 0.33 V -> 2.9 V slews.
+`t_oe_on` / `t_oe_off` include the pre-driver chain but not the real
+OE logic (open-loop PWL gate drive). `tr_pad` / `tf_pad` are 0.33 V -> 2.9 V slews.
 `ihiz_max` is a swept external-source current with PU_OK low.
+`iesd_max` is reverse-biased ESD plus off-state output leakage, not an ESD qualification.
 
-Excluded: level shifter, pre-driver, package/PCB RLC, PVT corners,
-SDF/PEX, and ESD qualification.
+Excluded: level shifter, OE logic, package/PCB RLC, PVT corners,
+SDF/PEX, and ESD stress/qualification.
 

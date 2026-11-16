@@ -1,6 +1,6 @@
 # Pad 原理图与 VREF 接收器生成器
 
-状态：**拓扑模板 + 三套已绑定 PDK 的第一版可跑表征切片；未表征，NO_GO。** 共享拓扑已扩到 gf180mcuD / sky130 / IHP SG13G2 三套已绑定 device map，并生成 SPICE/xschem 拓扑；ics55 因缺 3.3 V ESD 二极管 SPICE 卡保持未绑定（自绘 GGNMOS 只在 `docs/ICS55_ESD_3V3.md` 做研究）。gf180mcuD / sky130 / ihp130 各有一条明确标注 `design_assumption` 的 sizing fixture 和 ngspice 输出级/接收器切片（§4.1），但它们不是签核尺寸。器件尺寸、指条数、驱动电流、串联电阻、ESD 面积、保护环间距在通用拓扑里仍是参数（`null`）。
+状态：**拓扑模板 + 三套已绑定 PDK 的第一版可跑表征切片；未表征，NO_GO。** 共享拓扑已扩到 gf180mcuD / sky130 / IHP SG13G2 三套已绑定 device map，并生成 SPICE/xschem 拓扑；ics55 因缺 3.3 V ESD 二极管 SPICE 卡保持未绑定（自绘 GGNMOS 只在 `docs/ICS55_ESD_3V3.md` 做研究）。gf180mcuD / sky130 / ihp130 各有一条明确标注 `design_assumption` 的 sizing fixture 和 ngspice 预驱动+输出级/接收器切片（§4.1），外加 ESD 反向泄漏测量，但它们不是签核尺寸。器件尺寸、指条数、驱动电流、串联电阻、ESD 面积、保护环间距在通用拓扑里仍是参数（`null`）。
 
 ## 1. 为什么是生成器
 
@@ -82,22 +82,23 @@ SPICE 网表用 `@@DEV_*@@` 绑器件、`@@P_*@@` 留参数名（如 `w=W_N_OUT`
 
 这一片的边界：
 
-- **只测输出级 + 理想 22Ω 串联电阻 + PAD + 接收器输入门限**。
-- **不包含**电平搬移、预驱动、封装/PCB RLC、PVT、SDF/PEX、ESD 资格；ESD 二极管在这一片里被显式省略。
-- 输出级栅极由测试台的**开环 PWL 栅驱动**控制，不是真实 OE/预驱动路径。
+- **只测预驱动 + 输出级 + 理想 22Ω 串联电阻 + PAD + 接收器输入门限**。
+- **不包含**电平搬移、OE 逻辑、封装/PCB RLC、PVT、SDF/PEX、ESD 应力/资格；ESD 只在单独的 DC deck 里做反向泄漏。
+- OE 逻辑由测试台的**开环 PWL 栅驱动**替代；预驱动链是真实器件。
 - 负载是 1kΩ 到 VDDIO/2 + 1pF，轻载占位；不是板级模型。
 - 尺寸来自各 PDK 的实测 Class-I 器件校准；gf180 用全局 `M_DEVICE=40` + 2µm/5µm per-finger，sky130 用 `M_DEVICE=4` + 30µm/82.5µm，IHP 用 `ng=14/42` + 70µm/210µm。这些是 fixture 的写法，不是最优尺寸。
 
 | 测量 | gf180mcuD | sky130 | ihp130 | 条件 |
 |---|---|---|---|---|
-| `t_oe_on` | **0.101 ns** | **0.105 ns** | **0.099 ns** | 开环栅驱动，OE 标志到 PAD 2.9V |
-| `t_oe_off` | **2.85 ns** | **2.91 ns** | **2.75 ns** | OE 标志到 PAD 1.8V（1k 负载释放） |
-| `tr_pad` | **0.125 ns** | **0.115 ns** | **0.120 ns** | 0.33V → 2.9V |
-| `tf_pad` | **0.129 ns** | **0.119 ns** | **0.127 ns** | 2.9V → 0.33V |
+| `t_oe_on` | **0.189 ns** | **1.03 ns** | **0.628 ns** | 开环 OE 标志到 PAD 2.9V（含预驱动） |
+| `t_oe_off` | **2.94 ns** | **4.74 ns** | **4.06 ns** | OE 标志到 PAD 1.8V（1k 负载释放，含预驱动） |
+| `tr_pad` | **0.124 ns** | **0.501 ns** | **0.325 ns** | 0.33V → 2.9V |
+| `tf_pad` | **0.130 ns** | **0.818 ns** | **0.782 ns** | 2.9V → 0.33V |
 | `vth_pad` | **1.526 V** | **1.514 V** | **1.466 V** | 接收器 IN 跨 1.65V 时的 PAD 电压 |
-| `ihiz_max` | **0.146 nA** | **13.5 pA** | **57.0 pA** | PU_OK=0，外部源扫 PAD 0→3.3V |
+| `ihiz_max` | **0.146 nA** | **13.5 pA** | **57.0 pA** | PU_OK=0，输出关断，外部源扫 PAD 0→3.3V（不含 ESD） |
+| `iesd_max` | **0.149 nA** | **13.7 pA** | **60.3 pA** | 单独的 ESD 反向泄漏 deck（含输出关断漏电）；不是 ESD 资格 |
 
-**解释边界**：这些数字只属于各自的 fixture 和该轻载。`t_oe_on/off` 是开环代理，不是真实 OE/预驱动延时；`vth_pad` 不是 VDDIO/2；`ihiz_max` 不含 ESD 二极管。不能用于签核、PVT、IBIS 或板级 SI。`reports/capability_report.md` 仍全部 `NO_GO`。
+**解释边界**：这些数字只属于各自的 fixture 和该轻载。`t_oe_on/off` 含预驱动链但不含真实 OE 逻辑；`vth_pad` 不是 VDDIO/2；`ihiz_max` 不含 ESD，`iesd_max` 只是反向泄漏，不是 ESD 应力/资格。不能用于签核、PVT、IBIS 或板级 SI。`reports/capability_report.md` 仍全部 `NO_GO`。
 
 ## 5. VREF 接收器
 
@@ -118,10 +119,10 @@ SPICE 网表用 `@@DEV_*@@` 绑器件、`@@P_*@@` 留参数名（如 `w=W_N_OUT`
 ## 6. 什么还没做 / 下一步
 
 1. **填 31 个参数**：gf180mcuD / sky130 / ihp130 各有一份 `design_assumption` fixture 和可跑切片（§4.1），但都不是签核尺寸；ics55 仍未绑定。驱动管宽/指条、ESD 面积、保护环间距仍要负载/ESD 仿真。
-2. **展开 `PAD_OE_CTRL` 与 `PDRV_STAGES`**：现在是命名占位子电路与单级代表，不是可综合网表。
+2. **`PAD_OE_CTRL` 与 `PDRV_STAGES`**：预驱动已展开成 2 级非反相链（char 和代表性拓扑）；`PAD_OE_CTRL` 仍是开环/占位，真实 OE 逻辑还没画成可综合网表。
 3. **原理图复核**：二极管极性、体端接法、三端电阻第三端、guard ring 规则。
 4. **绑定 device map**：gf180mcuD / sky130 / IHP 已绑定并生成拓扑；ics55 还差 3.3 V ESD 二极管 SPICE 卡，不能用 2.5 V 卡替代。
-5. **表征链**：三套 PDK 的输出级/接收器切片已可跑（§4.1）；`char_tb.spice` 仍是完整测量清单，ESD、VREF 共模/失调、SSO、PVT/min-max SPICE、PEX、IBIS、SI/PI、DRC/LVS 都还没做。
+5. **表征链**：三套 PDK 的预驱动+输出级/接收器切片和 ESD 反向泄漏已可跑（§4.1）；`char_tb.spice` 仍是完整测量清单，ESD 应力/资格、VREF 共模/失调、SSO、PVT/min-max SPICE、PEX、IBIS、SI/PI、DRC/LVS 都还没做。
 6. **参数语义**：`L_R_SERIES` 现在是片上电阻长度；目标阻值属于板级 SI，不在 pad 参数里。把目标阻值换算成长度仍需要每套 PDK 的 sheet resistance。sky130 的微米/米换算也仍只在注释里，没有代码守卫。
 7. **能力报告不变**：`reports/capability_report.md` 仍是全部 `NO_GO`，`backends/gf180mcu.yaml` 的 `toe_on_ps/off_ps` 仍是 `null`，`schematic_drawn` 仍是 `false` —— 拓扑模板不等于"原理图已画完、可签核"。
 

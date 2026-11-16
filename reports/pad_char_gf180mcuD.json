@@ -9,18 +9,19 @@
   "series_r_ohm": 22.0,
   "excluded": [
     "level shifter",
-    "pre-driver",
+    "OE logic (open-loop gate drive)",
     "package/PCB RLC",
     "PVT corners",
     "SDF/PEX",
     "ESD qualification"
   ],
   "measures": {
-    "t_oe_on": 1.011221e-10,
-    "t_oe_off": 2.849976e-09,
-    "tr_pad": 1.254487e-10,
-    "tf_pad": 1.292985e-10,
+    "t_oe_on": 1.890638e-10,
+    "t_oe_off": 2.944852e-09,
+    "tr_pad": 1.242934e-10,
+    "tf_pad": 1.301364e-10,
     "vth_pad": 1.525749,
-    "ihiz_max": 1.457545e-10
+    "ihiz_max": 1.457545e-10,
+    "iesd_max": 1.490625e-10
   }
 }

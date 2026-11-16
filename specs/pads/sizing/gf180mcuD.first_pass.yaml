@@ -34,7 +34,7 @@ params:
   - {id: W_P_OUT,          value: 5,     unit: um,  basis: "per-finger width; global M=40 -> 200 um measured Class-I PMOS"}
   - {id: L_P_OUT,          value: 0.28,  unit: um,  basis: "driver L; pfet_03v3 PDK range"}
   - {id: NF_P_OUT,         value: 1,     unit: count, basis: "nf is a split parameter here; the multiplier is M_DEVICE"}
-  - {id: PDRV_STAGES,      value: 1,     unit: count, basis: "placeholder; pre-driver not in the first char slice"}
+  - {id: PDRV_STAGES,      value: 2,     unit: count, basis: "two-stage non-inverting chain; pre-driver placeholder"}
   - {id: W_N_PDRV,         value: 1,     unit: um,  basis: "pre-driver placeholder; not characterized"}
   - {id: W_P_PDRV,         value: 2,     unit: um,  basis: "pre-driver placeholder; not characterized"}
   - {id: L_PDRV,           value: 0.28,  unit: um,  basis: "pre-driver/receiver L placeholder"}

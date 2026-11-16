@@ -23,7 +23,7 @@ params:
   - {id: W_P_OUT,          value: 210,   unit: um,  basis: "measured Class-I HV PMOS total width"}
   - {id: L_P_OUT,          value: 0.40,  unit: um,  basis: "sg13_hv_pmos driver L range"}
   - {id: NF_P_OUT,         value: 42,    unit: count, basis: "ng splits the 210 um total into 42 fingers"}
-  - {id: PDRV_STAGES,      value: 1,     unit: count, basis: "placeholder; pre-driver excluded"}
+  - {id: PDRV_STAGES,      value: 2,     unit: count, basis: "two-stage non-inverting chain; pre-driver placeholder"}
   - {id: W_N_PDRV,         value: 2,     unit: um,  basis: "pre-driver placeholder"}
   - {id: W_P_PDRV,         value: 4,     unit: um,  basis: "pre-driver placeholder"}
   - {id: L_PDRV,           value: 0.45,  unit: um,  basis: "pre-driver/receiver L placeholder"}

@@ -57,13 +57,19 @@ value="
 * --- OE / power-up gating: named placeholder, NOT supplied ---
 X_OE_CTRL n_gp n_gn OUT OE_N PU_OK VDDIO VSSIO PAD_OE_CTRL
 
-* --- pre-driver: ONE representative stage; repeat PDRV_STAGES times ---
-X_PDRV_N n_pdrv n_gp VSSIO VSSIO nfet_03v3 w=W_N_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
-X_PDRV_P n_pdrv n_gp VDDIO VDDIO pfet_03v3 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+* --- pre-driver chain (even stage count preserves polarity) ---
+X_PDRV_P_GP1 n_gp_s1 n_gp VDDIO VDDIO pfet_03v3 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_PDRV_N_GP1 n_gp_s1 n_gp VSSIO VSSIO nfet_03v3 w=W_N_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_PDRV_P_GP2 n_gp_drv n_gp_s1 VDDIO VDDIO pfet_03v3 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_PDRV_N_GP2 n_gp_drv n_gp_s1 VSSIO VSSIO nfet_03v3 w=W_N_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_PDRV_P_GN1 n_gn_s1 n_gn VDDIO VDDIO pfet_03v3 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_PDRV_N_GN1 n_gn_s1 n_gn VSSIO VSSIO nfet_03v3 w=W_N_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_PDRV_P_GN2 n_gn_drv n_gn_s1 VDDIO VDDIO pfet_03v3 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_PDRV_N_GN2 n_gn_drv n_gn_s1 VSSIO VSSIO nfet_03v3 w=W_N_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
 
 * --- tri-state output (PMOS to VDDIO, NMOS to VSSIO) ---
-X_OUT_P n_pre n_gp VDDIO VDDIO pfet_03v3 w=W_P_OUT l=L_P_OUT nf=NF_P_OUT m=M_DEVICE
-X_OUT_N n_pre n_gn VSSIO VSSIO nfet_03v3 w=W_N_OUT l=L_N_OUT nf=NF_N_OUT m=M_DEVICE
+X_OUT_P n_pre n_gp_drv VDDIO VDDIO pfet_03v3 w=W_P_OUT l=L_P_OUT nf=NF_P_OUT m=M_DEVICE
+X_OUT_N n_pre n_gn_drv VSSIO VSSIO nfet_03v3 w=W_N_OUT l=L_N_OUT nf=NF_N_OUT m=M_DEVICE
 
 * --- on-chip series damping resistor (may instead live on the board) ---
 X_RSER n_pre PAD VSSIO ppolyf_u r_length=L_R_SERIES r_width=W_R_SERIES
