@@ -12,7 +12,7 @@ The sizing fixture and load are placeholders; ESD is not qualified.
 |---|---|---|
 | t_oe_on | 9.74704e-10 | s |
 | t_oe_off | 5.27725e-09 | s |
-| tr_pad | 2.40312e-10 | s |
+| tr_pad | 2.7197e-10 | s |
 | tf_pad | 1.43572e-09 | s |
 | vth_pad | 1.51361 | V |
 | ihiz_max | 1.35486e-11 | A |

@@ -171,6 +171,7 @@ def oe_ctrl_spice(dev, tokens):
         raw.append("* core_v == vddio_v: OUT is already IO domain")
         raw.append("V_OUT_I OUT_I OUT 0")
         raw.append("X_INV_O OUT OUTB_I VDDIO VSSIO INV_IO")
+    raw.append("* OE_N and PU_OK are IO-domain control inputs in this macro")
     raw.append("X_INV_OE OE_N OENB VDDIO VSSIO INV_IO")
     raw.append("X_NAND PU_OK OENB EN_N VDDIO VSSIO NAND2_IO")
     raw.append("X_NOR_GN EN_N OUT_I N_GN VDDIO VSSIO NOR2_IO")

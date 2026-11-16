@@ -104,17 +104,18 @@ def model_lines(dev, root):
 
 
 def tran_deck(netlist_name, models, vdd, vddio):
-    return """
+    half = vddio / 2.0
+    return f"""
 * TRANSIENT SLICE: OE timing and PAD slew. Fixture values, not signoff.
-%s
-.include "%s"
-VDD VDD 0 %g
+{models}
+.include "{netlist_name}"
+VDD VDD 0 {vdd:g}
 VSS VSS 0 0
-VDDIO VDDIO 0 %g
+VDDIO VDDIO 0 {vddio:g}
 VSSIO VSSIO 0 0
-VPU PU_OK 0 PWL(0 0 1n 0 1.1n 3.3 24n 3.3)
-VOE OE_N 0 PWL(0 3.3 3.9n 3.3 4.0n 0 17.9n 0 18.0n 3.3 24n 3.3)
-VOUT OUT 0 PWL(0 3.3 5.9n 3.3 6.0n 0 11.9n 0 12.0n 3.3 24n 3.3)
+VPU PU_OK 0 PWL(0 0 1n 0 1.1n {vddio:g} 24n {vddio:g})
+VOE OE_N 0 PWL(0 {vddio:g} 3.9n {vddio:g} 4.0n 0 17.9n 0 18.0n {vddio:g} 24n {vddio:g})
+VOUT OUT 0 PWL(0 {vdd:g} 5.9n {vdd:g} 6.0n 0 11.9n 0 12.0n {vdd:g} 24n {vdd:g})
 VTT VTT 0 1.65
 RLOAD PAD VTT 1k
 CLOAD PAD 0 1p
@@ -123,25 +124,25 @@ RIN IN VSSIO 1G
 X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
 .tran 20p 24n
 .options trtol=10 reltol=1e-3
-.meas tran t_oe_on TRIG v(OE_N) VAL=1.65 FALL=1 TARG v(PAD) VAL=2.9 RISE=1
-.meas tran t_oe_off TRIG v(OE_N) VAL=1.65 RISE=1 TARG v(PAD) VAL=1.8 FALL=2
+.meas tran t_oe_on TRIG v(OE_N) VAL={half:g} FALL=1 TARG v(PAD) VAL=2.9 RISE=1
+.meas tran t_oe_off TRIG v(OE_N) VAL={half:g} RISE=1 TARG v(PAD) VAL=1.8 FALL=2
 .meas tran tr_pad TRIG v(PAD) VAL=0.33 RISE=1 TARG v(PAD) VAL=2.9 RISE=2
 .meas tran tf_pad TRIG v(PAD) VAL=2.9 FALL=1 TARG v(PAD) VAL=0.33 FALL=1
 .end
-""" % (models, netlist_name, vdd, vddio)
+"""
 
 
 def dc_deck(netlist_name, models, vdd, vddio):
-    return """
+    return f"""
 * DC SLICE: receiver threshold and power-up Hi-Z current. Fixture values.
-%s
-.include "%s"
-VDD VDD 0 %g
+{models}
+.include "{netlist_name}"
+VDD VDD 0 {vdd:g}
 VSS VSS 0 0
-VDDIO VDDIO 0 %g
+VDDIO VDDIO 0 {vddio:g}
 VSSIO VSSIO 0 0
 VPU PU_OK 0 0
-VOE OE_N 0 3.3
+VOE OE_N 0 {vddio:g}
 VOUT OUT 0 0
 VEXT PAD 0 0
 * simulation-only bleed resistor; not a design element
@@ -151,27 +152,27 @@ X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
 .meas dc vth_pad FIND v(PAD) WHEN v(IN)=1.65
 .meas dc ihiz_max MAX i(VEXT)
 .end
-""" % (models, netlist_name, vdd, vddio)
+"""
 
 
 def esd_deck(netlist_name, models, vdd, vddio):
-    return """
+    return f"""
 * ESD LEAKAGE SLICE: reverse-biased diodes only, not ESD qualification.
-%s
-.include "%s"
-VDD VDD 0 %g
+{models}
+.include "{netlist_name}"
+VDD VDD 0 {vdd:g}
 VSS VSS 0 0
-VDDIO VDDIO 0 %g
+VDDIO VDDIO 0 {vddio:g}
 VSSIO VSSIO 0 0
 VPU PU_OK 0 0
-VOE OE_N 0 3.3
+VOE OE_N 0 {vddio:g}
 VOUT OUT 0 0
 VEXT PAD 0 0
 X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
 .dc VEXT 0 3.3 0.02
 .meas dc iesd_max MAX i(VEXT)
 .end
-""" % (models, netlist_name, vdd, vddio)
+"""
 
 
 def run_ngspice(workdir, deck, flags, pdk_root):

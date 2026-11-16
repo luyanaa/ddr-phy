@@ -358,8 +358,8 @@
     }
   ],
   "constraint_status_counts": {
-    "unresolved": 8,
     "satisfied": 1,
-    "structural": 2
+    "structural": 2,
+    "unresolved": 8
   }
 }
