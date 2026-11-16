@@ -18,7 +18,7 @@ Mode: **symbolic**. drc_clean: **false**. NOT A TAPEOUT LAYOUT.
 | dq_lane_identity | matching | blocking | structural | - |
 | separate_io_rails | pad_ring | advisory | structural | - |
 
-Unresolved inputs: 41 (of 41).
+Unresolved inputs: 39 (of 41).
 Derived quantities unresolved: 11.
 
 ## Why composite
@@ -38,7 +38,7 @@ at the same time; see constraint_graph.dot.
 
 ## Not a layout yet
 
-- read gf180mcuD DRC/LVS rules into pdk_rules
+- fill the 8 deferred pdk_rules: EM/ESD/latch-up/package data and design specs (see reports/pdk_rule_evidence.md)
 - fill all 31 design params from load simulation
 - define PAD_OE_CTRL and expand the pre-driver to PDRV_STAGES
 - confirm diode orientation, bulk ties and resistor third terminal

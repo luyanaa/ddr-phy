@@ -97,8 +97,17 @@ def main():
                 e.append("%s: ICMR must be labelled a headroom proxy" % name)
 
     rules = cons.get("pdk_rules", [])
-    if len(rules) != 10 or any(x["status"] != "TBD" or x["value"] is not None for x in rules):
-        e.append("pdk_rules must remain 10 TBD/null entries")
+    ev_path = ROOT / "specs" / "pads" / "pdk_rule_evidence.yaml"
+    ev = {r["id"]: r for r in yaml.safe_load(open(ev_path))["rules"]} if ev_path.exists() else {}
+    if len(rules) != 10:
+        e.append("pdk_rules must have 10 entries")
+    for x in rules:
+        v = ev.get(x["id"], {})
+        if v.get("verdict") == "verified":
+            if x["status"] != "verified" or x["value"] is None or not x.get("verified_from"):
+                e.append("verified pdk_rule %s lacks provenance" % x["id"])
+        elif x["status"] != "TBD" or x["value"] is not None:
+            e.append("pdk_rule %s must stay TBD/null" % x["id"])
     dm = cons.get("device_measurements", {})
     if dm.get("status") != "no_signoff_claim":
         e.append("constraints device_measurements missing no_signoff_claim")
@@ -110,8 +119,9 @@ def main():
             print("ERROR " + x, file=sys.stderr)
         return 1
     meas = [k for k, v in d["backends"].items() if v["status"] == "MEASURED"]
-    print("device extraction checks PASS: %d measured, 0 blocked, 10 pdk_rules TBD, 0 mock values" %
-          len(meas))
+    nfill = sum(1 for x in cons["pdk_rules"] if x["status"] == "verified")
+    print("device extraction checks PASS: %d measured, 0 blocked, %d pdk_rules verified/%d TBD, 0 mock values" %
+          (len(meas), nfill, len(cons["pdk_rules"]) - nfill))
     return 0
 
 

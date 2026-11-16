@@ -3,11 +3,9 @@
   "backend": "gf180mcuD",
   "mode": "symbolic",
   "drc_clean": false,
-  "unresolved_param_count": 41,
+  "unresolved_param_count": 39,
   "unresolved_params": [
     "DQ_BIT_SKEW_MAX",
-    "DRC_MIN_SPACING",
-    "DRC_MIN_WIDTH",
     "ESD_AREA_DN",
     "ESD_AREA_MIN",
     "ESD_AREA_UP",
@@ -172,8 +170,7 @@
       "rhs": "DRC_MIN_WIDTH",
       "status": "unresolved",
       "unresolved_operands": [
-        "lhs",
-        "rhs"
+        "lhs"
       ]
     },
     {
@@ -226,8 +223,7 @@
       "rhs": "DRC_MIN_SPACING",
       "status": "unresolved",
       "unresolved_operands": [
-        "lhs",
-        "rhs"
+        "lhs"
       ]
     },
     {
@@ -281,8 +277,7 @@
       "rhs": "DRC_MIN_SPACING",
       "status": "unresolved",
       "unresolved_operands": [
-        "lhs",
-        "rhs"
+        "lhs"
       ]
     },
     {
@@ -326,16 +321,18 @@
     {
       "id": "DRC_MIN_SPACING",
       "unit": "um",
-      "value": null,
-      "status": "TBD",
-      "reason": "PDK DRC spacing rule"
+      "value": 0.23,
+      "status": "verified",
+      "reason": "PDK DRC spacing rule",
+      "verified_from": "libs.tech/klayout/tech/drc/rule_decks/metal.rb:72"
     },
     {
       "id": "DRC_MIN_WIDTH",
       "unit": "um",
-      "value": null,
-      "status": "TBD",
-      "reason": "PDK DRC width rule"
+      "value": 0.23,
+      "status": "verified",
+      "reason": "PDK DRC width rule",
+      "verified_from": "libs.tech/klayout/tech/drc/rule_decks/metal.rb:72"
     },
     {
       "id": "ESD_AREA_MIN",

@@ -1,7 +1,7 @@
 # 闭环 ngspice 器件参数提取器
 
 状态：**三套 PDK（gf180mcuD / ihp-sg13g2 / sky130）全部实测；无 mock 值、无签核声明。**
-`pdk_rules` 的 10 项仍全部 `TBD`，能力报告仍全部 `NO_GO`。
+`pdk_rules` 的 10 项：2 项由 PDK 规则文件核实填入、8 项仍 `TBD`（见 `docs/PDK_RULE_EVIDENCE.md`）；能力报告仍全部 `NO_GO`。
 
 ## 1. 为什么重写而不是照搬粘贴的脚本
 
@@ -88,33 +88,31 @@ TT/SS/FF 三档 Id 满足 SS ≤ TT ≤ FF（gf180 NMOS：1.046 / 1.547 / 2.117�
 2. **Class I 尺寸**：实测闭环校准得到 gf180 Wn≈80µm / Wp≈200µm（M=16/40），比粘贴材料的 40µm/100µm 大一倍 —— 因为校准在 SS/125°C 最坏角按实测电流迭代，而非用 typ 的 k' 解析式。
 3. **VREF 共模**：恒流 Vth 与 BSIM `VTH0` 不是同一个定义（前者含短沟道/迁移率退化），跨材料比较 Vth 数值时要先对齐定义。
 
-## 4. 为什么 `pdk_rules` 仍是 10 个 TBD
+## 4. pdk_rules 的填充边界
 
-用户选项里提到"把实测参数填进 `constraints.yaml` 的 `pdk_rules`"。**没有这么做**，理由要写清：
+器件测量（本提取器）测的是**器件特性**（Vth、R_on、gm/Id、Cgg/Cgd），填不进 `pdk_rules` —— 这个判断仍成立。`pdk_rules` 是版图/可靠性规则与设计规格，应从 **PDK 规则文件**读，而不是从晶体管测。
 
-`pdk_rules` 是 **版图/可靠性规则输入** —— `PAD_PITCH`、`PAD_OPENING`、`DRC_MIN_SPACING/WIDTH`、`ESD_AREA_MIN`、`METAL_JMAX`、`GUARD_RING_RULE_MIN`、`DQ_BIT_SKEW_MAX`、`RAIL_WIDTH`。单管 DC/AC 探测测的是 **器件特性**（Vth、R_on、gm/Id、Cgg/Cgd），**测不出** DRC 间距、ESD 目标、金属电流密度、焊盘节距。把器件电流当成 DRC 规则填进去，是另一类造假。
+本轮后续（见 `docs/PDK_RULE_EVIDENCE.md`）已逐条核对本机 gf180mcuD PDK：
 
-因此生成器只新增 `device_measurements` 段（实测值 + `source: ngspice`），并附 `rule_fill_map` 逐条说明每个 `pdk_rules` 项该由什么输入填：
+- **2 项语义一致、可核实填入**：`DRC_MIN_WIDTH` / `DRC_MIN_SPACING` = 0.23um（KLayout `metal.rb:72`，magic tech 佐证）。
+- **4 项找到的是语义不同的另一条规则，不填**：`ESD_AREA_MIN`、`GUARD_RING_RULE_MIN`、`PAD_PITCH`、`PAD_OPENING`。
+- **1 项 PDK 里没有**：`METAL_JMAX`（无 EM/电流密度数据）。
+- **3 项是设计规格/时序预算**：`IO_CURRENT`、`DQ_BIT_SKEW_MAX`、`RAIL_WIDTH`。
 
-- `IO_CURRENT`：可由 triode Id 辅助，但目标值是设计规格，仍 TBD
-- `DQ_BIT_SKEW_MAX`：需时序预算
-- `RAIL_WIDTH` / `METAL_JMAX`：需 PDK 金属 EM 规则
-- `ESD_AREA_MIN` / `GUARD_RING_RULE_MIN`：需 ESD/latch-up deck
-- `PAD_PITCH` / `PAD_OPENING` / `DRC_MIN_*`：需 DRC deck 与封装约束
+因此 `device_measurements` 段保持「器件实测值 + `source: ngspice`」；`pdk_rules` 里 2 项 `status: verified` 带 `verified_from`，8 项仍 `TBD`。`check_device_extraction.py` 现在校验：非 TBD 项必须有实时核对过的 provenance，防止误填。
 
-`check_device_extraction.py` 会强制这 10 项保持 `TBD`/`null`，防止将来误填。
-
+填入的是 **DRC 规则限值**，不是「跑过 DRC 且 clean」：`drc_clean` 仍 `false`，能力报告仍 `NO_GO`。
 ## 5. 本项目约束的一致性
 
 - `specs/pads/topology.yaml` 的 31 个设计参数**仍全为 `null`** —— 本提取器测的是器件，不是选定尺寸；`emit_pads.py` 的守卫不变。
 - `reports/capability_report.md` **仍全部 `NO_GO`**，`backends/gf180mcu.yaml` 的 `toe_on_ps/toe_off_ps` 仍 `null`、`schematic_drawn: false`。器件表征不等于 pad 已设计/已签核。
 - gf180mcu DDR1 仍是 `DEFERRED_LONG_TERM`（P4+，远期计划）。本提取器是 P0 的器件表征能力建设，不代表 SSTL-2 收发器已实现。
-- `check_layout.py` 的 41 未解输入、11 条复合约束、0 个 DRC 声明保持不变。
+- `check_layout.py` 的 39 未解输入（填了 2 项 DRC 规则，41-2）、11 条复合约束、0 个 DRC 声明保持不变。
 - 没有引入任何外部模型源码；PDK 库通过绝对路径 include，模型本身留在 ciel。
 
 ## 6. 尚未做的
 
-1. 读 gf180mcuD 的 DRC/LVS、ESD、latch-up、金属 EM 规则填 `pdk_rules`。
+1. ~~读 gf180mcuD 规则填 `pdk_rules`~~ 已部分完成（2/10，见 `docs/PDK_RULE_EVIDENCE.md`）；剩 8 项需封装/EM/ESD/latch-up deck 与设计规格。
 2. ~~安装完整 sky130 primitive 模型~~ 已闭合：`792e...` 版本含完整模型；`root_must_contain` 保证不再误选残缺版本，`check_device_extraction.py` 现在要求 3 套全部 MEASURED。
 3. 用实测 R_on / Cgg / gm/Id 反推 31 个设计参数，跑 `char_tb.spice` 的测量清单。
 4. 完整堆叠尾电流源仿真验证 ICMR 拓扑（替代代理判据）。
@@ -125,5 +123,5 @@ TT/SS/FF 三档 Id 满足 SS ≤ TT ≤ FF（gf180 NMOS：1.046 / 1.547 / 2.117�
 - 不用 mock / LUT / 演示模型卡冒充实测，不因为跑不通就补一个"合理"的数。
 - 不把 `M` 前缀用在 `.subckt` 器件上，不把 `u` 后缀用在 sky130 的 `scale=1.0u` 上。
 - 不把恒流 Vth 与 BSIM `VTH0` 混为一谈，不把 ICMR 代理判据说成拓扑结论。
-- 不把器件测量填进 `pdk_rules`，不把"提取器跑通"说成 `NO_GO` 解除。
+- 不把器件测量当成 PDK 规则填进 `pdk_rules`，不把"提取器跑通"说成 `NO_GO` 解除。
 - 不把 BLOCKED 说成"已验证"或"不支持"；本轮已用真实 PDK 版本闭合 sky130，并保留 bin 限制这个真发现。

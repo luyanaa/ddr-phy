@@ -1,0 +1,114 @@
+{
+  "generated_by": "generator/extract_pdk_rules.py",
+  "pdk": "gf180mcuD",
+  "pdk_version": "792ef67037d74c8c51811eab3ce23cf793491296",
+  "pdk_root": "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD",
+  "status": "rule_limits_only_no_drc_claim",
+  "filled": {
+    "DRC_MIN_SPACING": 0.23,
+    "DRC_MIN_WIDTH": 0.23
+  },
+  "rules": [
+    {
+      "id": "PAD_PITCH",
+      "verdict": "related_rule_only",
+      "decision": "defer",
+      "unit": "um",
+      "candidates": [
+        "libs.ref/gf180mcu_fd_io/lef/gf180mcu_fd_io__bi_t.lef: SIZE 75.000 BY 350.000",
+        "libs.ref/gf180mcu_fd_io/mag/Bondpad_5LM.mag: glass opening rect 400..12400 (units)"
+      ],
+      "reason": "75um is one IO CELL width, not a bond-pad pitch. Pitch is set by package/assembly rules absent from the PDK; .mag units need magscale interpretation. Keep TBD."
+    },
+    {
+      "id": "PAD_OPENING",
+      "verdict": "related_rule_only",
+      "decision": "defer",
+      "unit": "um",
+      "candidates": [
+        "libs.tech/klayout/tech/drc/rule_decks/guard_ring.rb:109 GR.11 Pad opening on top of GUARD_RING_MK layer (no numeric value)",
+        "libs.ref/gf180mcu_fd_io/mag/Bondpad_5LM.mag: glass layer bbox"
+      ],
+      "reason": "GR.11 states the topology but gives no dimension; glass bbox is in magic internal units needing magscale. No verified micron value. Keep TBD."
+    },
+    {
+      "id": "DRC_MIN_SPACING",
+      "verdict": "verified",
+      "decision": "fill",
+      "unit": "um",
+      "value": 0.23,
+      "source": "libs.tech/klayout/tech/drc/rule_decks/metal.rb",
+      "source_line": 72,
+      "source_snippet": "min_space: 0.23",
+      "corroboration": "libs.tech/magic/gf180mcuD.tech:2963 spacing allm1,obsm1 allm1,obsm1 230 (M1.2a)",
+      "reason": "Metal1 minimum spacing 0.23um from the KLayout DRC deck; magic tech M1.2a agrees (230 = 0.23um). Most conservative (smallest) of all metal layers, so a safe generic lower bound. NOTE: layer-specific; M2-M5 are 0.28um, MetalTop 0.46um."
+    },
+    {
+      "id": "DRC_MIN_WIDTH",
+      "verdict": "verified",
+      "decision": "fill",
+      "unit": "um",
+      "value": 0.23,
+      "source": "libs.tech/klayout/tech/drc/rule_decks/metal.rb",
+      "source_line": 72,
+      "source_snippet": "min_width: 0.23",
+      "corroboration": "libs.tech/magic/gf180mcuD.tech:2962 width *m1,rm1 230 (M1.1)",
+      "reason": "Metal1 minimum width 0.23um from the KLayout DRC deck; magic tech M1.1 agrees. Used in driver_width_drc only as a first-order lower bound; not a transistor-sizing rule."
+    },
+    {
+      "id": "ESD_AREA_MIN",
+      "verdict": "related_rule_only",
+      "decision": "defer",
+      "unit": "um2",
+      "candidates": [
+        "libs.tech/klayout/tech/drc/rule_decks/esd.rb:75 ESD.5a Minimum ESD area 0.49um2",
+        "libs.tech/klayout/tech/drc/rule_decks/esd.rb:37 ESD.1 Minimum width of an ESD implant area 0.6um"
+      ],
+      "reason": "ESD.5a is a DRC MINIMUM for the ESD IMPLANT LAYER polygon area, NOT an ESD qualification target (HBM/MM diode area). constraints uses ESD_AREA_UP/DN as diode areas; filling 0.49um2 would falsely imply a tiny diode suffices. Do NOT fill."
+    },
+    {
+      "id": "METAL_JMAX",
+      "verdict": "not_in_pdk",
+      "decision": "defer",
+      "unit": "A/um",
+      "candidates": [],
+      "reason": "No Jmax / current-density / electromigration limit anywhere in libs.tech or the IO library (only a comment mentioning IR drop in librelane/config.tcl). Metal EM limits are foundry-confidential in this open PDK. Keep TBD."
+    },
+    {
+      "id": "IO_CURRENT",
+      "verdict": "design_input",
+      "decision": "defer",
+      "unit": "A",
+      "candidates": [],
+      "reason": "Pad drive current is a DESIGN SPEC (SSTL-2 Class I 7.6mA / Class II 15.2mA), not a PDK rule. See specs/pads/device_backends.yaml sstl2_target. Keep TBD."
+    },
+    {
+      "id": "GUARD_RING_RULE_MIN",
+      "verdict": "related_rule_only",
+      "decision": "defer",
+      "unit": "um",
+      "candidates": [
+        "libs.tech/klayout/tech/drc/rule_decks/guard_ring.rb:49 GR.2 GUARD_RING_MK space to prime die COMP: 10um",
+        "libs.tech/klayout/tech/drc/rule_decks/guard_ring.rb:82 GR.4 Minimum Metal width: 12um",
+        "libs.tech/klayout/tech/drc/rule_decks/guard_ring.rb:89 GR.6 Min PCOMP width: 16um"
+      ],
+      "reason": "GR.2/4/6 are SEAL-RING / guard-ring-MARKER rules (distance from chip edge to core), not the latch-up tap-to-diffusion spacing that this parameter names. Different physics. Do NOT fill."
+    },
+    {
+      "id": "DQ_BIT_SKEW_MAX",
+      "verdict": "design_input",
+      "decision": "defer",
+      "unit": "ps",
+      "candidates": [],
+      "reason": "Bit-to-bit skew budget comes from the P0-1 timing contract / board SI, not from a PDK rule. Keep TBD."
+    },
+    {
+      "id": "RAIL_WIDTH",
+      "verdict": "design_input",
+      "decision": "defer",
+      "unit": "um",
+      "candidates": [],
+      "reason": "VDDIO rail width is an EM/IR design decision requiring METAL_JMAX and IO_CURRENT, both TBD. Keep TBD."
+    }
+  ]
+}

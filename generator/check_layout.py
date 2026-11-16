@@ -25,13 +25,23 @@ def main():
     topo = yaml.safe_load(open(SPECS / "topology.yaml"))
     cons = yaml.safe_load(open(SPECS / "constraints.yaml"))
     dev = yaml.safe_load(open(SPECS / "devices" / "gf180mcuD.yaml"))
+    ev = yaml.safe_load(open(SPECS / "pdk_rule_evidence.yaml"))
+    verdicts = {r["id"]: r for r in ev["rules"]}
 
     for p in topo["params"]:
         if p["value"] is not None:
             e.append("design param %s invented value" % p["id"])
     for p in cons["pdk_rules"]:
-        if p["value"] is not None or p["status"] != "TBD":
-            e.append("PDK rule %s invented or not TBD" % p["id"])
+        v = verdicts.get(p["id"], {})
+        if v.get("verdict") == "verified":
+            # A filled rule must carry live-checked provenance.
+            if p["status"] != "verified" or p["value"] is None or not p.get("verified_from"):
+                e.append("verified PDK rule %s lacks value/status/provenance" % p["id"])
+            if p["value"] != v.get("value"):
+                e.append("verified PDK rule %s value drifted from evidence" % p["id"])
+        else:
+            if p["value"] is not None or p["status"] != "TBD":
+                e.append("PDK rule %s invented value (must stay TBD)" % p["id"])
     if dev["ddr1"]["status"] != "DEFERRED_LONG_TERM":
         e.append("gf180mcuD DDR1 is not DEFERRED_LONG_TERM")
 
@@ -40,8 +50,11 @@ def main():
         e.append("layout_constraints claims drc_clean")
     if lc["mode"] != "symbolic":
         e.append("default mode must be symbolic")
-    if lc["unresolved_param_count"] != len(topo["params"]) + len(cons["pdk_rules"]):
-        e.append("unresolved count mismatch")
+    expected_open = (sum(1 for p in topo["params"] if p["value"] is None) +
+                     sum(1 for r in cons["pdk_rules"] if r["value"] is None))
+    if lc["unresolved_param_count"] != expected_open:
+        e.append("unresolved count mismatch (%d vs %d)" %
+                 (lc["unresolved_param_count"], expected_open))
     for c in lc["constraints"]:
         if c["status"] not in ALLOWED:
             e.append("bad constraint status %s" % c["status"])

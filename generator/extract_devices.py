@@ -405,13 +405,10 @@ def patch_constraints(results):
                 else:
                     block.append("        tx_calibration: %s" % cal.get("status"))
                 block.append("        source: ngspice")
-    block += ["  rule_fill_map:",
-              "    IO_CURRENT: derivable_from_triode_Id (target is a design spec, keep TBD)",
-              "    DQ_BIT_SKEW_MAX: needs timing budget, NOT a device probe",
-              "    RAIL_WIDTH: needs metal EM rules, NOT a device probe",
-              "    ESD_AREA_MIN / GUARD_RING_RULE_MIN: need ESD/latch-up deck",
-              "    PAD_PITCH / PAD_OPENING / DRC_MIN_*: need DRC deck and package",
-              "    METAL_JMAX: need PDK metal EM rules",
+    # Per-rule verdicts are authoritative in specs/pads/pdk_rule_evidence.yaml
+    # and generator/extract_pdk_rules.py. Do not duplicate them here: DRC_MIN_*
+    # is now verified, so a stale "need DRC deck" note would contradict it.
+    block += ["  rule_fill_map_ref: specs/pads/pdk_rule_evidence.yaml",
               MARK_END, ""]
     new = "\n".join(block)
     if MARK_BEGIN in text:
