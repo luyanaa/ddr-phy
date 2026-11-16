@@ -275,7 +275,7 @@ def main():
         "derived": derived, "derived_unresolved": unres_derived,
         "constraints": results,
         "constraint_status_counts": {s: sum(1 for r in results if r["status"] == s)
-                                     for s in {r["status"] for r in results}},
+                                     for s in sorted({r["status"] for r in results})},
     }
     (outdir / "closure_constraints.json").write_text(json.dumps(lc, indent=2) + "\n")
 
