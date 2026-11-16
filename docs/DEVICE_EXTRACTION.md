@@ -114,7 +114,7 @@ TT/SS/FF 三档 Id 满足 SS ≤ TT ≤ FF（gf180 NMOS：1.046 / 1.547 / 2.117�
 
 1. ~~读 gf180mcuD 规则填 `pdk_rules`~~ 已部分完成（4/10：2 本机 PDK 文件 + 2 foundry DRM，见 `docs/PDK_RULE_EVIDENCE.md` 与 `docs/FOUNDRY_PACKAGE_DATA.md`）；剩 6 项需封装厂 pad 数据、ESD HBM 目标与设计规格。
 2. ~~安装完整 sky130 primitive 模型~~ 已闭合：`792e...` 版本含完整模型；`root_must_contain` 保证不再误选残缺版本，`check_device_extraction.py` 现在要求 3 套全部 MEASURED。
-3. 用实测 R_on / Cgg / gm/Id 反推 31 个设计参数，跑 `char_tb.spice` 的测量清单。gf180mcuD / sky130 / ihp130 已各有 `design_assumption` fixture 和可跑预驱动+输出级/接收器切片（`docs/PAD_GENERATOR.md` §4.1）；这些 fixture 不是签核尺寸。
+3. 用实测 R_on / Cgg / gm/Id 反推 31 个设计参数，跑 `char_tb.spice` 的测量清单。gf180mcuD / sky130 / ihp130 已各有 `design_assumption` fixture 和可跑 OE+预驱动+输出级/接收器切片（`docs/PAD_GENERATOR.md` §4.1）；这些 fixture 不是签核尺寸。
 4. 完整堆叠尾电流源仿真验证 ICMR 拓扑（替代代理判据）。
 5. PVT min/max 配对、PEX/SPICE、IBIS、SI/PI、DRC/LVS、pad ring 集成。
 

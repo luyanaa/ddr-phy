@@ -272,8 +272,8 @@
     }
   ],
   "constraint_status_counts": {
-    "structural": 2,
+    "violated": 2,
     "satisfied": 7,
-    "violated": 2
+    "structural": 2
   }
 }

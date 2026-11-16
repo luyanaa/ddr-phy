@@ -25,7 +25,7 @@ params:
   - {id: NF_P_OUT,         value: 42,    unit: count, basis: "ng splits the 210 um total into 42 fingers"}
   - {id: PDRV_STAGES,      value: 2,     unit: count, basis: "two-stage non-inverting chain; pre-driver placeholder"}
   - {id: W_N_PDRV,         value: 2,     unit: um,  basis: "pre-driver placeholder"}
-  - {id: W_P_PDRV,         value: 4,     unit: um,  basis: "pre-driver placeholder"}
+  - {id: W_P_PDRV,         value: 4,     unit: um,  basis: "pre-driver/level-shifter placeholder"}
   - {id: L_PDRV,           value: 0.45,  unit: um,  basis: "pre-driver/receiver L placeholder"}
   - {id: L_R_SERIES,       value: 22,    unit: um,  basis: "on-chip length placeholder; target R not converted"}
   - {id: W_R_SERIES,       value: 2,     unit: um,  basis: "resistor width placeholder"}

@@ -103,25 +103,11 @@ def model_lines(dev, root):
     return "\n".join(lines)
 
 
-def oe_stub():
-    return """
-* OPEN-LOOP GATE DRIVE for the characterization slice only.
-* The real OE/pre-driver logic is NOT characterized here.
-* 0-4.0n disabled; 4.0-6.0n enable high; 6.0-12.0n enable low;
-* 12.0-18.0n enable high; 18.0n+ disabled.
-.subckt PAD_OE_CTRL n_gp n_gn OUT OE_N PU_OK VDDIO VSSIO
-VGP n_gp VSSIO PWL(0 3.3 3.9n 3.3 4.0n 0 5.9n 0 6.0n 3.3 11.9n 3.3 12.0n 0 17.9n 0 18.0n 3.3 24n 3.3)
-VGN n_gn VSSIO PWL(0 0 3.9n 0 4.0n 0 5.9n 0 6.0n 3.3 11.9n 3.3 12.0n 0 17.9n 0 18.0n 0 24n 0)
-.ends
-"""
-
-
 def tran_deck(netlist_name, models, vdd, vddio):
     return """
 * TRANSIENT SLICE: OE timing and PAD slew. Fixture values, not signoff.
 %s
 .include "%s"
-%s
 VDD VDD 0 %g
 VSS VSS 0 0
 VDDIO VDDIO 0 %g
@@ -142,7 +128,7 @@ X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
 .meas tran tr_pad TRIG v(PAD) VAL=0.33 RISE=1 TARG v(PAD) VAL=2.9 RISE=2
 .meas tran tf_pad TRIG v(PAD) VAL=2.9 FALL=1 TARG v(PAD) VAL=0.33 FALL=1
 .end
-""" % (models, netlist_name, oe_stub(), vdd, vddio)
+""" % (models, netlist_name, vdd, vddio)
 
 
 def dc_deck(netlist_name, models, vdd, vddio):
@@ -150,13 +136,13 @@ def dc_deck(netlist_name, models, vdd, vddio):
 * DC SLICE: receiver threshold and power-up Hi-Z current. Fixture values.
 %s
 .include "%s"
-%s
 VDD VDD 0 %g
 VSS VSS 0 0
 VDDIO VDDIO 0 %g
 VSSIO VSSIO 0 0
 VPU PU_OK 0 0
 VOE OE_N 0 3.3
+VOUT OUT 0 0
 VEXT PAD 0 0
 * simulation-only bleed resistor; not a design element
 RIN IN VSSIO 1G
@@ -165,7 +151,7 @@ X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
 .meas dc vth_pad FIND v(PAD) WHEN v(IN)=1.65
 .meas dc ihiz_max MAX i(VEXT)
 .end
-""" % (models, netlist_name, oe_stub(), vdd, vddio)
+""" % (models, netlist_name, vdd, vddio)
 
 
 def esd_deck(netlist_name, models, vdd, vddio):
@@ -173,19 +159,19 @@ def esd_deck(netlist_name, models, vdd, vddio):
 * ESD LEAKAGE SLICE: reverse-biased diodes only, not ESD qualification.
 %s
 .include "%s"
-%s
 VDD VDD 0 %g
 VSS VSS 0 0
 VDDIO VDDIO 0 %g
 VSSIO VSSIO 0 0
 VPU PU_OK 0 0
 VOE OE_N 0 3.3
+VOUT OUT 0 0
 VEXT PAD 0 0
 X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
 .dc VEXT 0 3.3 0.02
 .meas dc iesd_max MAX i(VEXT)
 .end
-""" % (models, netlist_name, oe_stub(), vdd, vddio)
+""" % (models, netlist_name, vdd, vddio)
 
 
 def run_ngspice(workdir, deck, flags, pdk_root):
@@ -248,9 +234,15 @@ def main():
         ep.pdrv_chain(dev, pdrv_stages), tokens, conds)
     tpl = (SPECS / "templates" / "sdr_bidir_pad.spice.tpl").read_text()
     conds_tran = dict(conds, RX=False)
+    oe = ep.oe_ctrl_spice(dev, tokens)
     body_tran = ep.render(tpl, tokens, conds_tran)
     body_dc = ep.render(tpl, tokens, conds)
     body_esd = ep.render(tpl, tokens, dict(conds, ESD=True, NO_ESD=False, RX=False))
+    for _name, _body in (("tran", body_tran), ("dc", body_dc), ("esd", body_esd)):
+        pass
+    body_tran = body_tran.replace(".subckt sdr_bidir_pad", oe + "\n.subckt sdr_bidir_pad", 1)
+    body_dc = body_dc.replace(".subckt sdr_bidir_pad", oe + "\n.subckt sdr_bidir_pad", 1)
+    body_esd = body_esd.replace(".subckt sdr_bidir_pad", oe + "\n.subckt sdr_bidir_pad", 1)
     header = "\n".join([
         "* SIZED CHARACTERIZATION SLICE - DESIGN ASSUMPTION, NOT SIGNOFF",
         "* backend: %s" % args.backend,

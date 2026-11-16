@@ -30,6 +30,297 @@
   },
   "instances": [
     {
+      "name": "X_INV_P",
+      "device": "pfet_03v3",
+      "nets": [
+        "Y",
+        "A",
+        "VDDIO",
+        "VDDIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        0,
+        0,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_INV_N",
+      "device": "nfet_03v3",
+      "nets": [
+        "Y",
+        "A",
+        "VSSIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        25,
+        0,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_NAND_P1",
+      "device": "pfet_03v3",
+      "nets": [
+        "Y",
+        "A",
+        "VDDIO",
+        "VDDIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        50,
+        0,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_NAND_P2",
+      "device": "pfet_03v3",
+      "nets": [
+        "Y",
+        "B",
+        "VDDIO",
+        "VDDIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        0,
+        15,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_NAND_N1",
+      "device": "nfet_03v3",
+      "nets": [
+        "Y",
+        "A",
+        "nand_mid",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        25,
+        15,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_NAND_N2",
+      "device": "nfet_03v3",
+      "nets": [
+        "nand_mid",
+        "B",
+        "VSSIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        50,
+        15,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_NOR_P1",
+      "device": "pfet_03v3",
+      "nets": [
+        "Y",
+        "A",
+        "nor_mid",
+        "VDDIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        0,
+        30,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_NOR_P2",
+      "device": "pfet_03v3",
+      "nets": [
+        "nor_mid",
+        "B",
+        "VDDIO",
+        "VDDIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        25,
+        30,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_NOR_N1",
+      "device": "nfet_03v3",
+      "nets": [
+        "Y",
+        "A",
+        "VSSIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        50,
+        30,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_NOR_N2",
+      "device": "nfet_03v3",
+      "nets": [
+        "Y",
+        "B",
+        "VSSIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        0,
+        45,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_INV_O",
+      "device": "INV_IO",
+      "nets": [
+        "OUT",
+        "OUTB_I",
+        "VDDIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        25,
+        45,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_INV_OE",
+      "device": "INV_IO",
+      "nets": [
+        "OE_N",
+        "OENB",
+        "VDDIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        50,
+        45,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_NAND",
+      "device": "NAND2_IO",
+      "nets": [
+        "PU_OK",
+        "OENB",
+        "EN_N",
+        "VDDIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        0,
+        60,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_NOR_GN",
+      "device": "NOR2_IO",
+      "nets": [
+        "EN_N",
+        "OUT_I",
+        "N_GN",
+        "VDDIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        25,
+        60,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_NOR_GP",
+      "device": "NOR2_IO",
+      "nets": [
+        "EN_N",
+        "OUTB_I",
+        "NGPB",
+        "VDDIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        50,
+        60,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_INV_NGP",
+      "device": "INV_IO",
+      "nets": [
+        "NGPB",
+        "N_GP",
+        "VDDIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        0,
+        75,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
       "name": "X_OE_CTRL",
       "device": "PAD_OE_CTRL",
       "nets": [
@@ -38,13 +329,15 @@
         "OUT",
         "OE_N",
         "PU_OK",
+        "VDD",
+        "VSS",
         "VDDIO",
         "VSSIO"
       ],
       "kind": "instance",
       "symbolic_box": [
-        0,
-        0,
+        25,
+        75,
         20,
         10
       ],
@@ -61,8 +354,8 @@
       ],
       "kind": "instance",
       "symbolic_box": [
-        25,
-        0,
+        50,
+        75,
         20,
         10
       ],
@@ -79,8 +372,8 @@
       ],
       "kind": "instance",
       "symbolic_box": [
-        50,
         0,
+        90,
         20,
         10
       ],
@@ -97,8 +390,8 @@
       ],
       "kind": "instance",
       "symbolic_box": [
-        0,
-        15,
+        25,
+        90,
         20,
         10
       ],
@@ -115,8 +408,8 @@
       ],
       "kind": "instance",
       "symbolic_box": [
-        25,
-        15,
+        50,
+        90,
         20,
         10
       ],
@@ -133,8 +426,8 @@
       ],
       "kind": "instance",
       "symbolic_box": [
-        50,
-        15,
+        0,
+        105,
         20,
         10
       ],
@@ -151,8 +444,8 @@
       ],
       "kind": "instance",
       "symbolic_box": [
-        0,
-        30,
+        25,
+        105,
         20,
         10
       ],
@@ -169,8 +462,8 @@
       ],
       "kind": "instance",
       "symbolic_box": [
-        25,
-        30,
+        50,
+        105,
         20,
         10
       ],
@@ -187,8 +480,8 @@
       ],
       "kind": "instance",
       "symbolic_box": [
-        50,
-        30,
+        0,
+        120,
         20,
         10
       ],
@@ -205,8 +498,8 @@
       ],
       "kind": "instance",
       "symbolic_box": [
-        0,
-        45,
+        25,
+        120,
         20,
         10
       ],
@@ -223,8 +516,8 @@
       ],
       "kind": "instance",
       "symbolic_box": [
-        25,
-        45,
+        50,
+        120,
         20,
         10
       ],
@@ -240,8 +533,8 @@
       ],
       "kind": "instance",
       "symbolic_box": [
-        50,
-        45,
+        0,
+        135,
         20,
         10
       ],
@@ -256,8 +549,8 @@
       ],
       "kind": "diode",
       "symbolic_box": [
-        0,
-        60,
+        25,
+        135,
         20,
         10
       ],
@@ -272,8 +565,8 @@
       ],
       "kind": "diode",
       "symbolic_box": [
-        25,
-        60,
+        50,
+        135,
         20,
         10
       ],
@@ -288,8 +581,8 @@
       ],
       "kind": "diode",
       "symbolic_box": [
-        50,
-        60,
+        0,
+        150,
         20,
         10
       ],
@@ -306,8 +599,8 @@
       ],
       "kind": "instance",
       "symbolic_box": [
-        0,
-        75,
+        25,
+        150,
         20,
         10
       ],
@@ -324,8 +617,8 @@
       ],
       "kind": "instance",
       "symbolic_box": [
-        25,
-        75,
+        50,
+        150,
         20,
         10
       ],
@@ -333,20 +626,34 @@
     }
   ],
   "nets": [
+    "A",
+    "B",
+    "EN_N",
     "IN",
+    "NGPB",
+    "N_GN",
+    "N_GP",
+    "OENB",
     "OE_N",
     "OUT",
+    "OUTB_I",
+    "OUT_I",
     "PAD",
     "PU_OK",
+    "VDD",
     "VDDIO",
+    "VSS",
     "VSSIO",
+    "Y",
     "n_gn",
     "n_gn_drv",
     "n_gn_s1",
     "n_gp",
     "n_gp_drv",
     "n_gp_s1",
-    "n_pre"
+    "n_pre",
+    "nand_mid",
+    "nor_mid"
   ],
   "rails": [
     "VDD",

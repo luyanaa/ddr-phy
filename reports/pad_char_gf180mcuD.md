@@ -10,10 +10,10 @@ The sizing fixture and load are placeholders; ESD is not qualified.
 
 | measure | value | unit |
 |---|---|---|
-| t_oe_on | 1.89064e-10 | s |
-| t_oe_off | 2.94485e-09 | s |
-| tr_pad | 1.24293e-10 | s |
-| tf_pad | 1.30136e-10 | s |
+| t_oe_on | 4.22737e-10 | s |
+| t_oe_off | 3.12344e-09 | s |
+| tr_pad | 1.28607e-10 | s |
+| tf_pad | 1.50996e-10 | s |
 | vth_pad | 1.52575 | V |
 | ihiz_max | 1.45755e-10 | A |
 | iesd_max | 1.49062e-10 | A |

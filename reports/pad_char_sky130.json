@@ -16,10 +16,10 @@
     "ESD qualification"
   ],
   "measures": {
-    "t_oe_on": 1.029445e-09,
-    "t_oe_off": 4.739061e-09,
-    "tr_pad": 5.009014e-10,
-    "tf_pad": 8.182571e-10,
+    "t_oe_on": 9.747035e-10,
+    "t_oe_off": 5.277251e-09,
+    "tr_pad": 2.403116e-10,
+    "tf_pad": 1.435722e-09,
     "vth_pad": 1.513606,
     "ihiz_max": 1.354856e-11,
     "iesd_max": 1.365501e-11

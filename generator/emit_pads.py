@@ -98,6 +98,89 @@ def pdrv_chain(dev, stages=2):
     return "\n".join(out)
 
 
+def oe_ctrl_spice(dev, tokens):
+    """Transistor-level OE control and optional core->IO level shifter.
+
+    The gate devices reuse the pre-driver sizing placeholders. They are
+    topology-sized, not optimized. The level shifter is included only when
+    the backend has separate core and IO rails.
+    """
+    cond = conditions_for(dev)
+    raw = []
+
+    def inv(name, a, y):
+        raw.append(mos_line(dev, name + "_P", "PMOS_IO", y, a,
+                            "VDDIO", "VDDIO", "W_P_PDRV", "L_PDRV", "NF_DEVICE"))
+        raw.append(mos_line(dev, name + "_N", "NMOS_IO", y, a,
+                            "VSSIO", "VSSIO", "W_N_PDRV", "L_PDRV", "NF_DEVICE"))
+
+    def nand(name, a, b, y, mid):
+        raw.append(mos_line(dev, name + "_P1", "PMOS_IO", y, a,
+                            "VDDIO", "VDDIO", "W_P_PDRV", "L_PDRV", "NF_DEVICE"))
+        raw.append(mos_line(dev, name + "_P2", "PMOS_IO", y, b,
+                            "VDDIO", "VDDIO", "W_P_PDRV", "L_PDRV", "NF_DEVICE"))
+        raw.append(mos_line(dev, name + "_N1", "NMOS_IO", y, a,
+                            mid, "VSSIO", "W_N_PDRV", "L_PDRV", "NF_DEVICE"))
+        raw.append(mos_line(dev, name + "_N2", "NMOS_IO", mid, b,
+                            "VSSIO", "VSSIO", "W_N_PDRV", "L_PDRV", "NF_DEVICE"))
+
+    def nor(name, a, b, y, mid):
+        raw.append(mos_line(dev, name + "_P1", "PMOS_IO", y, a,
+                            mid, "VDDIO", "W_P_PDRV", "L_PDRV", "NF_DEVICE"))
+        raw.append(mos_line(dev, name + "_P2", "PMOS_IO", mid, b,
+                            "VDDIO", "VDDIO", "W_P_PDRV", "L_PDRV", "NF_DEVICE"))
+        raw.append(mos_line(dev, name + "_N1", "NMOS_IO", y, a,
+                            "VSSIO", "VSSIO", "W_N_PDRV", "L_PDRV", "NF_DEVICE"))
+        raw.append(mos_line(dev, name + "_N2", "NMOS_IO", y, b,
+                            "VSSIO", "VSSIO", "W_N_PDRV", "L_PDRV", "NF_DEVICE"))
+
+    raw.append(".subckt INV_IO A Y VDDIO VSSIO")
+    inv("INV", "A", "Y")
+    raw.append(".ends INV_IO")
+    raw.append(".subckt NAND2_IO A B Y VDDIO VSSIO")
+    nand("NAND", "A", "B", "Y", "nand_mid")
+    raw.append(".ends NAND2_IO")
+    raw.append(".subckt NOR2_IO A B Y VDDIO VSSIO")
+    nor("NOR", "A", "B", "Y", "nor_mid")
+    raw.append(".ends NOR2_IO")
+
+    if cond["LEVEL_SHIFTER"]:
+        raw.append(".subckt LS_C2I IN OUT OUTB VDD VSS VDDIO VSSIO")
+        raw.append(mos_line(dev, "LS_INV_P", "PMOS_CORE", "INB", "IN",
+                            "VDD", "VDD", "W_P_PDRV", "L_PDRV", "NF_DEVICE"))
+        raw.append(mos_line(dev, "LS_INV_N", "NMOS_CORE", "INB", "IN",
+                            "VSS", "VSS", "W_N_PDRV", "L_PDRV", "NF_DEVICE"))
+        # The pull-down NMOS must be stronger than the cross-coupled PMOS.
+        # Reuse the pre-driver width token with an explicit x4 placeholder.
+        raw.append(mos_line(dev, "LS_N1", "NMOS_IO", "OUTB", "IN",
+                            "VSSIO", "VSSIO", "W_N_PDRV", "L_PDRV", "NF_DEVICE")
+                   .replace("w=@@P_W_N_PDRV@@", "w=@@P_W_N_PDRV@@*16"))
+        raw.append(mos_line(dev, "LS_N2", "NMOS_IO", "OUT", "INB",
+                            "VSSIO", "VSSIO", "W_N_PDRV", "L_PDRV", "NF_DEVICE")
+                   .replace("w=@@P_W_N_PDRV@@", "w=@@P_W_N_PDRV@@*16"))
+        raw.append(mos_line(dev, "LS_P1", "PMOS_IO", "OUTB", "OUT",
+                            "VDDIO", "VDDIO", "W_P_PDRV", "L_PDRV", "NF_DEVICE"))
+        raw.append(mos_line(dev, "LS_P2", "PMOS_IO", "OUT", "OUTB",
+                            "VDDIO", "VDDIO", "W_P_PDRV", "L_PDRV", "NF_DEVICE"))
+        raw.append(".ends LS_C2I")
+
+    raw.append(".subckt PAD_OE_CTRL n_gp n_gn OUT OE_N PU_OK VDD VSS VDDIO VSSIO")
+    if cond["LEVEL_SHIFTER"]:
+        raw.append("X_LS OUT OUT_I OUTB_I VDD VSS VDDIO VSSIO LS_C2I")
+    else:
+        raw.append("* core_v == vddio_v: OUT is already IO domain")
+        raw.append("V_OUT_I OUT_I OUT 0")
+        raw.append("X_INV_O OUT OUTB_I VDDIO VSSIO INV_IO")
+    raw.append("X_INV_OE OE_N OENB VDDIO VSSIO INV_IO")
+    raw.append("X_NAND PU_OK OENB EN_N VDDIO VSSIO NAND2_IO")
+    raw.append("X_NOR_GN EN_N OUT_I N_GN VDDIO VSSIO NOR2_IO")
+    raw.append("X_NOR_GP EN_N OUTB_I NGPB VDDIO VSSIO NOR2_IO")
+    raw.append("X_INV_NGP NGPB N_GP VDDIO VSSIO INV_IO")
+    raw.append(".ends PAD_OE_CTRL")
+
+    return render("\n".join(raw), tokens, cond)
+
+
 def tokens_for(topo, dev):
     t = {}
     t["BACKEND"] = dev["backend"]
@@ -289,6 +372,10 @@ def main():
             }
             for tpl, fname, key in specs:
                 body = render(open(TPL / tpl).read(), tokens, conds)
+                if key == "sdr":
+                    body = body.replace(
+                        ".subckt sdr_bidir_pad",
+                        oe_ctrl_spice(dev, tokens) + "\n.subckt sdr_bidir_pad", 1)
                 left = sorted(set(re.findall(r"@@[A-Z0-9_]+@@", body)))
                 if left:
                     print("ERROR: unresolved tokens in %s: %s" % (fname, left), file=sys.stderr)

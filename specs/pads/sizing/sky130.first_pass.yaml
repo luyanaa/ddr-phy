@@ -25,8 +25,8 @@ params:
   - {id: L_P_OUT,          value: 0.5,   unit: um,  basis: "g5v0d10v5 driver L"}
   - {id: NF_P_OUT,         value: 1,     unit: count, basis: "nf splits W; m is the multiplier"}
   - {id: PDRV_STAGES,      value: 2,     unit: count, basis: "two-stage non-inverting chain; pre-driver placeholder"}
-  - {id: W_N_PDRV,         value: 0.5,   unit: um,  basis: "pre-driver placeholder"}
-  - {id: W_P_PDRV,         value: 1,     unit: um,  basis: "pre-driver placeholder"}
+  - {id: W_N_PDRV,         value: 4,     unit: um,  basis: "pre-driver/level-shifter placeholder; stronger NMOS pull-down"}
+  - {id: W_P_PDRV,         value: 1,     unit: um,  basis: "pre-driver/level-shifter placeholder"}
   - {id: L_PDRV,           value: 0.5,   unit: um,  basis: "pre-driver/receiver L placeholder"}
   - {id: L_R_SERIES,       value: 22,    unit: um,  basis: "on-chip length placeholder; target R not converted"}
   - {id: W_R_SERIES,       value: 2,     unit: um,  basis: "resistor width placeholder"}

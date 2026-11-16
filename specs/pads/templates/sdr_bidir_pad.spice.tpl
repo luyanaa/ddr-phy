@@ -9,9 +9,9 @@
 * NOT SIMULATABLE. This is a TOPOLOGY TEMPLATE:
 *   - every W / L / NF / R / area is an unresolved parameter
 *     (see required_params.json). ngspice rejects them until filled.
-*   - PAD_OE_CTRL is a named placeholder subcircuit, not a supplied
-*     block. The generator will expand it once the backend cell library
-*     and PDRV_STAGES are bound.
+*   - PAD_OE_CTRL is a generated transistor-level block (IO gates plus
+*     an optional core-to-IO level shifter); its devices reuse the
+*     pre-driver sizing placeholders and are not optimized.
 *   - diode orientation, bulk ties and the series-R third terminal must
 *     be confirmed at schematic review; they are NOT signed off here.
 *   - L_R_SERIES is the on-chip resistor LENGTH. The target
@@ -35,20 +35,13 @@
 
 .subckt sdr_bidir_pad OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO
 
-@if LEVEL_SHIFTER@
-* --- core -> IO level shifter (VDD != VDDIO): 4 devices, sizes TBD ---
-@@LS_N_LINE@@
-@@LS_P_LINE@@
-@@LS_N2_LINE@@
-@@LS_P2_LINE@@
-@endif@
 @if NO_LEVEL_SHIFTER@
 * --- core_v == vddio_v: NO level shifter (@@LEVEL_NOTE@@) ---
 * OUT / OE_N are already at IO-domain levels; pre-driver still required.
 @endif@
 
-* --- OE / power-up gating: named placeholder, NOT supplied ---
-X_OE_CTRL n_gp n_gn OUT OE_N PU_OK VDDIO VSSIO PAD_OE_CTRL
+* --- OE / power-up gating: real transistor-level block (see header) ---
+X_OE_CTRL n_gp n_gn OUT OE_N PU_OK VDD VSS VDDIO VSSIO PAD_OE_CTRL
 
 @if PREDRIVER@
 * --- pre-driver chain (even stage count preserves polarity) ---

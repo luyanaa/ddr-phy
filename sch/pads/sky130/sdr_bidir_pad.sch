@@ -26,9 +26,9 @@ value="
 * NOT SIMULATABLE. This is a TOPOLOGY TEMPLATE:
 *   - every W / L / NF / R / area is an unresolved parameter
 *     (see required_params.json). ngspice rejects them until filled.
-*   - PAD_OE_CTRL is a named placeholder subcircuit, not a supplied
-*     block. The generator will expand it once the backend cell library
-*     and PDRV_STAGES are bound.
+*   - PAD_OE_CTRL is a generated transistor-level block (IO gates plus
+*     an optional core-to-IO level shifter); its devices reuse the
+*     pre-driver sizing placeholders and are not optimized.
 *   - diode orientation, bulk ties and the series-R third terminal must
 *     be confirmed at schematic review; they are NOT signed off here.
 *   - L_R_SERIES is the on-chip resistor LENGTH. The target
@@ -50,15 +50,32 @@ value="
 *   PAD --> CMOS/Schmitt RX --> [level shift back] --> IN
 *   power-up Hi-Z until VDD and VDDIO are both present (PU_OK)
 
+X_INV_P Y A VDDIO VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_INV_N Y A VSSIO VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=W_N_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_NAND_P1 Y A VDDIO VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_NAND_P2 Y B VDDIO VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_NAND_N1 Y A nand_mid VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=W_N_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_NAND_N2 nand_mid B VSSIO VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=W_N_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_NOR_P1 Y A nor_mid VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_NOR_P2 nor_mid B VDDIO VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_NOR_N1 Y A VSSIO VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=W_N_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_NOR_N2 Y B VSSIO VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=W_N_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_LS_INV_P INB IN VDD VDD sky130_fd_pr__pfet_01v8 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_LS_INV_N INB IN VSS VSS sky130_fd_pr__nfet_01v8 w=W_N_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_LS_N1 OUTB IN VSSIO VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=W_N_PDRV*16 l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_LS_N2 OUT INB VSSIO VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=W_N_PDRV*16 l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_LS_P1 OUTB OUT VDDIO VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_LS_P2 OUT OUTB VDDIO VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
+X_LS OUT OUT_I OUTB_I VDD VSS VDDIO VSSIO LS_C2I
+X_INV_OE OE_N OENB VDDIO VSSIO INV_IO
+X_NAND PU_OK OENB EN_N VDDIO VSSIO NAND2_IO
+X_NOR_GN EN_N OUT_I N_GN VDDIO VSSIO NOR2_IO
+X_NOR_GP EN_N OUTB_I NGPB VDDIO VSSIO NOR2_IO
+X_INV_NGP NGPB N_GP VDDIO VSSIO INV_IO
 
-* --- core -> IO level shifter (VDD != VDDIO): 4 devices, sizes TBD ---
-X_LS_N n_lsn OUT VSS VSS sky130_fd_pr__nfet_01v8 w=W_N_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
-X_LS_P n_lsp OUT VDD VDD sky130_fd_pr__pfet_01v8 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
-X_LS_N2 n_lsn n_lsp VSSIO VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=W_N_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
-X_LS_P2 n_lsp n_lsn VDDIO VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
 
-* --- OE / power-up gating: named placeholder, NOT supplied ---
-X_OE_CTRL n_gp n_gn OUT OE_N PU_OK VDDIO VSSIO PAD_OE_CTRL
+* --- OE / power-up gating: real transistor-level block (see header) ---
+X_OE_CTRL n_gp n_gn OUT OE_N PU_OK VDD VSS VDDIO VSSIO PAD_OE_CTRL
 
 * --- pre-driver chain (even stage count preserves polarity) ---
 X_PDRV_P_GP1 n_gp_s1 n_gp VDDIO VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=W_P_PDRV l=L_PDRV nf=NF_DEVICE m=M_DEVICE
