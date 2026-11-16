@@ -34,7 +34,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SPECS = ROOT / "specs" / "pads"
 REPORTS = ROOT / "reports"
 OUT = ROOT / "sim" / "char"
-MEASURES = ("t_oe_on", "t_oe_off", "tr_pad", "tf_pad", "vth_pad", "ihiz_max", "iesd_max")
+MEASURES = ("t_oe_on", "t_oe_off", "tr_pad", "tf_pad", "vth_pad", "ihiz_max", "iesd_max",
+            "t_in", "voh_2ma", "vol_2ma")
 
 
 def discover_root(dev):
@@ -90,25 +91,31 @@ def param_block(topo, vals, backend):
     return "\n".join(lines)
 
 
-def model_lines(dev, root):
+def model_lines(dev, root, corner="tt"):
+    char = dev.get("char", {})
+    csec = char.get("corners", {}).get(corner, corner)
     lines = []
-    for inc in dev.get("char", {}).get("includes", []):
+    for inc in char.get("includes", []):
         p = (root / inc.get("lib", inc.get("include", ""))).resolve()
         if not p.exists():
             raise SystemExit("ERROR: model file not found: %s" % p)
         if "lib" in inc:
-            lines.append('.lib "%s" %s' % (p, inc.get("section", "typical")))
+            sec = inc.get("corners", {}).get(corner)
+            if sec is None and inc.get("section"):
+                sec = csec
+            lines.append('.lib "%s" %s' % (p, sec))
         else:
             lines.append('.include "%s"' % p)
     return "\n".join(lines)
 
 
-def tran_deck(netlist_name, models, vdd, vddio):
+def tran_deck(netlist_name, models, vdd, vddio, load_k=1.0, load_pf=1.0, temp=None):
     half = vddio / 2.0
+    tline = "" if temp is None else ".temp %g\n" % temp
     return f"""
 * TRANSIENT SLICE: OE timing and PAD slew. Fixture values, not signoff.
 {models}
-.include "{netlist_name}"
+{tline}.include "{netlist_name}"
 VDD VDD 0 {vdd:g}
 VSS VSS 0 0
 VDDIO VDDIO 0 {vddio:g}
@@ -117,8 +124,8 @@ VPU PU_OK 0 PWL(0 0 1n 0 1.1n {vddio:g} 24n {vddio:g})
 VOE OE_N 0 PWL(0 {vddio:g} 3.9n {vddio:g} 4.0n 0 17.9n 0 18.0n {vddio:g} 24n {vddio:g})
 VOUT OUT 0 PWL(0 {vdd:g} 5.9n {vdd:g} 6.0n 0 11.9n 0 12.0n {vdd:g} 24n {vdd:g})
 VTT VTT 0 1.65
-RLOAD PAD VTT 1k
-CLOAD PAD 0 1p
+RLOAD PAD VTT {load_k:g}k
+CLOAD PAD 0 {load_pf:g}p
 * simulation-only bleed resistor; not a design element
 RIN IN VSSIO 1G
 X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
@@ -132,11 +139,12 @@ X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
 """
 
 
-def dc_deck(netlist_name, models, vdd, vddio):
+def dc_deck(netlist_name, models, vdd, vddio, temp=None):
+    tline = "" if temp is None else ".temp %g\n" % temp
     return f"""
 * DC SLICE: receiver threshold and power-up Hi-Z current. Fixture values.
 {models}
-.include "{netlist_name}"
+{tline}.include "{netlist_name}"
 VDD VDD 0 {vdd:g}
 VSS VSS 0 0
 VDDIO VDDIO 0 {vddio:g}
@@ -155,11 +163,12 @@ X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
 """
 
 
-def esd_deck(netlist_name, models, vdd, vddio):
+def esd_deck(netlist_name, models, vdd, vddio, temp=None):
+    tline = "" if temp is None else ".temp %g\n" % temp
     return f"""
 * ESD LEAKAGE SLICE: reverse-biased diodes only, not ESD qualification.
 {models}
-.include "{netlist_name}"
+{tline}.include "{netlist_name}"
 VDD VDD 0 {vdd:g}
 VSS VSS 0 0
 VDDIO VDDIO 0 {vddio:g}
@@ -171,6 +180,73 @@ VEXT PAD 0 0
 X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
 .dc VEXT 0 3.3 0.02
 .meas dc iesd_max MAX i(VEXT)
+.end
+"""
+
+
+def tin_deck(netlist_name, models, vdd, vddio, temp=None):
+    tline = "" if temp is None else ".temp %g\n" % temp
+    return f"""
+* INPUT DELAY: PAD pulse to receiver IN. Fixture values, not signoff.
+{models}
+{tline}
+.include "{netlist_name}"
+VDD VDD 0 {vdd:g}
+VSS VSS 0 0
+VDDIO VDDIO 0 {vddio:g}
+VSSIO VSSIO 0 0
+VPU PU_OK 0 {vddio:g}
+VOE OE_N 0 {vddio:g}
+VOUT OUT 0 0
+VEXT PAD 0 PWL(0 0 2n 0 2.1n {vddio:g} 8n {vddio:g} 8.1n 0 12n 0)
+RIN IN VSSIO 1G
+X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
+.tran 10p 14n
+.meas tran t_in TRIG v(PAD) VAL={vddio/2:g} RISE=1 TARG v(IN) VAL={vddio/2:g} RISE=1
+.end
+"""
+
+
+def ioh_deck(netlist_name, models, vdd, vddio, temp=None):
+    tline = "" if temp is None else ".temp %g\n" % temp
+    return f"""
+* OUTPUT HIGH DRIVE: VOH at IOH=2 mA. Fixture/design assumption.
+{models}
+{tline}
+.include "{netlist_name}"
+VDD VDD 0 {vdd:g}
+VSS VSS 0 0
+VDDIO VDDIO 0 {vddio:g}
+VSSIO VSSIO 0 0
+VPU PU_OK 0 {vddio:g}
+VOE OE_N 0 0
+VOUT OUT 0 {vdd:g}
+ILOAD PAD 0 0
+X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
+.dc ILOAD 0 3m 0.1m
+.meas dc voh_2ma FIND v(PAD) WHEN i(ILOAD)=2m
+.end
+"""
+
+
+def iol_deck(netlist_name, models, vdd, vddio, temp=None):
+    tline = "" if temp is None else ".temp %g\n" % temp
+    return f"""
+* OUTPUT LOW DRIVE: VOL at IOL=2 mA. Fixture/design assumption.
+{models}
+{tline}
+.include "{netlist_name}"
+VDD VDD 0 {vdd:g}
+VSS VSS 0 0
+VDDIO VDDIO 0 {vddio:g}
+VSSIO VSSIO 0 0
+VPU PU_OK 0 {vddio:g}
+VOE OE_N 0 0
+VOUT OUT 0 0
+ILOAD VDDIO PAD 0
+X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
+.dc ILOAD 0 3m 0.1m
+.meas dc vol_2ma FIND v(PAD) WHEN i(ILOAD)=2m
 .end
 """
 
@@ -200,6 +276,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--backend", default="gf180mcuD")
     ap.add_argument("--sizing", help="sizing fixture YAML")
+    ap.add_argument("--corner", default="tt", help="tt/ss/ff (device map corners)")
+    ap.add_argument("--temp", type=float, help="simulation temperature in C")
+    ap.add_argument("--vdd", type=float, help="core supply override")
+    ap.add_argument("--vddio", type=float, help="IO supply override")
+    ap.add_argument("--load-kohm", type=float, default=1.0)
+    ap.add_argument("--load-pf", type=float, default=1.0)
+    ap.add_argument("--tag", default="", help="report/netlist suffix")
     args = ap.parse_args()
 
     topo, maps = ep.load()
@@ -214,14 +297,16 @@ def main():
     workdir = root / dev["char"].get("cwd", ".")
     outdir = OUT / args.backend
     outdir.mkdir(parents=True, exist_ok=True)
+    suffix = args.tag or ""
 
     # Render the shared topology with the char conditions: no level shifter,
     # no pre-driver. The output stage and receiver remain.
     tokens = ep.tokens_for(topo, dev)
     char_meta = yaml.safe_load(open(args.sizing or (SPECS / "sizing" / ("%s.first_pass.yaml" % args.backend))))["meta"].get("char", {})
     series_r = char_meta.get("series_r_ohm")
-    vdd = char_meta.get("vdd_v")
-    vddio = char_meta.get("vddio_v")
+    vdd = args.vdd if args.vdd is not None else char_meta.get("vdd_v")
+    vddio = args.vddio if args.vddio is not None else char_meta.get("vddio_v")
+    temp = args.temp if args.temp is not None else dev["char"].get("temps", {}).get(args.corner)
     if series_r is None or vdd is None or vddio is None:
         raise SystemExit("ERROR: fixture meta.char needs series_r_ohm, vdd_v, vddio_v")
     tokens["R_SERIES_IDEAL"] = "%g" % float(series_r)
@@ -253,13 +338,13 @@ def main():
         param_block(topo, vals, args.backend),
         "",
     ])
-    netlist_tran = outdir / "sized_sdr_tran.spice"
-    netlist_dc = outdir / "sized_sdr_dc.spice"
-    netlist_esd = outdir / "sized_sdr_esd.spice"
+    netlist_tran = outdir / ("sized_sdr_tran%s.spice" % suffix)
+    netlist_dc = outdir / ("sized_sdr_dc%s.spice" % suffix)
+    netlist_esd = outdir / ("sized_sdr_esd%s.spice" % suffix)
     netlist_tran.write_text(header + "\n" + body_tran)
     netlist_dc.write_text(header + "\n" + body_dc)
     netlist_esd.write_text(header + "\n" + body_esd)
-    models = model_lines(dev, root)
+    models = model_lines(dev, root, args.corner)
 
     flags = dev["char"].get("ngspice_flags", [])
     decks = {}
@@ -271,9 +356,16 @@ def main():
         if run_cwd == Path(td):
             (run_cwd / ".spiceinit").write_text(
                 dev["char"].get("spiceinit", "* local\n").replace("@root@", str(root)))
-        for name, text in (("char_tran.spice", tran_deck(str(netlist_tran.resolve()), models, vdd, vddio)),
-                           ("char_dc.spice", dc_deck(str(netlist_dc.resolve()), models, vdd, vddio)),
-                           ("char_esd.spice", esd_deck(str(netlist_esd.resolve()), models, vdd, vddio))):
+        dcpath = str(netlist_dc.resolve())
+        for name, text in (
+            ("char_tran%s.spice" % suffix, tran_deck(str(netlist_tran.resolve()), models, vdd, vddio,
+                                                     args.load_kohm, args.load_pf, temp)),
+            ("char_dc%s.spice" % suffix, dc_deck(dcpath, models, vdd, vddio, temp)),
+            ("char_esd%s.spice" % suffix, esd_deck(str(netlist_esd.resolve()), models, vdd, vddio, temp)),
+            ("char_tin%s.spice" % suffix, tin_deck(dcpath, models, vdd, vddio, temp)),
+            ("char_ioh%s.spice" % suffix, ioh_deck(dcpath, models, vdd, vddio, temp)),
+            ("char_iol%s.spice" % suffix, iol_deck(dcpath, models, vdd, vddio, temp)),
+        ):
             p = outdir / name
             p.write_text(text)
             decks[name] = parse_measures(run_ngspice(run_cwd, p, flags, root))
@@ -294,21 +386,28 @@ def main():
         "ngspice": next((l.strip().lstrip("* ").strip() for l in subprocess.run(
             ["ngspice", "--version"], capture_output=True, text=True
         ).stdout.splitlines() if "ngspice" in l.lower()), "unknown"),
-        "load": "1 kohm to VDDIO/2 + 1 pF (light first-pass load)",
+        "corner": args.corner,
+        "temp_c": temp,
+        "vdd_v": float(vdd),
+        "vddio_v": float(vddio),
+        "load": "%g kohm to VDDIO/2 + %g pF (light first-pass load)" % (args.load_kohm, args.load_pf),
         "series_r_ohm": float(series_r),
         "control_domains": {"OUT": "core", "OE_N": "io", "PU_OK": "io", "PAD": "io"},
-        "excluded": ["level shifter", "OE logic (open-loop gate drive)", "package/PCB RLC", "PVT corners",
-                     "SDF/PEX", "ESD qualification"],
+        "excluded": ["full PVT signoff", "package/PCB RLC", "SDF/PEX",
+                     "ESD stress/qualification"],
         "measures": measures,
     }
-    (REPORTS / ("pad_char_%s.json" % args.backend)).write_text(json.dumps(rep, indent=2) + "\n")
+    (REPORTS / ("pad_char_%s%s.json" % (args.backend, suffix))).write_text(json.dumps(rep, indent=2) + "\n")
 
     units = {"t_oe_on": "s", "t_oe_off": "s", "tr_pad": "s", "tf_pad": "s",
-             "vth_pad": "V", "ihiz_max": "A", "iesd_max": "A"}
+             "vth_pad": "V", "ihiz_max": "A", "iesd_max": "A",
+             "t_in": "s", "voh_2ma": "V", "vol_2ma": "V"}
     md = ["# Pad first-pass characterization: %s" % args.backend, "",
           "Generated by generator/emit_char_pad.py. **DESIGN ASSUMPTION, NOT SIGNOFF.**",
           "The sizing fixture and load are placeholders; ESD is not qualified.", "",
           "- fixture: `%s` (status: design_assumption)" % rep["sizing_fixture"],
+          "- corner: %s; temp: %s C; VDD = %g V; VDDIO = %g V" % (
+              rep["corner"], rep["temp_c"], rep["vdd_v"], rep["vddio_v"]),
           "- load: %s; ideal series R = %g ohm" % (rep["load"], rep["series_r_ohm"]),
           "- ESD: reverse leakage measured in a separate DC deck; stress/qualification not done",
           "- domains: OUT=core (level-shifted for sky130/IHP); OE_N/PU_OK=IO 3.3 V; PAD=IO", "",
@@ -318,12 +417,14 @@ def main():
     md += ["", "`t_oe_on` / `t_oe_off` include the real IO-domain OE logic, pre-driver",
            "and the OUT core->IO level shifter when present. `tr_pad` / `tf_pad` are 0.33 V -> 2.9 V slews.",
            "`ihiz_max` is a swept external-source current with PU_OK low.",
-           "`iesd_max` is reverse-biased ESD plus off-state output leakage, not an ESD qualification.", "",
-           "Excluded: level shifter, OE logic, package/PCB RLC, PVT corners,",
-           "SDF/PEX, and ESD stress/qualification.", ""]
-    (REPORTS / ("pad_char_%s.md" % args.backend)).write_text("\n".join(md) + "\n")
-    print("backend=%s measures=%s" % (args.backend, json.dumps(measures)))
-    print("report: reports/pad_char_%s.md" % args.backend)
+           "`iesd_max` is reverse-biased ESD plus off-state output leakage, not an ESD qualification.",
+           "`t_in` is PAD 1.65 V -> IN 1.65 V with the receiver and a 1 Gohm bleed.",
+           "`voh_2ma` / `vol_2ma` are at a 2 mA design-assumption load.", "",
+           "Excluded: full PVT signoff, package/PCB RLC, SDF/PEX,",
+           "and ESD stress/qualification.", ""]
+    (REPORTS / ("pad_char_%s%s.md" % (args.backend, suffix))).write_text("\n".join(md) + "\n")
+    print("backend=%s corner=%s temp=%s measures=%s" % (args.backend, args.corner, temp, json.dumps(measures)))
+    print("report: reports/pad_char_%s%s.md" % (args.backend, suffix))
     return 0
 
 

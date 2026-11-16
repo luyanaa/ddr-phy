@@ -1,0 +1,38 @@
+{
+  "generated_by": "generator/emit_char_pad.py",
+  "backend": "gf180mcuD",
+  "status": "design_assumption - no signoff, no ESD qualification",
+  "sizing_fixture": "specs/pads/sizing/gf180mcuD.first_pass.yaml",
+  "pdk_root": "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD",
+  "ngspice": "ngspice-44.2 : Circuit level simulation program",
+  "corner": "tt",
+  "temp_c": 27.0,
+  "vdd_v": 3.63,
+  "vddio_v": 3.63,
+  "load": "1 kohm to VDDIO/2 + 1 pF (light first-pass load)",
+  "series_r_ohm": 22.0,
+  "control_domains": {
+    "OUT": "core",
+    "OE_N": "io",
+    "PU_OK": "io",
+    "PAD": "io"
+  },
+  "excluded": [
+    "full PVT signoff",
+    "package/PCB RLC",
+    "SDF/PEX",
+    "ESD stress/qualification"
+  ],
+  "measures": {
+    "t_oe_on": 3.747253e-10,
+    "t_oe_off": 3.298986e-09,
+    "tr_pad": 9.71401e-11,
+    "tf_pad": 1.305765e-10,
+    "vth_pad": 1.699787,
+    "ihiz_max": 1.833276e-10,
+    "iesd_max": 1.869678e-10,
+    "t_in": 6.023564e-09,
+    "voh_2ma": 3.63,
+    "vol_2ma": 3.46846e-09
+  }
+}

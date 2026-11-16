@@ -38,11 +38,13 @@ char:
   root_glob: "~/.ciel/ciel/gf180mcu/versions/*/gf180mcuD"
   cwd: ""
   ngspice_flags: []
+  corners: {tt: typical, ss: ss, ff: ff}
+  temps: {tt: 27, ss: 125, ff: -40}
   spiceinit: "* local empty spiceinit: neutralizes global ~/.spiceinit\n"
   includes:
     - {include: "libs.tech/ngspice/design.ngspice"}
     - {lib: "libs.tech/ngspice/sm141064.ngspice", section: "typical"}
-    - {lib: "libs.tech/ngspice/sm141064.ngspice", section: "diode_typical"}
+    - {lib: "libs.tech/ngspice/sm141064.ngspice", section: "diode_typical", corners: {tt: diode_typical, ss: diode_ss, ff: diode_ff}}
 slots:
   NMOS_IO:        {device: nfet_03v3,        symbol: gf180mcu_fd_pr/nfet_03v3.sym,       verified: ".subckt nfet_03v3 d g s b w=.. l=.. nf=.. m=.."}
   PMOS_IO:        {device: pfet_03v3,        symbol: gf180mcu_fd_pr/pfet_03v3.sym,       verified: ".subckt pfet_03v3 d g s b w=.. l=.. nf=.. m=.."}

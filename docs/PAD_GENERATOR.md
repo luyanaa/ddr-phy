@@ -1,6 +1,6 @@
 # Pad 原理图与 VREF 接收器生成器
 
-状态：**拓扑模板 + 三套已绑定 PDK 的第一版可跑表征切片；未表征，NO_GO。** 共享拓扑已扩到 gf180mcuD / sky130 / IHP SG13G2 三套已绑定 device map，并生成 SPICE/xschem 拓扑；ics55 因缺 3.3 V ESD 二极管 SPICE 卡保持未绑定（自绘 GGNMOS 只在 `docs/ICS55_ESD_3V3.md` 做研究）。gf180mcuD / sky130 / ihp130 各有一条明确标注 `design_assumption` 的 sizing fixture 和 ngspice OE+预驱动+输出级/接收器切片（§4.1），外加 ESD 反向泄漏测量，但它们不是签核尺寸。器件尺寸、指条数、驱动电流、串联电阻、ESD 面积、保护环间距在通用拓扑里仍是参数（`null`）。
+状态：**拓扑模板 + 三套已绑定 PDK 的第一版可跑表征切片 + GF180 PVT 第一轮；未表征，NO_GO。** 共享拓扑已扩到 gf180mcuD / sky130 / IHP SG13G2 三套已绑定 device map，并生成 SPICE/xschem 拓扑；ics55 因缺 3.3 V ESD 二极管 SPICE 卡保持未绑定（自绘 GGNMOS 只在 `docs/ICS55_ESD_3V3.md` 做研究）。gf180mcuD / sky130 / ihp130 各有一条明确标注 `design_assumption` 的 sizing fixture 和 ngspice OE+预驱动+输出级/接收器切片（§4.1），外加 ESD 反向泄漏测量，但它们不是签核尺寸。器件尺寸、指条数、驱动电流、串联电阻、ESD 面积、保护环间距在通用拓扑里仍是参数（`null`）。
 
 ## 1. 为什么是生成器
 
@@ -97,8 +97,29 @@ SPICE 网表用 `@@DEV_*@@` 绑器件、`@@P_*@@` 留参数名（如 `w=W_N_OUT`
 | `vth_pad` | **1.526 V** | **1.514 V** | **1.466 V** | 接收器 IN 跨 1.65V 时的 PAD 电压 |
 | `ihiz_max` | **0.146 nA** | **13.5 pA** | **57.0 pA** | PU_OK=0，输出关断，外部源扫 PAD 0→3.3V（不含 ESD） |
 | `iesd_max` | **0.149 nA** | **13.7 pA** | **60.3 pA** | 单独的 ESD 反向泄漏 deck（含输出关断漏电）；不是 ESD 资格 |
+| `t_in` | **6.026 ns** | **6.030 ns** | **6.033 ns** | PAD 1.65V → IN 1.65V；接收器 + 1 GΩ bleed |
+| `voh_2ma` | **3.30 V** | **3.30 V** | **3.30 V** | 2 mA 源电流（设计假设负载） |
+| `vol_2ma` | **2.9 nV** | **0.23 nV** | **1.15 nV** | 2 mA 灌电流（模型值，接近 0） |
 
 **解释边界**：这些数字只属于各自的 fixture 和该轻载。`t_oe_on/off` 含真实的 IO 域 OE 逻辑、预驱动和 OUT 的 core→IO 电平搬移；OE_N/PU_OK 仍是 3.3V IO 域激励，全芯片级控制搬移/缓冲未做。`vth_pad` 不是 VDDIO/2；`ihiz_max` 不含 ESD，`iesd_max` 只是反向泄漏，不是 ESD 应力/资格。不能用于签核、PVT、IBIS 或板级 SI。`reports/capability_report.md` 仍全部 `NO_GO`。
+
+### 4.2 GF180 PVT 第一轮（P1-1）
+
+`emit_char_pad.py` 现在支持 `--corner tt|ss|ff`、`--temp`、`--vdd/--vddio`、`--load-kohm/--load-pf`、`--tag`。GF180 已跑：
+
+```text
+tt/27C、ss/125C、ff/-40C、tt/27C/VDDIO=2.97V、tt/27C/VDDIO=3.63V
+```
+
+| 条件 | tOE_on | tOE_off | tr | tf | vth | ihiz | iesd | t_in |
+|---|---|---|---|---|---|---|---|---|
+| tt/27/3.3 | 0.423 ns | 3.12 ns | 0.129 ns | 0.151 ns | 1.526 V | 0.146 nA | 0.149 nA | 6.026 ns |
+| ss/125/3.3 | 0.592 ns | 3.26 ns | 0.165 ns | 0.200 ns | 1.540 V | 0.286 nA | 0.290 nA | 6.032 ns |
+| ff/-40/3.3 | 0.320 ns | 3.03 ns | 0.105 ns | 0.125 ns | 1.529 V | 0.154 nA | 0.157 nA | 6.020 ns |
+| tt/27/2.97 | 0.608 ns | 2.92 ns | 0.291 ns | 0.198 ns | 1.356 V | 0.123 nA | 0.126 nA | 6.028 ns |
+| tt/27/3.63 | 0.375 ns | 3.30 ns | 0.097 ns | 0.131 ns | 1.700 V | 0.183 nA | 0.187 nA | 6.024 ns |
+
+复现：`sh sim/char_pvt.sh`。报告：`reports/pad_char_gf180mcuD_{tt_27,ss_125,ff_-40,tt_27_v2.97,tt_27_v3.63}.md`。`voh_2ma` 等于当时的 VDDIO；`vol_2ma` 在 2 mA 下接近 0。**这是设计假设下的第一轮 PVT，不是 min/max 配对、PEX 或签核。**
 
 ## 5. VREF 接收器
 

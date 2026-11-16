@@ -5,6 +5,10 @@
   "sizing_fixture": "specs/pads/sizing/ihp130.first_pass.yaml",
   "pdk_root": "/home/yanlu/.ciel/ciel/ihp-sg13/versions/89d42ee6d2fd9b50b86a1aada6fee6673c3e6008/ihp-sg13g2",
   "ngspice": "ngspice-44.2 : Circuit level simulation program",
+  "corner": "tt",
+  "temp_c": 27,
+  "vdd_v": 1.2,
+  "vddio_v": 3.3,
   "load": "1 kohm to VDDIO/2 + 1 pF (light first-pass load)",
   "series_r_ohm": 22.0,
   "control_domains": {
@@ -14,12 +18,10 @@
     "PAD": "io"
   },
   "excluded": [
-    "level shifter",
-    "OE logic (open-loop gate drive)",
+    "full PVT signoff",
     "package/PCB RLC",
-    "PVT corners",
     "SDF/PEX",
-    "ESD qualification"
+    "ESD stress/qualification"
   ],
   "measures": {
     "t_oe_on": 9.72955e-10,
@@ -28,6 +30,9 @@
     "tf_pad": 9.390594e-10,
     "vth_pad": 1.465673,
     "ihiz_max": 5.703679e-11,
-    "iesd_max": 6.033681e-11
+    "iesd_max": 6.033681e-11,
+    "t_in": 6.033205e-09,
+    "voh_2ma": 3.3,
+    "vol_2ma": 1.14998e-09
   }
 }

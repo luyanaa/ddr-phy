@@ -39,6 +39,8 @@ char:
   root_glob: "~/.ciel/ciel/ihp-sg13/versions/*/ihp-sg13g2"
   cwd: ""
   ngspice_flags: []
+  corners: {tt: mos_tt, ss: mos_ss, ff: mos_ff}
+  temps: {tt: 27, ss: 125, ff: -40}
   spiceinit: |
     setcs sourcepath = ( $sourcepath @root@/libs.tech/ngspice/models )
     osdi '@root@/libs.tech/ngspice/osdi/psp103.osdi'

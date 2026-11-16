@@ -40,6 +40,8 @@ char:
   root_must_contain: "libs.tech/ngspice/sky130.lib.spice"
   cwd: "libs.tech/ngspice"
   ngspice_flags: ["-n"]
+  corners: {tt: tt, ss: ss, ff: ff}
+  temps: {tt: 27, ss: 125, ff: -40}
   spiceinit: "* unused (ngspice -n)\n"
   includes:
     - {lib: "libs.tech/ngspice/sky130.lib.spice", section: "tt"}

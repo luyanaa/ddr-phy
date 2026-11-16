@@ -72,12 +72,13 @@ def main():
                 errors.append("%s: control_domains.%s must be %s" % (f, k, want))
         # If the generated deck exists, verify the actual source levels.
         backend = d.get("backend")
-        deck = ROOT / "sim" / "char" / str(backend) / "char_tran.spice"
-        fixture = ROOT / str(d.get("sizing_fixture", ""))
-        if deck.exists() and fixture.exists():
-            fx = yaml.safe_load(open(fixture))
-            vdd = float(fx["meta"]["char"]["vdd_v"])
-            vddio = float(fx["meta"]["char"]["vddio_v"])
+        stem = Path(f).stem
+        prefix = "pad_char_" + str(backend)
+        tag = stem[len(prefix):] if stem.startswith(prefix) else ""
+        deck = ROOT / "sim" / "char" / str(backend) / ("char_tran%s.spice" % tag)
+        if deck.exists():
+            vdd = float(d.get("vdd_v", 0))
+            vddio = float(d.get("vddio_v", 0))
             txt = deck.read_text()
             def first_pwl(src):
                 m = re.search(r"^%s\s+\S+\s+0\s+PWL\(([^)]*)\)" % src, txt, re.M)
