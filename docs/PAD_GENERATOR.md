@@ -122,7 +122,7 @@ SPICE 网表用 `@@DEV_*@@` 绑器件、`@@P_*@@` 留参数名（如 `w=W_N_OUT`
 2. **`PAD_OE_CTRL` 与 `PDRV_STAGES`**：预驱动已展开成 2 级非反相链（char 和代表性拓扑）；`PAD_OE_CTRL` 仍是开环/占位，真实 OE 逻辑还没画成可综合网表。
 3. **原理图复核**：二极管极性、体端接法、三端电阻第三端、guard ring 规则。
 4. **绑定 device map**：gf180mcuD / sky130 / IHP 已绑定并生成拓扑；ics55 还差 3.3 V ESD 二极管 SPICE 卡，不能用 2.5 V 卡替代。
-5. **表征链**：三套 PDK 的预驱动+输出级/接收器切片和 ESD 反向泄漏已可跑（§4.1）；`char_tb.spice` 仍是完整测量清单，ESD 应力/资格、VREF 共模/失调、SSO、PVT/min-max SPICE、PEX、IBIS、SI/PI、DRC/LVS 都还没做。
+5. **表征链**：三套 PDK 的预驱动+输出级/接收器切片和 ESD 反向泄漏已可跑（§4.1）；`char_tb.spice` 仍是完整测量清单，ESD 应力/资格、VREF 共模/失调、SSO、PVT/min-max SPICE、PEX、IBIS、SI/PI、DRC/LVS 都还没做。ESD 的 TLP/HBM/latch-up 计划见 `docs/ESD_STRESS_PLAN.md`。
 6. **参数语义**：`L_R_SERIES` 现在是片上电阻长度；目标阻值属于板级 SI，不在 pad 参数里。把目标阻值换算成长度仍需要每套 PDK 的 sheet resistance。sky130 的微米/米换算也仍只在注释里，没有代码守卫。
 7. **能力报告不变**：`reports/capability_report.md` 仍是全部 `NO_GO`，`backends/gf180mcu.yaml` 的 `toe_on_ps/off_ps` 仍是 `null`，`schematic_drawn` 仍是 `false` —— 拓扑模板不等于"原理图已画完、可签核"。
 
