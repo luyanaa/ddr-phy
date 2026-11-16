@@ -77,12 +77,16 @@ PRBS-32 图案经 `sdr_ctrl` 用户接口写入再读回比较，含 `error_coun
 - `tb/tb_micron_diff.sv` 在可选 Micron 参考模型上覆盖 CL2/3、DQM、Refresh、Turnaround；`tb/tb_micron_burst.sv` 另做模型级 BL2/4/8 Burst 差分。模型缺失时 `sim/micron_diff.sh` 跳过。
 - 现有 `tb_sdr_loop` / `tb_refresh` / `tb_bist_loop` 把 `phy_turnaround_busy` 接 0，保持原有闭环行为；新测试单独覆盖协商。
 
-### 3.4 Read Capture 与 CDC（第一版）
+### 3.4 Read Capture 与 2-entry CDC FIFO
 
-- 新增 `rtl/read_capture_cdc.sv`：`cap_clk` 域采样 `dq_i`，通过 request/ack toggle 握手把数据送回 `clk` 域，输出一拍 `rddata_valid`。
-- `rtl/sdram_phy_top.sv` 用 `CAPTURE_REQ_DELAY = CL-2` 在 `clk` 域产生请求，并把顶层 `dfi_rddata` / `dfi_rddata_valid` 改为 CDC 输出；`sdr_phy` 内部的 CL+1 读输出在 top 里不再使用。
+- `rtl/read_capture_cdc.sv` 现在是 **2-entry 异步 FIFO**：
+  - `cap_clk` 域写 `dq_i`，Gray 写指针；
+  - `clk` 域读，Gray 读指针和 `LATENCY` 深的请求流水线；
+  - `rddata_valid` 在固定/参数化 `LATENCY` 后出现；FIFO 空但请求到期时 `latency_error` 拉高一拍。
+- `rtl/sdram_phy_top.sv` 用 `CAPTURE_REQ_DELAY = CL-2` 产生请求，`CDC_LATENCY=6` 作为默认读延迟；顶层 `dfi_rddata` / `dfi_rddata_valid` 来自 FIFO；`sdr_phy` 内部的 CL+1 读输出在 top 里不再使用。
 - `tb/tb_read_capture_phase.sv` 覆盖 phase 0 / 1 / 2：phase 1 领先 core edge 取 early 值，phase 0 取 late 值，phase 2 用 late clock 取 held 数据；三者都通过。
-- 边界：**单 outstanding read 的握手，不是 FIFO**；`dfi_rddata_valid` 是 valid-based，读延迟是 `CL+1 + CDC`，还没有固定/参数化 latency。back-to-back / burst 会覆盖 `cap_data`，必须再做 FIFO。相位切换必须在初始化后锁定；动态训练未做。
+- `tb/tb_read_capture_fifo.sv` 用领先 2 ns 的 `cap_clk` 连续发两次 capture，验证 FIFO 返回 `A5`、`5A` 两个条目且无 `latency_error`。
+- 边界：FIFO 深度 2，只覆盖两次 outstanding；相位必须在初始化后锁定，动态训练未做。当前 `sdr_ctrl` 仍是单 outstanding，所以 FIFO 是向前兼容的扩展。
 ## 4. 与前后阶段的关系
 
 - P0-3 的 `phy_io_adapter` 定义了 pad 边界；P0-4 的四个模块都停在**核心侧**，没有跨过 `dq_o/dq_oe/dq_i` 这条线。

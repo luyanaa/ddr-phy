@@ -35,6 +35,7 @@ module sdram_phy_top #(
     parameter integer READ_TAIL_CYCLES = 0,
     parameter integer DQM_OFF_CYCLES = 0,
     parameter integer T_OE_OFF_CYCLES = 0,
+    parameter integer CDC_LATENCY   = 6,
     parameter integer BACKEND       = 0,
     parameter integer T_OE_ON_PS    = 0,
     parameter integer T_OE_OFF_PS   = 0,
@@ -155,11 +156,12 @@ module sdram_phy_top #(
     end
 
     wire [DATA_BITS-1:0] cdc_rddata;
-    wire                 cdc_rdvalid;
-    read_capture_cdc #(.DATA_BITS(DATA_BITS)) u_cdc (
+    wire                 cdc_rdvalid, cdc_latency_error;
+    read_capture_cdc #(.DATA_BITS(DATA_BITS), .LATENCY(CDC_LATENCY)) u_cdc (
         .clk(clk), .rst(rst), .cap_clk(cap_clk),
         .capture_req(req_pulse), .dq_i(dq_pad_i),
-        .rddata(cdc_rddata), .rddata_valid(cdc_rdvalid)
+        .rddata(cdc_rddata), .rddata_valid(cdc_rdvalid),
+        .latency_error(cdc_latency_error)
     );
     assign dfi_rddata       = cdc_rddata;
     assign dfi_rddata_valid = cdc_rdvalid;

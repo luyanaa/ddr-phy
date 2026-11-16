@@ -46,4 +46,8 @@ iverilog -g2012 -o sim/obj/tb_read_capture_phase \
     sim/pad_cell_generic.sv rtl/sdram_phy_top.sv tb/tb_read_capture_phase.sv
 vvp sim/obj/tb_read_capture_phase
 
+iverilog -g2012 -o sim/obj/tb_read_capture_fifo \
+    rtl/read_capture_cdc.sv tb/tb_read_capture_fifo.sv
+vvp sim/obj/tb_read_capture_fifo
+
 echo PHY_DONE

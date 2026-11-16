@@ -1,0 +1,74 @@
+// SPDX-License-Identifier: Apache-2.0
+// Two-entry asynchronous read-capture FIFO: back-to-back captures and a
+// fixed/parameterized read latency. cap_clk leads clk by 2 ns here.
+
+`timescale 1ns/1ps
+`default_nettype none
+
+module tb_read_capture_fifo;
+    localparam integer DB = 8;
+    localparam integer LAT = 8;
+    reg clk = 0, clk_early = 0, rst = 1;
+    always #5 clk = ~clk;
+    initial begin #3; forever #5 clk_early = ~clk_early; end
+
+    reg req = 0;
+    reg [DB-1:0] dq = 0;
+    wire [DB-1:0] rd;
+    wire v, err;
+
+    read_capture_cdc #(.DATA_BITS(DB), .LATENCY(LAT)) dut (
+        .clk(clk), .rst(rst), .cap_clk(clk_early),
+        .capture_req(req), .dq_i(dq),
+        .rddata(rd), .rddata_valid(v), .latency_error(err)
+    );
+
+    integer errors = 0;
+    integer guard;
+    reg [DB-1:0] got0, got1;
+
+    task automatic issue(input [DB-1:0] data);
+        begin
+            @(negedge clk);
+            dq = data;
+            req = 1;
+            @(negedge clk);
+            req = 0;
+        end
+    endtask
+
+    initial begin
+        repeat (3) @(posedge clk);
+        @(negedge clk); rst = 0;
+
+        issue(8'hA5);
+        repeat (2) @(negedge clk);
+        issue(8'h5A);
+
+        guard = 0;
+        while (!(v === 1'b1) && guard < 30) begin @(posedge clk); #1; guard = guard + 1; end
+        got0 = rd;
+        if (v !== 1'b1) begin $display("FAIL fifo: first valid missing"); errors = errors + 1; end
+        @(posedge clk); #1;  // let the first valid pulse end
+
+        guard = 0;
+        while (!(v === 1'b1) && guard < 15) begin @(posedge clk); #1; guard = guard + 1; end
+        got1 = rd;
+        if (v !== 1'b1) begin $display("FAIL fifo: second valid missing"); errors = errors + 1; end
+
+        if (got0 !== 8'hA5) begin $display("FAIL fifo: first=%h exp=A5", got0); errors = errors + 1; end
+        if (got1 !== 8'h5A) begin $display("FAIL fifo: second=%h exp=5A", got1); errors = errors + 1; end
+        if (err !== 1'b0) begin $display("FAIL fifo: latency_error"); errors = errors + 1; end
+
+        $display("PASS read_capture_fifo first=%h second=%h", got0, got1);
+        `ifdef MUTATE
+        errors = errors + 1;
+        $display("MUTATION: injected failure for exit-code test");
+        `endif
+        if (errors == 0) $display("PASS fifo");
+        else             $fatal(1, "FAIL fifo errors=%0d", errors);
+        $finish;
+    end
+endmodule
+
+`default_nettype wire

@@ -74,7 +74,7 @@ PDK 根：`~/.ciel/ciel/gf180mcu/versions/*/gf180mcuD`
 
 SPICE 网表用 `@@DEV_*@@` 绑器件、`@@P_*@@` 留参数名（如 `w=W_N_OUT`、`nf=NF_DEVICE`），条件块 `@if LEVEL_SHIFTER@` 由 `core_v != vddio_v` 决定。模板里的实例行由 map 的 `spice` 段生成，生成后不留 `@@` 占位符。
 
-**验证**：`generator/check_pads.py` 通过（31 参数未解、4 backend 中 3 套已绑定、0 签核声明、无 `@@` 残留、无硬编码尺寸、无 `UNBOUND_` 占位、钳位方向正确）；`sh sim/char_pad.sh` 跑出 gf180mcuD / sky130 / ihp130 三份 `reports/pad_char_*.{json,md}`（§4.1，全部 `design_assumption`）；sky130 与 IHP 的生成网表也用临时参数跑过 ngspice `.op` 语法冒烟（见 §3.1）。xschem 自动网表本轮未重跑（本机 `xschem -x -n -s` 在写输出文件时超时），所以不把“xschem 能网表”当作本轮证据；`.sch` 仍只是生成产物。
+**验证**：`generator/check_pads.py` 通过（31 参数未解、4 backend 中 3 套已绑定、0 签核声明、无 `@@` 残留、无硬编码尺寸、无 `UNBOUND_` 占位、钳位方向正确）；`sh sim/char_pad.sh` 跑出 gf180mcuD / sky130 / ihp130 三份 `reports/pad_char_*.{json,md}`（§4.1，全部 `design_assumption`）；`check_char_pad.py` 校验报告的 `control_domains`（OUT=core，OE_N/PU_OK/PAD=io）以及生成的 `char_tran.spice` 中 VOE/VPU 高电平为 VDDIO、VOUT 高电平为 core VDD；sky130 与 IHP 的生成网表也用临时参数跑过 ngspice `.op` 语法冒烟（见 §3.1）。xschem 自动网表本轮未重跑（本机 `xschem -x -n -s` 在写输出文件时超时），所以不把“xschem 能网表”当作本轮证据；`.sch` 仍只是生成产物。
 
 ## 4.1 第一版可跑表征切片（三套 PDK，DESIGN ASSUMPTION）
 

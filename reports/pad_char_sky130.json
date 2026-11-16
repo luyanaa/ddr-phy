@@ -7,6 +7,12 @@
   "ngspice": "ngspice-44.2 : Circuit level simulation program",
   "load": "1 kohm to VDDIO/2 + 1 pF (light first-pass load)",
   "series_r_ohm": 22.0,
+  "control_domains": {
+    "OUT": "core",
+    "OE_N": "io",
+    "PU_OK": "io",
+    "PAD": "io"
+  },
   "excluded": [
     "level shifter",
     "OE logic (open-loop gate drive)",

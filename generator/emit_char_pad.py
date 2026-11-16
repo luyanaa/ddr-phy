@@ -296,6 +296,7 @@ def main():
         ).stdout.splitlines() if "ngspice" in l.lower()), "unknown"),
         "load": "1 kohm to VDDIO/2 + 1 pF (light first-pass load)",
         "series_r_ohm": float(series_r),
+        "control_domains": {"OUT": "core", "OE_N": "io", "PU_OK": "io", "PAD": "io"},
         "excluded": ["level shifter", "OE logic (open-loop gate drive)", "package/PCB RLC", "PVT corners",
                      "SDF/PEX", "ESD qualification"],
         "measures": measures,
@@ -310,12 +311,12 @@ def main():
           "- fixture: `%s` (status: design_assumption)" % rep["sizing_fixture"],
           "- load: %s; ideal series R = %g ohm" % (rep["load"], rep["series_r_ohm"]),
           "- ESD: reverse leakage measured in a separate DC deck; stress/qualification not done",
-          "- level shifter excluded; pre-driver included; OE logic replaced by open-loop PWL gate drive", "",
+          "- domains: OUT=core (level-shifted for sky130/IHP); OE_N/PU_OK=IO 3.3 V; PAD=IO", "",
           "| measure | value | unit |", "|---|---|---|"]
     for k in MEASURES:
         md.append("| %s | %.6g | %s |" % (k, measures[k], units[k]))
-    md += ["", "`t_oe_on` / `t_oe_off` include the pre-driver chain but not the real",
-           "OE logic (open-loop PWL gate drive). `tr_pad` / `tf_pad` are 0.33 V -> 2.9 V slews.",
+    md += ["", "`t_oe_on` / `t_oe_off` include the real IO-domain OE logic, pre-driver",
+           "and the OUT core->IO level shifter when present. `tr_pad` / `tf_pad` are 0.33 V -> 2.9 V slews.",
            "`ihiz_max` is a swept external-source current with PU_OK low.",
            "`iesd_max` is reverse-biased ESD plus off-state output leakage, not an ESD qualification.", "",
            "Excluded: level shifter, OE logic, package/PCB RLC, PVT corners,",

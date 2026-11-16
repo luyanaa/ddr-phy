@@ -10,6 +10,7 @@ Guards:
 """
 import glob
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -65,6 +66,38 @@ def main():
 
     for f in sorted(glob.glob(str(REPORTS / "pad_char_*.json"))):
         d = json.load(open(f))
+        dom = d.get("control_domains", {})
+        for k, want in (("OUT", "core"), ("OE_N", "io"), ("PU_OK", "io"), ("PAD", "io")):
+            if dom.get(k) != want:
+                errors.append("%s: control_domains.%s must be %s" % (f, k, want))
+        # If the generated deck exists, verify the actual source levels.
+        backend = d.get("backend")
+        deck = ROOT / "sim" / "char" / str(backend) / "char_tran.spice"
+        fixture = ROOT / str(d.get("sizing_fixture", ""))
+        if deck.exists() and fixture.exists():
+            fx = yaml.safe_load(open(fixture))
+            vdd = float(fx["meta"]["char"]["vdd_v"])
+            vddio = float(fx["meta"]["char"]["vddio_v"])
+            txt = deck.read_text()
+            def first_pwl(src):
+                m = re.search(r"^%s\s+\S+\s+0\s+PWL\(([^)]*)\)" % src, txt, re.M)
+                if not m:
+                    return None
+                def num(x):
+                    mult = 1.0
+                    if x.endswith("n"):
+                        x, mult = x[:-1], 1e-9
+                    elif x.endswith("u"):
+                        x, mult = x[:-1], 1e-6
+                    return float(x) * mult
+                nums = [num(x) for x in m.group(1).split()]
+                return max(nums) if nums else None
+            for src, want in (("VOE", vddio), ("VPU", vddio), ("VOUT", vdd)):
+                got = first_pwl(src)
+                if got is None:
+                    errors.append("%s: cannot read %s PWL level" % (deck, src))
+                elif abs(got - want) > 1e-9:
+                    errors.append("%s: %s high level %g != %g" % (deck, src, got, want))
         status = str(d.get("status", ""))
         if "design_assumption" not in status or "no signoff" not in status.lower():
             errors.append("%s: report lost the design_assumption/no-signoff status" % f)

@@ -6,7 +6,7 @@ The sizing fixture and load are placeholders; ESD is not qualified.
 - fixture: `specs/pads/sizing/ihp130.first_pass.yaml` (status: design_assumption)
 - load: 1 kohm to VDDIO/2 + 1 pF (light first-pass load); ideal series R = 22 ohm
 - ESD: reverse leakage measured in a separate DC deck; stress/qualification not done
-- level shifter excluded; pre-driver included; OE logic replaced by open-loop PWL gate drive
+- domains: OUT=core (level-shifted for sky130/IHP); OE_N/PU_OK=IO 3.3 V; PAD=IO
 
 | measure | value | unit |
 |---|---|---|
@@ -18,8 +18,8 @@ The sizing fixture and load are placeholders; ESD is not qualified.
 | ihiz_max | 5.70368e-11 | A |
 | iesd_max | 6.03368e-11 | A |
 
-`t_oe_on` / `t_oe_off` include the pre-driver chain but not the real
-OE logic (open-loop PWL gate drive). `tr_pad` / `tf_pad` are 0.33 V -> 2.9 V slews.
+`t_oe_on` / `t_oe_off` include the real IO-domain OE logic, pre-driver
+and the OUT core->IO level shifter when present. `tr_pad` / `tf_pad` are 0.33 V -> 2.9 V slews.
 `ihiz_max` is a swept external-source current with PU_OK low.
 `iesd_max` is reverse-biased ESD plus off-state output leakage, not an ESD qualification.
 
