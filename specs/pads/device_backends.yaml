@@ -1,0 +1,118 @@
+# SPDX-License-Identifier: Apache-2.0
+# PDK wiring adapters for generator/extract_devices.py.
+# These describe HOW to instantiate a device and load a model library -
+# NOT the model parameters themselves. All device characteristics are
+# obtained by ngspice terminal measurement (.op / .dc / .ac), never by
+# parsing .model text. Adding a PDK = adding one entry here.
+#
+# Placeholders: @root@ (discovered PDK root), @parent@ (its parent),
+# @corner@ (per-corner library section name).
+# Verified against local PDKs on 2026-11-15 with ngspice-44.2.
+
+meta:
+  version: 1
+  simulator: "ngspice-44.2"
+  note: "cwd .spiceinit overrides the global ~/.spiceinit; do not pass -n when an OSDI preload is needed."
+  sstl2_target:
+    vddq_min_v: 2.30
+    vddq_nom_v: 2.50
+    vref_v: 1.25
+    vds_triode_v: 0.38
+    class_I_target_ma: 7.6
+    vgs_sat_v: 2.50
+    vds_sat_v: 1.25
+    i_branch_ua: 40.0
+    vth_crit_a_per_wl: 1.0e-7
+    ac_freq_hz: 100000000.0
+    wf_ref_um: 5.0
+    headroom_min_v: 0.12
+
+backends:
+  gf180mcuD:
+    root_glob: "~/.ciel/ciel/gf180mcu/versions/*/gf180mcuD"
+    model_kind: "BSIM4 binned .subckt (nfet_03v3 / pfet_03v3)"
+    inst_prefix: X
+    size_suffix: u
+    finger_param: m
+    width_mode: per_finger_fixed
+    note_width: "w=5u is PER-FINGER width; m multiplies it (verified: m=8 gives 4.84mA)"
+    extra_inst: ""
+    nmos_cell: nfet_03v3
+    pmos_cell: pfet_03v3
+    l_drv_n_um: 0.28
+    l_drv_p_um: 0.28
+    l_ana_um: 0.50
+    wf_ref_um: 5.0
+    trial_n_w_um: 8.0
+    trial_p_w_um: 20.0
+    corners: {tt: typical, ss: ss, ff: ff}
+    temps_c: {tt: 27, ss: 125, ff: -40}
+    env: {PDK_ROOT: "@root@"}
+    headers:
+      - '.include "@root@/libs.tech/ngspice/design.ngspice"'
+      - '.lib "@root@/libs.tech/ngspice/sm141064.ngspice" @corner@'
+    spiceinit: "* local empty spiceinit: neutralizes global ~/.spiceinit
+"
+    license: "Apache-2.0 (GlobalFoundries PDK Authors, design.ngspice)"
+    expectation: measure
+  ihp_sg13g2:
+    root_glob: "~/.ciel/ciel/ihp-sg13/versions/*/ihp-sg13g2"
+    model_kind: "PSP 103.6 via OSDI (sg13_hv_nmos / sg13_hv_pmos)"
+    inst_prefix: X
+    size_suffix: u
+    finger_param: ng
+    width_mode: total_scaled
+    note_width: "w is TOTAL width; ng only splits it (verified: w=5 ng=8 -> 0.788mA, w=40 ng=8 -> 6.77mA). Scaling MUST grow w."
+    extra_inst: "m=1"
+    nmos_cell: sg13_hv_nmos
+    pmos_cell: sg13_hv_pmos
+    l_drv_n_um: 0.45
+    l_drv_p_um: 0.40
+    l_ana_um: 0.60
+    wf_ref_um: 5.0
+    trial_n_w_um: 8.0
+    trial_p_w_um: 20.0
+    corners: {tt: mos_tt, ss: mos_ss, ff: mos_ff}
+    temps_c: {tt: 27, ss: 125, ff: -40}
+    env: {PDK_ROOT: "@parent@", PDK: "ihp-sg13g2"}
+    headers:
+      - '.lib "@root@/libs.tech/ngspice/models/cornerMOShv.lib" @corner@'
+    spiceinit: |
+      setcs sourcepath = ( $sourcepath @root@/libs.tech/ngspice/models )
+      osdi '@root@/libs.tech/ngspice/osdi/psp103.osdi'
+      osdi '@root@/libs.tech/ngspice/osdi/psp103_nqs.osdi'
+      osdi '@root@/libs.tech/ngspice/osdi/r3_cmc.osdi'
+      osdi '@root@/libs.tech/ngspice/osdi/mosvar.osdi'
+    license: "Apache-2.0 (IHP PDK Authors, cornerMOShv.lib)"
+    expectation: measure
+  sky130:
+    root_glob: "~/.ciel/ciel/sky130/versions/*/sky130A"
+    root_must_contain: "libs.ref/sky130_fd_pr/spice/sky130_fd_pr__nfet_g5v0d10v5__tt.pm3.spice"
+    root_select: first_valid
+    note_versions: "Two ciel versions exist: 8afc... lacks libs.ref/sky130_fd_pr/spice (BLOCKED); 792e... has all 675 primitive spice models. Lexicographic newest picked the broken one."
+    model_kind: "BSIM4 binned .subckt (sky130_fd_pr__*g5v0d10v5)"
+    inst_prefix: X
+    size_suffix: ""
+    finger_param: m
+    width_mode: per_finger_fixed
+    note_width: "W is TOTAL width with .option scale=1.0u (no u suffix). BSIM4 bins have wmax=100um, so W must stay fixed; the m multiplier scales the whole subckt linearly (verified m=4/8/16 -> 2.12/4.23/8.47 mA). nf only splits W and REDUCES current (nf=16 -> 0.19 mA), so nf is pinned to 1."
+    extra_inst: "nf=1"
+    nmos_cell: sky130_fd_pr__nfet_g5v0d10v5
+    pmos_cell: sky130_fd_pr__pfet_g5v0d10v5
+    l_drv_n_um: 0.50
+    l_drv_p_um: 0.50
+    l_ana_um: 0.80
+    wf_ref_um: 5.0
+    trial_n_w_um: 8.0
+    trial_p_w_um: 20.0
+    corners: {tt: tt, ss: ss, ff: ff}
+    temps_c: {tt: 27, ss: 125, ff: -40}
+    env: {PDK_ROOT: "@root@"}
+    cwd_rel: "libs.tech/ngspice"
+    ngspice_flags: ["-n"]
+    headers:
+      - '.lib "sky130.lib.spice" @corner@'
+    spiceinit: "* unused (ngspice -n)
+"
+    license: "Apache-2.0 (SkyWater PDK)"
+    expectation: measure

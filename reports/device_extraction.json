@@ -1,0 +1,692 @@
+{
+  "generated_by": "generator/extract_devices.py",
+  "simulator": "ngspice-44.2",
+  "status": "no_signoff_claim",
+  "method": "terminal .op/.dc/.ac measurement; no .model parsing; no mock fallback",
+  "backends": {
+    "gf180mcuD": {
+      "backend": "gf180mcuD",
+      "root": "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD",
+      "model_kind": "BSIM4 binned .subckt (nfet_03v3 / pfet_03v3)",
+      "license": "Apache-2.0 (GlobalFoundries PDK Authors, design.ngspice)",
+      "corners": {
+        "tt": "typical",
+        "ss": "ss",
+        "ff": "ff"
+      },
+      "temps_c": {
+        "tt": 27,
+        "ss": 125,
+        "ff": -40
+      },
+      "triode_tt": {
+        "NMOS": {
+          "status": "measured",
+          "Id_mA": 1.54702,
+          "R_on_ohm": 245.634,
+          "R_on_unit_ohm_um": 2456.34,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "typical",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "7043206de482d3a0c2d165cd35def78b3c4ad0a852bffe2b2ef0546ed35dc11c"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Id_mA": 0.53876,
+          "R_on_ohm": 705.319,
+          "R_on_unit_ohm_um": 7053.19,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "typical",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "5bced2a231a691452e2fa3b3a612032ee7468452747145367d69b4cc9858c3ad"
+        }
+      },
+      "triode_ss": {
+        "NMOS": {
+          "status": "measured",
+          "Id_mA": 1.04591,
+          "R_on_ohm": 363.32,
+          "R_on_unit_ohm_um": 3633.2,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "ss",
+          "temp_c": 125,
+          "source": "ngspice",
+          "deck_sha256": "9f1888fd4ee4304ba341a0f11531774b4ad0e6294d80097673570eee9d5540c7"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Id_mA": 0.3858,
+          "R_on_ohm": 984.959,
+          "R_on_unit_ohm_um": 9849.59,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "ss",
+          "temp_c": 125,
+          "source": "ngspice",
+          "deck_sha256": "51459b3c44f77112f43647dadc7ce054a03aef4f9c179e882abfb5952f7b6acf"
+        }
+      },
+      "triode_ff": {
+        "NMOS": {
+          "status": "measured",
+          "Id_mA": 2.11714,
+          "R_on_ohm": 179.487,
+          "R_on_unit_ohm_um": 1794.87,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "ff",
+          "temp_c": -40,
+          "source": "ngspice",
+          "deck_sha256": "24b39598100c0a6b69f4de0e7e53692abbc8489bed779c1cfaab4f0d7ca932d5"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Id_mA": 0.74044,
+          "R_on_ohm": 513.207,
+          "R_on_unit_ohm_um": 5132.07,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "ff",
+          "temp_c": -40,
+          "source": "ngspice",
+          "deck_sha256": "285f606757caa5b595e610e474246060612aaca6857caf79240fcb6b21d83141"
+        }
+      },
+      "tx_calibration": {
+        "NMOS": {
+          "status": "measured",
+          "target_mA": 7.6,
+          "M_class_I": 16,
+          "M_class_II": 32,
+          "W_class_I_um": 80.0,
+          "W_class_II_um": 160.0,
+          "Id_verified_mA": 8.3673,
+          "R_on_wc_ohm": 45.415,
+          "corner": "ss",
+          "temp_c": 125,
+          "source": "ngspice",
+          "calibration_log": [
+            {
+              "iter": 1,
+              "fingers": 16,
+              "Id_mA": 8.3673,
+              "W_total_um": 80.0,
+              "deck_sha256": "86c9821dd7dda73fc65e0c9d44a34e25e03d8da1c7885c673734897b82f1dac2"
+            }
+          ]
+        },
+        "PMOS": {
+          "status": "measured",
+          "target_mA": 7.6,
+          "M_class_I": 40,
+          "M_class_II": 80,
+          "W_class_I_um": 200.0,
+          "W_class_II_um": 400.0,
+          "Id_verified_mA": 7.71607,
+          "R_on_wc_ohm": 49.248,
+          "corner": "ss",
+          "temp_c": 125,
+          "source": "ngspice",
+          "calibration_log": [
+            {
+              "iter": 1,
+              "fingers": 40,
+              "Id_mA": 7.71607,
+              "W_total_um": 200.0,
+              "deck_sha256": "1d7ad4c3c4fa22088ad6207094bf8dcf376e31b40109356e1fa06e24c4973725"
+            }
+          ]
+        }
+      },
+      "sat_dc": {
+        "NMOS": {
+          "status": "measured",
+          "Vth_V": 0.66,
+          "Vgs_at_Ibranch_V": 0.86,
+          "Id_at_op_A": 4.07958e-05,
+          "gm_at_op_S": 0.00038138,
+          "gm_Id_at_op_Vinv": 9.53,
+          "gm_Id_peak_Vinv": 28.91,
+          "Id_sat_at_Vgs_max_A": 0.00178335,
+          "sweep_points": 126,
+          "trial_W_um": 8.0,
+          "trial_L_um": 0.5,
+          "corner": "typical",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "bf7954cb1058467d8df614ed4305c053a0dc8ec0224b67a37f8910851b8b158c"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Vth_V": 0.82,
+          "Vgs_at_Ibranch_V": 1.0,
+          "Id_at_op_A": 4.10406e-05,
+          "gm_at_op_S": 0.000327292,
+          "gm_Id_at_op_Vinv": 8.18,
+          "gm_Id_peak_Vinv": 28.02,
+          "Id_sat_at_Vgs_max_A": 0.00145555,
+          "sweep_points": 126,
+          "trial_W_um": 20.0,
+          "trial_L_um": 0.5,
+          "corner": "typical",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "be76220896e92978b931f49b37628eb06b814196adedc01b85893875bff9ddd4"
+        }
+      },
+      "ac_caps": {
+        "NMOS": {
+          "status": "measured",
+          "Cgg_fF": 15.0483,
+          "Cgd_fF": 5.6537,
+          "Cgg_per_um_fF": 1.881,
+          "Cgd_per_um_fF": 0.7067,
+          "freq_hz": 100000000.0,
+          "trial_W_um": 8.0,
+          "trial_L_um": 0.5,
+          "corner": "typical",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "91ae4d1df10ecf4476e5d5350bf7c4f96b2389cf24fcf48d864612425f5c96d9"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Cgg_fF": 39.5222,
+          "Cgd_fF": 14.17,
+          "Cgg_per_um_fF": 1.9761,
+          "Cgd_per_um_fF": 0.7085,
+          "freq_hz": 100000000.0,
+          "trial_W_um": 20.0,
+          "trial_L_um": 0.5,
+          "corner": "typical",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "ca8228178d7acaa74357cd5015e7fa08d371e6631aa3da8984784268ff9b5552"
+        }
+      },
+      "rx_icmr": {
+        "status": "measured",
+        "V_DS_tail_NMOS_V": 0.39,
+        "V_SD_tail_PMOS_V": 0.05,
+        "headroom_min_V": 0.12,
+        "PMOS_pair_active": false,
+        "topology": "NMOS_ONLY_DIFF_PAIR",
+        "note": "headroom proxy from measured Vgs at I_branch; not a full stacked tail-current-source simulation"
+      },
+      "status": "MEASURED"
+    },
+    "ihp_sg13g2": {
+      "backend": "ihp_sg13g2",
+      "root": "/home/yanlu/.ciel/ciel/ihp-sg13/versions/89d42ee6d2fd9b50b86a1aada6fee6673c3e6008/ihp-sg13g2",
+      "model_kind": "PSP 103.6 via OSDI (sg13_hv_nmos / sg13_hv_pmos)",
+      "license": "Apache-2.0 (IHP PDK Authors, cornerMOShv.lib)",
+      "corners": {
+        "tt": "mos_tt",
+        "ss": "mos_ss",
+        "ff": "mos_ff"
+      },
+      "temps_c": {
+        "tt": 27,
+        "ss": 125,
+        "ff": -40
+      },
+      "triode_tt": {
+        "NMOS": {
+          "status": "measured",
+          "Id_mA": 1.6917,
+          "R_on_ohm": 224.626,
+          "R_on_unit_ohm_um": 2246.26,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "mos_tt",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "d2edc80b203d802df14a5ccc49191d3fa36aab36ca2e31944881af2635f0b2f0"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Id_mA": 0.52608,
+          "R_on_ohm": 722.324,
+          "R_on_unit_ohm_um": 7223.24,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "mos_tt",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "2378b5e74e781d0f3b1a374242c8d2a4d20d4fe942cec933199afbf8e5e796df"
+        }
+      },
+      "triode_ss": {
+        "NMOS": {
+          "status": "measured",
+          "Id_mA": 1.13467,
+          "R_on_ohm": 334.899,
+          "R_on_unit_ohm_um": 3348.99,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "mos_ss",
+          "temp_c": 125,
+          "source": "ngspice",
+          "deck_sha256": "df70a048abe7b21a4afba942c1292a1d90c655891405daa817eb5e6df972da68"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Id_mA": 0.37592,
+          "R_on_ohm": 1010.853,
+          "R_on_unit_ohm_um": 10108.53,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "mos_ss",
+          "temp_c": 125,
+          "source": "ngspice",
+          "deck_sha256": "114c5137e757210d2daedd3c38e0f8a8b678024feb835347707bb7a81402eeb2"
+        }
+      },
+      "triode_ff": {
+        "NMOS": {
+          "status": "measured",
+          "Id_mA": 2.31838,
+          "R_on_ohm": 163.908,
+          "R_on_unit_ohm_um": 1639.08,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "mos_ff",
+          "temp_c": -40,
+          "source": "ngspice",
+          "deck_sha256": "c71fc2092f8652bad88a017da3a353f14cad6dd5ec508d2fbe066cbf8e23e413"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Id_mA": 0.7081,
+          "R_on_ohm": 536.647,
+          "R_on_unit_ohm_um": 5366.47,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "mos_ff",
+          "temp_c": -40,
+          "source": "ngspice",
+          "deck_sha256": "6c872824f4e54124806c56c21e324c47b06cba5074ff3b29621cd684cda5a208"
+        }
+      },
+      "tx_calibration": {
+        "NMOS": {
+          "status": "measured",
+          "target_mA": 7.6,
+          "M_class_I": 14,
+          "M_class_II": 28,
+          "W_class_I_um": 70.0,
+          "W_class_II_um": 140.0,
+          "Id_verified_mA": 7.94269,
+          "R_on_wc_ohm": 47.843,
+          "corner": "mos_ss",
+          "temp_c": 125,
+          "source": "ngspice",
+          "calibration_log": [
+            {
+              "iter": 1,
+              "fingers": 14,
+              "Id_mA": 7.94269,
+              "W_total_um": 70.0,
+              "deck_sha256": "18bc2a0339ed6e0a42ee283047970d76fc31264ce13abc08396c48fc78517316"
+            }
+          ]
+        },
+        "PMOS": {
+          "status": "measured",
+          "target_mA": 7.6,
+          "M_class_I": 42,
+          "M_class_II": 84,
+          "W_class_I_um": 210.0,
+          "W_class_II_um": 420.0,
+          "Id_verified_mA": 7.89431,
+          "R_on_wc_ohm": 48.136,
+          "corner": "mos_ss",
+          "temp_c": 125,
+          "source": "ngspice",
+          "calibration_log": [
+            {
+              "iter": 1,
+              "fingers": 42,
+              "Id_mA": 7.89431,
+              "W_total_um": 210.0,
+              "deck_sha256": "a8a17d23283b94645c8497abb6e4bd1d7435b4dd722d2fb0d22613a4881397b8"
+            }
+          ]
+        }
+      },
+      "sat_dc": {
+        "NMOS": {
+          "status": "measured",
+          "Vth_V": 0.62,
+          "Vgs_at_Ibranch_V": 0.86,
+          "Id_at_op_A": 4.27169e-05,
+          "gm_at_op_S": 0.000343202,
+          "gm_Id_at_op_Vinv": 8.58,
+          "gm_Id_peak_Vinv": 30.81,
+          "Id_sat_at_Vgs_max_A": 0.00202228,
+          "sweep_points": 126,
+          "trial_W_um": 8.0,
+          "trial_L_um": 0.6,
+          "corner": "mos_tt",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "8de03a91bf6dcc4a2408cda68cbf8dfa6d08ab4cee20ba0c7f1d3cec5f0dc8b6"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Vth_V": 0.66,
+          "Vgs_at_Ibranch_V": 0.9,
+          "Id_at_op_A": 4.20434e-05,
+          "gm_at_op_S": 0.000276072,
+          "gm_Id_at_op_Vinv": 6.9,
+          "gm_Id_peak_Vinv": 26.52,
+          "Id_sat_at_Vgs_max_A": 0.00145034,
+          "sweep_points": 126,
+          "trial_W_um": 20.0,
+          "trial_L_um": 0.6,
+          "corner": "mos_tt",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "f79fd34dfecf65f4cee22ca670775161262b875c084c50aef0f319d2f5474d11"
+        }
+      },
+      "ac_caps": {
+        "NMOS": {
+          "status": "measured",
+          "Cgg_fF": 20.5844,
+          "Cgd_fF": 9.4619,
+          "Cgg_per_um_fF": 2.573,
+          "Cgd_per_um_fF": 1.1827,
+          "freq_hz": 100000000.0,
+          "trial_W_um": 8.0,
+          "trial_L_um": 0.6,
+          "corner": "mos_tt",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "91edda79abab695904b4f007131fd9b5e206f92a9ad6269b4241e12f0cc92c85"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Cgg_fF": 44.5854,
+          "Cgd_fF": 19.2076,
+          "Cgg_per_um_fF": 2.2293,
+          "Cgd_per_um_fF": 0.9604,
+          "freq_hz": 100000000.0,
+          "trial_W_um": 20.0,
+          "trial_L_um": 0.6,
+          "corner": "mos_tt",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "5d3508d50e06fb9ac8ce4390ab38ca8a820dbe729b2d837862f335caef56c821"
+        }
+      },
+      "rx_icmr": {
+        "status": "measured",
+        "V_DS_tail_NMOS_V": 0.39,
+        "V_SD_tail_PMOS_V": 0.15,
+        "headroom_min_V": 0.12,
+        "PMOS_pair_active": true,
+        "topology": "COMPLEMENTARY_RAIL_TO_RAIL",
+        "note": "headroom proxy from measured Vgs at I_branch; not a full stacked tail-current-source simulation"
+      },
+      "status": "MEASURED"
+    },
+    "sky130": {
+      "backend": "sky130",
+      "root": "/home/yanlu/.ciel/ciel/sky130/versions/792ef67037d74c8c51811eab3ce23cf793491296/sky130A",
+      "model_kind": "BSIM4 binned .subckt (sky130_fd_pr__*g5v0d10v5)",
+      "license": "Apache-2.0 (SkyWater PDK)",
+      "corners": {
+        "tt": "tt",
+        "ss": "ss",
+        "ff": "ff"
+      },
+      "temps_c": {
+        "tt": 27,
+        "ss": 125,
+        "ff": -40
+      },
+      "triode_tt": {
+        "NMOS": {
+          "status": "measured",
+          "Id_mA": 1.05839,
+          "R_on_ohm": 359.036,
+          "R_on_unit_ohm_um": 3590.36,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "tt",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "a8fb69437700079b5f970350a751b1f43a62a8c79af689aeacac6ac784bd9407"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Id_mA": 0.32352,
+          "R_on_ohm": 1174.591,
+          "R_on_unit_ohm_um": 11745.91,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "tt",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "1c2f0be2bd8012af53b2adf858b4f80b3070f04a7ddc71dbda92ddcb8d777193"
+        }
+      },
+      "triode_ss": {
+        "NMOS": {
+          "status": "measured",
+          "Id_mA": 0.6894,
+          "R_on_ohm": 551.202,
+          "R_on_unit_ohm_um": 5512.02,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "ss",
+          "temp_c": 125,
+          "source": "ngspice",
+          "deck_sha256": "c1a4b4fde467d330b72ea8a569e9f318a7a252889f490f1cfdd166dc273d9c9c"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Id_mA": 0.23448,
+          "R_on_ohm": 1620.6,
+          "R_on_unit_ohm_um": 16206.0,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "ss",
+          "temp_c": 125,
+          "source": "ngspice",
+          "deck_sha256": "e63d98b6a70e6ebbe51e7ae946795e42bb33196286d505a8f496544cc3bda00a"
+        }
+      },
+      "triode_ff": {
+        "NMOS": {
+          "status": "measured",
+          "Id_mA": 1.48579,
+          "R_on_ohm": 255.756,
+          "R_on_unit_ohm_um": 2557.56,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "ff",
+          "temp_c": -40,
+          "source": "ngspice",
+          "deck_sha256": "938343cf329b37dc838e01703bdf430732d9133a8d9ec67beeb61769a90c000a"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Id_mA": 0.44031,
+          "R_on_ohm": 863.032,
+          "R_on_unit_ohm_um": 8630.32,
+          "W_total_um": 10.0,
+          "fingers": 2,
+          "Vgs_V": 2.3,
+          "Vds_V": 0.38,
+          "corner": "ff",
+          "temp_c": -40,
+          "source": "ngspice",
+          "deck_sha256": "30331f37e2db791d14bef6a960bb268019dbfe0d5f5b34b1c74c3f26d279630b"
+        }
+      },
+      "tx_calibration": {
+        "NMOS": {
+          "status": "measured",
+          "target_mA": 7.6,
+          "M_class_I": 24,
+          "M_class_II": 48,
+          "W_class_I_um": 120.0,
+          "W_class_II_um": 240.0,
+          "Id_verified_mA": 8.27283,
+          "R_on_wc_ohm": 45.933,
+          "corner": "ss",
+          "temp_c": 125,
+          "source": "ngspice",
+          "calibration_log": [
+            {
+              "iter": 1,
+              "fingers": 24,
+              "Id_mA": 8.27283,
+              "W_total_um": 120.0,
+              "deck_sha256": "4ec3b6911ab5970c335df34ea74024f13b5805fab7668eb231378270009d5591"
+            }
+          ]
+        },
+        "PMOS": {
+          "status": "measured",
+          "target_mA": 7.6,
+          "M_class_I": 66,
+          "M_class_II": 132,
+          "W_class_I_um": 330.0,
+          "W_class_II_um": 660.0,
+          "Id_verified_mA": 7.73787,
+          "R_on_wc_ohm": 49.109,
+          "corner": "ss",
+          "temp_c": 125,
+          "source": "ngspice",
+          "calibration_log": [
+            {
+              "iter": 1,
+              "fingers": 66,
+              "Id_mA": 7.73787,
+              "W_total_um": 330.0,
+              "deck_sha256": "e07ef1fc2f13005c790a3e4a97612855707d422ed57189d75baaef4c7ffa66fb"
+            }
+          ]
+        }
+      },
+      "sat_dc": {
+        "NMOS": {
+          "status": "measured",
+          "Vth_V": 0.78,
+          "Vgs_at_Ibranch_V": 1.04,
+          "Id_at_op_A": 3.88863e-05,
+          "gm_at_op_S": 0.00029341,
+          "gm_Id_at_op_Vinv": 7.34,
+          "gm_Id_peak_Vinv": 18.9,
+          "Id_sat_at_Vgs_max_A": 0.00103889,
+          "sweep_points": 126,
+          "trial_W_um": 8.0,
+          "trial_L_um": 0.8,
+          "corner": "tt",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "820dc99b632aaa6d3770fde7156693d4cd1262122f72aa6408fe9651ff81ab48"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Vth_V": 1.02,
+          "Vgs_at_Ibranch_V": 1.24,
+          "Id_at_op_A": 4.26539e-05,
+          "gm_at_op_S": 0.000306095,
+          "gm_Id_at_op_Vinv": 7.65,
+          "gm_Id_peak_Vinv": 22.57,
+          "Id_sat_at_Vgs_max_A": 0.000851896,
+          "sweep_points": 126,
+          "trial_W_um": 20.0,
+          "trial_L_um": 0.8,
+          "corner": "tt",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "fb1d89b3cf146c4e980dedfe311e954acf822c0468563dc6d9d7bcb8da34a8c7"
+        }
+      },
+      "ac_caps": {
+        "NMOS": {
+          "status": "measured",
+          "Cgg_fF": 17.2589,
+          "Cgd_fF": 6.5233,
+          "Cgg_per_um_fF": 2.1574,
+          "Cgd_per_um_fF": 0.8154,
+          "freq_hz": 100000000.0,
+          "trial_W_um": 8.0,
+          "trial_L_um": 0.8,
+          "corner": "tt",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "42f9e43efe18a80afddef397feea75cada15902e9b89c4469503a74d344ca1ba"
+        },
+        "PMOS": {
+          "status": "measured",
+          "Cgg_fF": 34.867,
+          "Cgd_fF": 12.5433,
+          "Cgg_per_um_fF": 1.7433,
+          "Cgd_per_um_fF": 0.6272,
+          "freq_hz": 100000000.0,
+          "trial_W_um": 20.0,
+          "trial_L_um": 0.8,
+          "corner": "tt",
+          "temp_c": 27,
+          "source": "ngspice",
+          "deck_sha256": "4675a011037616730735d0007ee1bd3f9a90f6936587183cc2f5956a100c9d5a"
+        }
+      },
+      "rx_icmr": {
+        "status": "measured",
+        "V_DS_tail_NMOS_V": 0.21,
+        "V_SD_tail_PMOS_V": -0.19,
+        "headroom_min_V": 0.12,
+        "PMOS_pair_active": false,
+        "topology": "NMOS_ONLY_DIFF_PAIR",
+        "note": "headroom proxy from measured Vgs at I_branch; not a full stacked tail-current-source simulation"
+      },
+      "status": "MEASURED"
+    }
+  }
+}
