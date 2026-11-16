@@ -1,7 +1,7 @@
 # 复合约束布局求解器
 
 状态：**求解器框架已建立并跑通；产物是符号化拓扑草图，不是可流片版图。**
-31 个设计参数与 10 个 PDK 规则输入全部是 `null`，`drc_clean` 恒为 `false`。
+31 个设计参数全为 `null`；10 个 PDK 规则输入已填 4 项（2 `verified` + 2 `foundry_doc`）、6 项仍 `TBD`，未解输入 37/41。`drc_clean` 恒为 `false`。
 
 ## 1. 用户要求与做法
 
@@ -26,7 +26,7 @@ constraints.yaml (10 PDK 规则) ─┼─> 派生量图 (11 个) ─> 复合约
 `specs/pads/constraints.yaml` 定义三类输入：
 
 - **设计参数**：来自 `topology.yaml`，31 个全为 `null`（宽/长/指条/级数/电阻/ESD 面积/保护环/尾电流等）。
-- **PDK 规则**：10 个，同样全为 `null` 且 `status: TBD` —— 焊盘节距、开口、DRC 最小宽/间距、ESD 面积下限、金属电流密度、IO 电流、保护环规则、DQ 位间偏斜预算、电源轨宽。**没有编造任何一条 DRC 数值**。
+- **PDK 规则**：10 个，其中 4 个已按证据等级填入（`DRC_MIN_WIDTH` / `DRC_MIN_SPACING` = 0.23µm 为 `verified`，`METAL_JMAX` / `GUARD_RING_RULE_MIN` 为 `foundry_doc`），6 个仍 `null` 且 `status: TBD` —— 焊盘节距、开口、ESD 面积下限、IO 电流、DQ 位间偏斜预算、电源轨宽。**没有编造任何一条 DRC 数值**；填入的是规则限值，不是"DRC 已跑过"。
 - **派生量**：11 个，闭白名单运算（`sum/product/scale/sqrt/div/max/min`），**不对文件数据做 eval**。例如 `W_N_TOTAL = W_N_OUT * NF_N_OUT * M_DEVICE`，`CELL_WIDTH = DRIVER_WIDTH + 2*GUARD_RING_SPACING + 2*RAIL_WIDTH`，`RAIL_WIDTH_FROM_EM = IO_CURRENT / METAL_JMAX`。
 
 7 类约束共用这些派生量，所以改一个 `W_N_OUT` 会同时牵动 geometry、drc、matching；改 `GUARD_RING_SPACING` 会同时牵动 geometry 与 latch_up；改 `RAIL_WIDTH` 会同时牵动 geometry 与 power_em。`constraint_graph.dot` 画的就是这张图。
@@ -61,27 +61,27 @@ constraints.yaml (10 PDK 规则) ─┼─> 派生量图 (11 个) ─> 复合约
 
 ## 5. 求解器两条路径都跑过
 
-- 默认 symbolic：41/41 输入未解，9 条 unresolved + 2 条 structural，写出 sdr_bidir_pad_topology.gds（cell 名带 TOPOLOGY_ONLY，KLayout 读回 16 个图形）。
-- --params 加一个**合成测试夹具**（放在 /tmp，不是设计值、不提交）：41/41 填齐后切到 dimensional，得到 8 条 satisfied、1 条 violated、2 条 structural。被判 violated 的是 cell_width_fits_pitch（CELL_WIDTH=50 超过 PAD_PITCH=40），说明复合约束能检出冲突而不是一律放行。测试后已重跑默认模式恢复 symbolic，并删掉 dimensional GDS。
+- 默认 symbolic：37/41 输入未解（31 设计参数 + 6 个 TBD 规则），9 条 unresolved + 2 条 structural，写出 sdr_bidir_pad_topology.gds（cell 名带 TOPOLOGY_ONLY，KLayout 读回 16 个图形）。
+- `solve_packaged.py` 加封装 profile 与**合成测试夹具**：41/41 填齐后切到 dimensional，得到 7 条 satisfied、2 条 violated、2 条 structural。被判 violated 的是 `cell_width_fits_pitch`（CELL_WIDTH=2374µm 超过 pitch 180µm）与 `rail_em`（RAIL_WIDTH=12µm < 22.7µm），说明复合约束能检出冲突而不是一律放行。夹具明确标为 `synthetic_fixture`，不是设计值，见 `docs/PACKAGING_PROFILES.md` §3.2。
 
-两条路径都保持 drc_clean: false；dimensional 也不等于签核，因为 PDK 规则仍是 TBD。
+两条路径都保持 drc_clean: false；dimensional 也不等于签核，因为生成的尺寸来自合成夹具、PDK 规则仍有 6 项 TBD。
 
-## 5. 与 P0-1~P0-5 的关系
+## 6. 与 P0-1~P0-5 的关系
 
 - 求解器的输入正是 `specs/timing_contract.yaml` 里那 28 个 TBD 项的物理侧 counterparts；`modeling_plan` 里写的"怎么表征"就是这里"怎么填参数"。
 - `tOE_on/off`、`dq_bit_skew`、`cmd_addr_skew` 等仍是 `null`，能力报告仍全部 `NO_GO`；求解器没有改判定。
 - gf180mcu DDR1 已按本轮要求改为 `DEFERRED_LONG_TERM`（P4+），不再是硬排除；但 2.5 V SSTL_2 / VREF 缺口、`ck90`、相位源 G6 仍阻塞，仍 `NO_GO`。
 
-## 6. 下一步（要变成真版图还差什么）
+## 7. 下一步（要变成真版图还差什么）
 
-1. 把 gf180mcuD 的 DRC/LVS、ESD、latch-up、金属 EM 规则读进 10 个 `pdk_rules`（现在全 TBD）。
+1. 把 gf180mcuD 的 DRC/LVS、ESD、latch-up、金属 EM 规则继续读进 `pdk_rules`：现已填 4/10，剩 `ESD_AREA_MIN`、`PAD_PITCH`、`PAD_OPENING`、`IO_CURRENT`、`DQ_BIT_SKEW_MAX`、`RAIL_WIDTH` 六项（其中后三项是设计输入，不是 PDK 规则）。
 2. 用负载仿真填 31 个设计参数，先跑 `char_tb.spice` 的测量清单。
 3. 定义 `PAD_OE_CTRL`、把预驱动展开到 `PDRV_STAGES`，确认二极管极性/体端/三端电阻。
 4. 用 `--params` 跑 dimensional 模式，再跑 PEX/SPICE、EM/IR、ESD、latch-up。
 5. 出 DRC/LVS-clean GDS 并做 pad ring 集成、封装/PCB 协同（见 `docs/SI_PI_PACKAGE_PCB.md`）。
-6. 把同一套约束模型套到 sky130 / IHP / ics55 —— 需要先绑定那三份 device map。
+6. 把同一套约束模型套到 sky130 / IHP / ics55 —— sky130 / IHP 的 device map 已绑定，ics55 仍缺 3.3 V ESD 二极管 SPICE 卡（见 `docs/PAD_GENERATOR.md` §3.1）。
 
-## 7. 不这样做
+## 8. 不这样做
 
 - 不把符号化 GDS 说成可流片版图，不把 `TOPOLOGY_ONLY` cell 名去掉。
 - 不填任何猜测的宽度、间距、电流密度或 ESD 目标。

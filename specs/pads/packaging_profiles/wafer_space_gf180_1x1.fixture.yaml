@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: Apache-2.0
+# SYNTHETIC design fixture for demonstrating the packaged-layout closure.
+#
+# HONESTY: these are NOT real design values. They exist ONLY to exercise the
+# full composite-constraint chain end-to-end with a real packaging profile.
+# No width/ESD/current here is a signoff decision. Two constraints are
+# expected to FAIL (cell_width_fits_pitch, rail_em) - that proves the solver
+# detects conflicts instead of silently passing.
+#
+# Used by: python3 generator/solve_packaged.py --profile wafer_space_gf180_1x1 --design-fixture THIS
+# Status: synthetic_fixture / verification-only. Never feed to emit_pads.py.
+meta:
+  status: synthetic_fixture
+  purpose: "demonstrate the full 41-input -> 11-constraint closure chain"
+  not_for: ["tapeout", "sizing decision", "emit_pads.py", "signoff"]
+  expected_violations: ["cell_width_fits_pitch", "rail_em"]
+
+# Keys are pdk_rules ids and topology.yaml design param ids; values are
+# deliberately arbitrary but internally consistent enough to resolve all.
+values:
+  W_N_OUT: 40
+  L_N_OUT: 0.28
+  NF_N_OUT: 8
+  W_P_OUT: 100
+  L_P_OUT: 0.28
+  NF_P_OUT: 20
+  PDRV_STAGES: 2
+  W_N_PDRV: 2
+  W_P_PDRV: 5
+  L_PDRV: 0.28
+  L_R_SERIES: 22
+  W_R_SERIES: 2
+  ESD_AREA_UP: 400
+  ESD_AREA_DN: 400
+  ESD_CLAMP_W: 10
+  W_RX_N: 4
+  W_RX_P: 10
+  RX_HYST: 0.05
+  W_VREF_N: 8
+  W_VREF_P: 20
+  I_TAIL: 0.00004
+  W_TAIL: 8
+  W_LOAD: 12
+  VREF_CM_MIN: 0.9
+  VREF_CM_MAX: 1.6
+  VREF_OFFSET: 0.005
+  VREF_HYST: 0.02
+  GUARD_RING_WIDTH: 2
+  GUARD_RING_SPACING: 15
+  NF_DEVICE: 1
+  M_DEVICE: 1
+  RAIL_WIDTH: 12
+  ESD_AREA_MIN: 100
+  DQ_BIT_SKEW_MAX: 100
+  IO_CURRENT: 0.0152

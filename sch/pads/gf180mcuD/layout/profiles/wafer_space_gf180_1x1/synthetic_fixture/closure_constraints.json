@@ -1,0 +1,279 @@
+{
+  "generated_by": "generator/solve_packaged.py",
+  "profile": {
+    "schema_version": 1,
+    "profile_id": "wafer_space_gf180_1x1",
+    "applies_to_pdk": "gf180mcuD",
+    "applies_to_backend": [
+      "gf180mcuD"
+    ],
+    "assembly_house": "wafer.space (GF180MCU Run 1 / Run 3, Chip-on-Board option)",
+    "slot": "1x1",
+    "status": "one concrete assembly commitment - NOT a universal rule",
+    "license": "Apache-2.0 (wafer-space/gf180mcu-precheck, gf180mcu-project-template, chip-on-board-wire-bonded-pcbs)",
+    "retrieved_on": "2026-11-16",
+    "evidence_class": "assembly_measured",
+    "note": "Run-specific. wafer.space states pinouts/footprints are run-specific and pad positions are pinned for COB. Do not generalize to other packages or PDKs."
+  },
+  "backend_from_profile": "gf180mcuD",
+  "mode": "dimensional",
+  "drc_clean": false,
+  "signoff": false,
+  "note": "profile overrides are in-memory only; generic pdk_rules unchanged",
+  "unresolved_param_count": 0,
+  "unresolved_params": [],
+  "overrides": {
+    "PAD_PITCH": 180.0,
+    "PAD_OPENING": 60.0
+  },
+  "assumptions": [
+    {
+      "id": "IO_CURRENT",
+      "value": 0.0152,
+      "unit": "A",
+      "note": "SSTL-2 Class II 15.2mA; DESIGN choice, not assembly data."
+    },
+    {
+      "id": "DQ_BIT_SKEW_MAX",
+      "value": 100.0,
+      "unit": "ps",
+      "note": "Timing-budget placeholder for the demo; NOT from any datasheet."
+    }
+  ],
+  "derived": {
+    "W_N_TOTAL": 320,
+    "W_P_TOTAL": 2000,
+    "DRIVER_WIDTH": 2320,
+    "ESD_UP_SIDE": 20.0,
+    "ESD_DN_SIDE": 20.0,
+    "RAIL_WIDTH_2X": 24,
+    "GUARD_SPACING_2X": 30,
+    "GUARD_WIDTH_2X": 4,
+    "CELL_WIDTH": 2374,
+    "CELL_HEIGHT": 44.56,
+    "RAIL_WIDTH_FROM_EM": 22.686567164179102
+  },
+  "derived_unresolved": {},
+  "constraints": [
+    {
+      "id": "cell_width_fits_pitch",
+      "class": "geometry",
+      "severity": "blocking",
+      "check": "le",
+      "note": "cell must fit one pad pitch",
+      "upstream": [
+        "GUARD_RING_SPACING",
+        "M_DEVICE",
+        "NF_N_OUT",
+        "NF_P_OUT",
+        "PAD_PITCH",
+        "RAIL_WIDTH",
+        "W_N_OUT",
+        "W_P_OUT"
+      ],
+      "lhs": "CELL_WIDTH",
+      "rhs": "PAD_PITCH",
+      "status": "violated",
+      "lhs_value": 2374,
+      "rhs_value": 180.0,
+      "operand_sources": {
+        "lhs": "derived",
+        "rhs": "profile_override(assembly_measured):wafer_space_gf180_1x1"
+      }
+    },
+    {
+      "id": "cell_height_fits_open",
+      "class": "geometry",
+      "severity": "blocking",
+      "check": "le",
+      "note": "cell must fit the pad opening",
+      "upstream": [
+        "ESD_AREA_DN",
+        "ESD_AREA_UP",
+        "GUARD_RING_WIDTH",
+        "L_N_OUT",
+        "L_P_OUT",
+        "PAD_OPENING"
+      ],
+      "lhs": "CELL_HEIGHT",
+      "rhs": "PAD_OPENING",
+      "status": "satisfied",
+      "lhs_value": 44.56,
+      "rhs_value": 60.0,
+      "operand_sources": {
+        "lhs": "derived",
+        "rhs": "profile_override(assembly_measured):wafer_space_gf180_1x1"
+      }
+    },
+    {
+      "id": "driver_width_drc",
+      "class": "drc",
+      "severity": "blocking",
+      "check": "ge",
+      "note": "output driver meets minimum width",
+      "upstream": [
+        "DRC_MIN_WIDTH",
+        "M_DEVICE",
+        "NF_N_OUT",
+        "NF_P_OUT",
+        "W_N_OUT",
+        "W_P_OUT"
+      ],
+      "lhs": "DRIVER_WIDTH",
+      "rhs": "DRC_MIN_WIDTH",
+      "status": "satisfied",
+      "lhs_value": 2320,
+      "rhs_value": 0.23,
+      "operand_sources": {
+        "lhs": "derived",
+        "rhs": "verified:libs.tech/klayout/tech/drc/rule_decks/metal.rb:72"
+      }
+    },
+    {
+      "id": "esd_up_area",
+      "class": "esd",
+      "severity": "blocking",
+      "check": "ge",
+      "note": "PAD-to-VDDIO diode area",
+      "upstream": [
+        "ESD_AREA_MIN",
+        "ESD_AREA_UP"
+      ],
+      "lhs": "ESD_AREA_UP",
+      "rhs": "ESD_AREA_MIN",
+      "status": "satisfied",
+      "lhs_value": 400,
+      "rhs_value": 100,
+      "operand_sources": {
+        "lhs": "derived",
+        "rhs": "TBD"
+      }
+    },
+    {
+      "id": "esd_dn_area",
+      "class": "esd",
+      "severity": "blocking",
+      "check": "ge",
+      "note": "PAD-to-VSSIO diode area",
+      "upstream": [
+        "ESD_AREA_DN",
+        "ESD_AREA_MIN"
+      ],
+      "lhs": "ESD_AREA_DN",
+      "rhs": "ESD_AREA_MIN",
+      "status": "satisfied",
+      "lhs_value": 400,
+      "rhs_value": 100,
+      "operand_sources": {
+        "lhs": "derived",
+        "rhs": "TBD"
+      }
+    },
+    {
+      "id": "latchup_spacing",
+      "class": "latch_up",
+      "severity": "blocking",
+      "check": "ge",
+      "note": "guard ring spacing",
+      "upstream": [
+        "DRC_MIN_SPACING",
+        "GUARD_RING_SPACING"
+      ],
+      "lhs": "GUARD_RING_SPACING",
+      "rhs": "DRC_MIN_SPACING",
+      "status": "satisfied",
+      "lhs_value": 15,
+      "rhs_value": 0.23,
+      "operand_sources": {
+        "lhs": "derived",
+        "rhs": "verified:libs.tech/klayout/tech/drc/rule_decks/metal.rb:72"
+      }
+    },
+    {
+      "id": "latchup_ring_width",
+      "class": "latch_up",
+      "severity": "advisory",
+      "check": "ge",
+      "note": "guard ring width",
+      "upstream": [
+        "GUARD_RING_RULE_MIN",
+        "GUARD_RING_WIDTH"
+      ],
+      "lhs": "GUARD_RING_WIDTH",
+      "rhs": "GUARD_RING_RULE_MIN",
+      "status": "satisfied",
+      "lhs_value": 2,
+      "rhs_value": 2,
+      "operand_sources": {
+        "lhs": "derived",
+        "rhs": "foundry_doc:https://gf180mcu-pdk.readthedocs.io/en/latest/physical_verification/design_manual/drm_14_3_2.html"
+      }
+    },
+    {
+      "id": "rail_em",
+      "class": "power_em",
+      "severity": "blocking",
+      "check": "ge",
+      "note": "VDDIO/VSSIO rail width from EM",
+      "upstream": [
+        "IO_CURRENT",
+        "METAL_JMAX",
+        "RAIL_WIDTH"
+      ],
+      "lhs": "RAIL_WIDTH",
+      "rhs": "RAIL_WIDTH_FROM_EM",
+      "status": "violated",
+      "lhs_value": 12,
+      "rhs_value": 22.686567164179102,
+      "operand_sources": {
+        "lhs": "TBD",
+        "rhs": "derived"
+      }
+    },
+    {
+      "id": "pad_pitch_drc",
+      "class": "pad_ring",
+      "severity": "advisory",
+      "check": "ge",
+      "note": "pitch satisfies DRC spacing",
+      "upstream": [
+        "DRC_MIN_SPACING",
+        "PAD_PITCH"
+      ],
+      "lhs": "PAD_PITCH",
+      "rhs": "DRC_MIN_SPACING",
+      "status": "satisfied",
+      "lhs_value": 180.0,
+      "rhs_value": 0.23,
+      "operand_sources": {
+        "lhs": "profile_override(assembly_measured):wafer_space_gf180_1x1",
+        "rhs": "verified:libs.tech/klayout/tech/drc/rule_decks/metal.rb:72"
+      }
+    },
+    {
+      "id": "dq_lane_identity",
+      "class": "matching",
+      "severity": "blocking",
+      "check": "structural",
+      "note": "all DQ lanes use identical cell geometry and placement topology; DQ_BIT_SKEW_MAX is TBD",
+      "status": "structural",
+      "upstream": [],
+      "operand_sources": {}
+    },
+    {
+      "id": "separate_io_rails",
+      "class": "pad_ring",
+      "severity": "advisory",
+      "check": "structural",
+      "note": "VDDIO/VSSIO separate from VDD/VSS; power-up Hi-Z gating present",
+      "status": "structural",
+      "upstream": [],
+      "operand_sources": {}
+    }
+  ],
+  "constraint_status_counts": {
+    "satisfied": 7,
+    "violated": 2,
+    "structural": 2
+  }
+}

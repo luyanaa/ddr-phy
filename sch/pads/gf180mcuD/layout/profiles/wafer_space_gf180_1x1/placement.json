@@ -1,0 +1,260 @@
+{
+  "generated_by": "generator/solve_layout.py",
+  "backend": "gf180mcuD",
+  "cell": "sdr_bidir_pad",
+  "mode": "symbolic",
+  "status": "NOT_DRC_CLEAN",
+  "drc_clean": false,
+  "note": "Symbolic topology sketch, not a designed layout. All sizing params are unresolved.",
+  "layers": {
+    "device": [
+      1,
+      0
+    ],
+    "rail": [
+      2,
+      0
+    ],
+    "guard_ring": [
+      3,
+      0
+    ],
+    "pad": [
+      4,
+      0
+    ],
+    "label": [
+      5,
+      0
+    ]
+  },
+  "instances": [
+    {
+      "name": "X_OE_CTRL",
+      "device": "PAD_OE_CTRL",
+      "nets": [
+        "n_gp",
+        "n_gn",
+        "OUT",
+        "OE_N",
+        "PU_OK",
+        "VDDIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        0,
+        0,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_PDRV_N",
+      "device": "nfet_03v3",
+      "nets": [
+        "n_pdrv",
+        "n_gp",
+        "VSSIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        25,
+        0,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_PDRV_P",
+      "device": "pfet_03v3",
+      "nets": [
+        "n_pdrv",
+        "n_gp",
+        "VDDIO",
+        "VDDIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        50,
+        0,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_OUT_P",
+      "device": "pfet_03v3",
+      "nets": [
+        "n_pre",
+        "n_gp",
+        "VDDIO",
+        "VDDIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        0,
+        15,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_OUT_N",
+      "device": "nfet_03v3",
+      "nets": [
+        "n_pre",
+        "n_gn",
+        "VSSIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        25,
+        15,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_RSER",
+      "device": "ppolyf_u",
+      "nets": [
+        "n_pre",
+        "PAD",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        50,
+        15,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "D_ESD_UP",
+      "device": "diode_pd2nw_03v3",
+      "nets": [
+        "PAD",
+        "VDDIO"
+      ],
+      "kind": "diode",
+      "symbolic_box": [
+        0,
+        30,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "D_ESD_DN",
+      "device": "diode_nd2ps_03v3",
+      "nets": [
+        "VSSIO",
+        "PAD"
+      ],
+      "kind": "diode",
+      "symbolic_box": [
+        25,
+        30,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "D_CLAMP",
+      "device": "diode_pd2nw_03v3",
+      "nets": [
+        "VSSIO",
+        "VDDIO"
+      ],
+      "kind": "diode",
+      "symbolic_box": [
+        50,
+        30,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_RX_N",
+      "device": "nfet_03v3",
+      "nets": [
+        "IN",
+        "PAD",
+        "VSSIO",
+        "VSSIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        0,
+        45,
+        20,
+        10
+      ],
+      "bbox_um": null
+    },
+    {
+      "name": "X_RX_P",
+      "device": "pfet_03v3",
+      "nets": [
+        "IN",
+        "PAD",
+        "VDDIO",
+        "VDDIO"
+      ],
+      "kind": "instance",
+      "symbolic_box": [
+        25,
+        45,
+        20,
+        10
+      ],
+      "bbox_um": null
+    }
+  ],
+  "nets": [
+    "IN",
+    "OE_N",
+    "OUT",
+    "PAD",
+    "PU_OK",
+    "VDDIO",
+    "VSSIO",
+    "n_gn",
+    "n_gp",
+    "n_pdrv",
+    "n_pre"
+  ],
+  "rails": [
+    "VDD",
+    "VSS",
+    "VDDIO",
+    "VSSIO"
+  ],
+  "guard_ring": {
+    "present": true,
+    "spacing_um": null,
+    "width_um": null
+  },
+  "cell_width_um": null,
+  "cell_height_um": null,
+  "bbox_um": null,
+  "labels": [
+    "TOPOLOGY ONLY",
+    "NOT DRC CLEAN",
+    "SIZES TBD"
+  ],
+  "resolved_geometry": false
+}

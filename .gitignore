@@ -26,3 +26,10 @@ result
 # no redistribution grant. Fetched locally for evaluation only.
 # See docs/DRAM_MODEL_REFERENCES.md.
 /third_party/reference/mt48lc16m16a2.v
+
+# Packaging-profile closure GDS are regenerated with timestamps (binary noise).
+# The closure evidence is the JSON/MD reports, not these throwaway sketches.
+/sch/pads/**/layout/profiles/**/*.gds
+
+# Generated first-pass pad characterization decks/netlists (reports are tracked).
+/sim/char/

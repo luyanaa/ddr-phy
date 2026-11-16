@@ -1,7 +1,7 @@
 # 公开 bonding diagram / pad pitch 数据检索
 
-状态：**检索到大量公开的 padframe / wirebonding 资料，但没有任何一份给出 center-to-center pad pitch 数值。**
-`PAD_PITCH` / `PAD_OPENING` 因此仍保持 `TBD`。`drc_clean` 仍 `false`，能力报告仍 `NO_GO`。
+状态：**检索到大量公开的 padframe / wirebonding 资料；通用 pad pitch 仍无公开数值，但一个具体封装承诺已用其 golden mask GDS 实测闭合（见 `docs/PACKAGING_PROFILES.md`）。**
+`PAD_PITCH` / `PAD_OPENING` 在通用 `pdk_rules` 中仍保持 `TBD`，profile 只做内存态 overlay。`drc_clean` 仍 `false`，能力报告仍 `NO_GO`。
 
 ## 1. 检索范围与许可
 
@@ -55,16 +55,15 @@
 
 1. DRM 9.0 把 pitch **明确推给封装厂**（"limited by assembly house"），PAD.2=9 / PAD.20=5 都是**边到边**间距，不是中心距。
 2. wafer.space 把 74 个 pad **钉在固定坐标**以兼容 COB，但公开文档只给实例名列表、die 尺寸和 pad 数量，**不给 pitch 数字**。真实 pitch 存在于它们的 GDS/PCB 里，需要拉取实际版图测量。
-3. 可从公开数字**推导**平均值：1×1 die 3932µm 减 2×355µm 角、17 pads → ~189.5µm 间隔；5122µm 减角、20 pads → ~220.6µm。但这是**推导的平均间隔**，依赖角/填充 cell 假设，**不是 stated pitch，不填**。
+3. 可从公开数字**推导**平均值：1×1 die 3932µm 减 2×355µm 角、17 pads → ~189.5µm 间隔；5122µm 减角、20 pads → ~220.6µm。但这是**推导的平均间隔**，依赖角/填充 cell 假设，**不是 stated pitch**。后续从 `wafer-space/gf180mcu-precheck` 的 `mask_1x1.gds`（sha256 可复核）直接量到：东西边 20 pads、19 个间隔均为 **211µm**；南北边 17 pads、16 个间隔均为 **180µm**；开窗 **60×60µm**。这些值只写进 `wafer_space_gf180_1x1` profile（`assembly_measured`），通用 `pdk_rules` 仍不填。
 4. 两个"开窗"数值并存且语义不同：DRM PAD.1=40 vs IO 库 60×60µm。没有封装厂确认能对账，**不填**。
 
 因此本轮的净结论是：**公开 bonding diagram / padframe 资料确实存在且相当丰富（wafer.space 的 COB 仓库几乎是完整的一套），但"中心距 pad pitch"这个具体数值仍然只有封装厂/实际 GDS 才能给**——正好印证了 DRM 的说法，也符合本项目一贯不把推断值伪装成实测值的纪律。
 
 ## 4. 对本项目的影响
 
-- `PAD_PITCH`、`PAD_OPENING` 继续 `TBD`；新找到的公开来源与推导值已记入 `specs/pads/foundry_data.yaml` 的 `assembly_sources` / `derived_only` 与 `reports/foundry_data.md`。
-- 6 项 TBD 不变；4 项已填（2 `verified` + 2 `foundry_doc`）不变；未解输入仍 37；`drc_clean=false`、`NO_GO` 不变。
-- 现在有了一个**具体可执行的下一步**：若要闭合 pitch，直接拉 `wafer-space/gf180mcu-project-template` 的 `slot_1x1.yaml` 对应的最终 GDS / `chip-on-board-wire-bonded-pcbs` 的 KiCad pad 坐标，量相邻 pad 中心距即可（Apache-2.0，可引用）。但这需要选定**具体封装/MPW run**，属于封装承诺而非通用规则。
+- `PAD_PITCH`、`PAD_OPENING` 在通用 `pdk_rules` 中继续 `TBD`；实测值只存在于 `wafer_space_gf180_1x1` profile 的 `overrides`（`assembly_measured`）。6 项 TBD 不变；4 项已填（2 `verified` + 2 `foundry_doc`）不变；未解输入仍 37；`drc_clean=false`、`NO_GO` 不变。
+- 上一轮写的"具体可执行的下一步"（拉 golden GDS 量中心距）已在 `wafer_space_gf180_1x1` 上完成：量到 211µm / 180µm / 60µm 开窗，并跑出 profile closure。通用规则仍需另一个封装承诺才能闭合。
 
 ## 5. 不这样做
 
