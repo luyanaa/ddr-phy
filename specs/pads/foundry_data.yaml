@@ -1,0 +1,135 @@
+# SPDX-License-Identifier: Apache-2.0
+# Foundry / assembly-house data located on 2026-11-16 for the 8 TBD pdk_rules.
+#
+# SOURCE: GlobalFoundries GF180MCU PDK Design Rule Manual (DRM), published at
+# gf180mcu-pdk.readthedocs.io. The PDK itself is Apache-2.0
+# (Copyright 2022 GlobalFoundries PDK Authors). We record VALUES + verbatim
+# snippets + URLs only; no manual text is copied into this repo.
+#
+# IMPORTANT HONESTY BOUNDARIES:
+#  - The docs site states "This documentation is currently a work in progress"
+#    and "Current Status - Experimental Preview". These are NOT signed-off
+#    foundry commitments.
+#  - DRM 9.2 note: bond-pad numbers are "default numbers for DRC purpose
+#    only ... VARIABLE ... use the appropriate value acceptable to their
+#    assembly house". DRM 9.0: "Bond pad size and pitch are limited by
+#    assembly house" - NO center-to-center pitch value is given anywhere.
+#  - DRM 14.4: TLP-to-HBM "miscorrelations" are explicitly acknowledged;
+#    no HBM/MM target level is specified.
+#  - Unlike verified (local PDK file:line, checked live), these are WEB
+#    sources: they cannot be re-opened offline. status foundry_doc marks
+#    this weaker evidence class.
+#
+# decision: fill (write into pdk_rules) | defer (record only)
+# semantic_match: exact | derived | none
+
+meta:
+  pdk: gf180mcuD
+  source: "GlobalFoundries GF180MCU PDK Design Rule Manual (readthedocs.io)"
+  source_status: "Experimental Preview / work in progress"
+  license: "Apache-2.0 (GF180MCU PDK); values + citations only, no text copied"
+  retrieved_on: "2026-11-16"
+  evidence_class: foundry_doc
+  note: "Filled values are foundry-documented design-rule defaults, NOT a DRC-clean claim and NOT an assembly-house commitment."
+
+data:
+  - id: METAL_JMAX
+    applies_to: METAL_JMAX
+    decision: fill
+    semantic_match: exact
+    value: 0.00067
+    value_unit: A/um
+    value_display: "0.67 mA/um"
+    selection: "Table 14.3, Metal 1 - Top Metal-1, Unidirectional, 125 deg C (most conservative column). Value = 0.67 mA/um = 6.7e-4 A/um."
+    source_url: "https://gf180mcu-pdk.readthedocs.io/en/latest/physical_verification/design_manual/drm_14_2.html"
+    drm_section: "14.2 Electro-migration, Table 14.3"
+    verbatim: "Metal 1-Top Metal - 1 Unidirectional (CB) 2.09 / 1 / 0.67 (85/110/125 deg C, mA/um)"
+    caveats:
+      - "Per DRAWN WIDTH; layer- and temperature-dependent. Other columns: MetalTop 11kA uni 125C = 1.5 mA/um, 30kA = 5.37 mA/um; bi-directional is higher."
+      - "Reliability basis: T0.1 > 100K hours at 85 deg C. Choosing 125 deg C is conservative for a 3.3V SDR pad."
+      - "A VDDIO rail is unidirectional; DQ would use bi-directional. Selection must be revisited if the rail uses MetalTop."
+    alternatives:
+      - "MetalTop 11kA Unidirectional 125C: 1.5 mA/um"
+      - "MetalTop 30kA Unidirectional 125C: 5.37 mA/um"
+      - "Table 14.4 via1-5 unidirectional 125C: 0.18 mA per contact"
+
+  - id: GUARD_RING_RULE_MIN
+    applies_to: GUARD_RING_RULE_MIN
+    decision: fill
+    semantic_match: exact
+    value: 2
+    value_unit: um
+    value_display: "2 um"
+    selection: "DRM 14.3.2 IO.2 / IO.4 'Minimum recommended ... guard ring width' = 2um for LV and MV (Comment column: Rule)."
+    source_url: "https://gf180mcu-pdk.readthedocs.io/en/latest/physical_verification/design_manual/drm_14_3_2.html"
+    drm_section: "14.3.2 I/O Latch-up Related Rules, IO.2 / IO.4"
+    verbatim: "IO.2 Minimum recommended Nwell guard ring width ... 2 / 2 (LV/MV), Rule; IO.4 Minimum recommended PCOMP guard ring width ... 2 / 2, Rule"
+    caveats:
+      - "This is the I/O latch-up guard-ring WIDTH rule that the parameter names - unlike guard_ring.rb GR.* (seal-ring-to-die-edge), which is different physics."
+      - "Wording is 'minimum recommended' though the table Comment says Rule."
+      - "Adjacent rules (not this parameter): IO.1/IO.3 max guard-ring-to-diffusion space 15um; max tap distances 2um / 5um."
+
+  - id: PAD_OPENING
+    applies_to: PAD_OPENING
+    decision: defer
+    semantic_match: exact
+    candidate_value: 40
+    candidate_unit: um
+    source_url: "https://gf180mcu-pdk.readthedocs.io/en/latest/physical_verification/design_manual/drm_09_2.html"
+    drm_section: "9.2 Bond Pad Guidelines, PAD.1"
+    verbatim: "PAD.1 Pad opening: Wedge 40 / Ball 40 / Gold bump 4"
+    caveats:
+      - "Explicitly 'default numbers for DRC purpose only ... VARIABLE ... acceptable to their assembly house'."
+      - "Gold-bump value is 4, not 40 - depends on assembly technology."
+    blocked_by: "Assembly-house confirmation required; do not freeze a DRC default as a design constraint."
+
+  - id: PAD_PITCH
+    applies_to: PAD_PITCH
+    decision: defer
+    semantic_match: none
+    source_url: "https://gf180mcu-pdk.readthedocs.io/en/latest/physical_verification/design_manual/drm_09.html"
+    drm_section: "9.0 Bond Pad"
+    verbatim: "Bond pad size and pitch are limited by assembly house. The bond pad pitch and size should be increased whenever possible."
+    related_numbers:
+      - "PAD.2 pad opening to pad opening = 9 (wedge/ball/gold bump)"
+      - "PAD.20 pad metal to pad metal space = 5"
+    caveats:
+      - "No center-to-center pitch value is given; foundry explicitly defers to the assembly house."
+      - "PAD.2 is an edge-to-edge spacing, NOT a pitch. Deriving 40+9=49um would be an unlabelled inference."
+    blocked_by: "No assembly-house / packaging data (bond diagram, package pad pitch)."
+
+  - id: ESD_AREA_MIN
+    applies_to: ESD_AREA_MIN
+    decision: defer
+    semantic_match: derived
+    source_url: "https://gf180mcu-pdk.readthedocs.io/en/latest/physical_verification/design_manual/drm_14_5_2.html"
+    drm_section: "14.5.2 ESD Performance from 3.3V LV N+/PWELL diode; 14.4.2 Design Guidelines"
+    verbatim: "Second Breakdown Current (It2) ~27.5mA/um; Vt2 ~3.1V. 14.4.2: min cathode junction width DL 0.36um, recommended max finger width DW 40um."
+    related_numbers:
+      - "14.5.3 3.3V LV P+/NWELL diode It2 ~33.3mA/um"
+      - "14.5.7 5V/6V HV N+/PWELL diode It2 ~30mA/um"
+    caveats:
+      - "It2 is per-micron TLP current capability, NOT an area. Converting to ESD_AREA_MIN needs an HBM/MM target level (e.g. 2kV -> peak current) that the DRM does NOT specify."
+      - "DRM 14.4 explicitly warns of TLP-to-HBM miscorrelation (dV/dt, device turn-off during HBM decay)."
+    blocked_by: "ESD target level (HBM kV) is a system requirement, not foundry data; TLP-to-HBM correlation unverified."
+
+  - id: IO_CURRENT
+    applies_to: IO_CURRENT
+    decision: defer
+    semantic_match: none
+    note: "Design specification (SSTL-2 Class I 7.6mA / Class II 15.2mA), not foundry data. EM tables constrain how wide a metal must be for a given current, not what current the design demands."
+    blocked_by: "Design decision."
+
+  - id: DQ_BIT_SKEW_MAX
+    applies_to: DQ_BIT_SKEW_MAX
+    decision: defer
+    semantic_match: none
+    note: "Timing budget from P0-1 contract / board SI, not a foundry rule."
+    blocked_by: "System timing budget."
+
+  - id: RAIL_WIDTH
+    applies_to: RAIL_WIDTH
+    decision: defer
+    semantic_match: derived
+    note: "RAIL_WIDTH_FROM_EM = IO_CURRENT / METAL_JMAX is now computable once METAL_JMAX is filled, but IO_CURRENT remains a design input, so the constraint stays unresolved."
+    blocked_by: "IO_CURRENT (design input)."

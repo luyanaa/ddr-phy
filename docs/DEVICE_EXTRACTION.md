@@ -1,7 +1,7 @@
 # 闭环 ngspice 器件参数提取器
 
 状态：**三套 PDK（gf180mcuD / ihp-sg13g2 / sky130）全部实测；无 mock 值、无签核声明。**
-`pdk_rules` 的 10 项：2 项由 PDK 规则文件核实填入、8 项仍 `TBD`（见 `docs/PDK_RULE_EVIDENCE.md`）；能力报告仍全部 `NO_GO`。
+`pdk_rules` 的 10 项：4 项已填（2 本机 PDK 文件 + 2 foundry DRM）、6 项仍 `TBD`（见 `docs/FOUNDRY_PACKAGE_DATA.md`）；能力报告仍全部 `NO_GO`。
 
 ## 1. 为什么重写而不是照搬粘贴的脚本
 
@@ -95,11 +95,11 @@ TT/SS/FF 三档 Id 满足 SS ≤ TT ≤ FF（gf180 NMOS：1.046 / 1.547 / 2.117�
 本轮后续（见 `docs/PDK_RULE_EVIDENCE.md`）已逐条核对本机 gf180mcuD PDK：
 
 - **2 项语义一致、可核实填入**：`DRC_MIN_WIDTH` / `DRC_MIN_SPACING` = 0.23um（KLayout `metal.rb:72`，magic tech 佐证）。
-- **4 项找到的是语义不同的另一条规则，不填**：`ESD_AREA_MIN`、`GUARD_RING_RULE_MIN`、`PAD_PITCH`、`PAD_OPENING`。
-- **1 项 PDK 里没有**：`METAL_JMAX`（无 EM/电流密度数据）。
+- **4 项仍需封装厂/系统输入**：`ESD_AREA_MIN`、`PAD_PITCH`、`PAD_OPENING`、`RAIL_WIDTH`。
+- **2 项本机 PDK 文件里没有、但 foundry DRM 有**：`METAL_JMAX`、`GUARD_RING_RULE_MIN` → 已按 `foundry_doc` 等级填入，见 FOUNDRY_PACKAGE_DATA.md。
 - **3 项是设计规格/时序预算**：`IO_CURRENT`、`DQ_BIT_SKEW_MAX`、`RAIL_WIDTH`。
 
-因此 `device_measurements` 段保持「器件实测值 + `source: ngspice`」；`pdk_rules` 里 2 项 `status: verified` 带 `verified_from`，8 项仍 `TBD`。`check_device_extraction.py` 现在校验：非 TBD 项必须有实时核对过的 provenance，防止误填。
+因此 `device_measurements` 段保持「器件实测值 + `source: ngspice`」；`pdk_rules` 里 2 项 `verified` + 2 项 `foundry_doc`，6 项仍 `TBD`。`check_device_extraction.py` 现在校验：非 TBD 项必须有实时核对过的 provenance，防止误填。
 
 填入的是 **DRC 规则限值**，不是「跑过 DRC 且 clean」：`drc_clean` 仍 `false`，能力报告仍 `NO_GO`。
 ## 5. 本项目约束的一致性
@@ -107,12 +107,12 @@ TT/SS/FF 三档 Id 满足 SS ≤ TT ≤ FF（gf180 NMOS：1.046 / 1.547 / 2.117�
 - `specs/pads/topology.yaml` 的 31 个设计参数**仍全为 `null`** —— 本提取器测的是器件，不是选定尺寸；`emit_pads.py` 的守卫不变。
 - `reports/capability_report.md` **仍全部 `NO_GO`**，`backends/gf180mcu.yaml` 的 `toe_on_ps/toe_off_ps` 仍 `null`、`schematic_drawn: false`。器件表征不等于 pad 已设计/已签核。
 - gf180mcu DDR1 仍是 `DEFERRED_LONG_TERM`（P4+，远期计划）。本提取器是 P0 的器件表征能力建设，不代表 SSTL-2 收发器已实现。
-- `check_layout.py` 的 39 未解输入（填了 2 项 DRC 规则，41-2）、11 条复合约束、0 个 DRC 声明保持不变。
+- `check_layout.py` 的 37 未解输入（填了 4 项规则，41-4）、11 条复合约束、0 个 DRC 声明保持不变。
 - 没有引入任何外部模型源码；PDK 库通过绝对路径 include，模型本身留在 ciel。
 
 ## 6. 尚未做的
 
-1. ~~读 gf180mcuD 规则填 `pdk_rules`~~ 已部分完成（2/10，见 `docs/PDK_RULE_EVIDENCE.md`）；剩 8 项需封装/EM/ESD/latch-up deck 与设计规格。
+1. ~~读 gf180mcuD 规则填 `pdk_rules`~~ 已部分完成（4/10：2 本机 PDK 文件 + 2 foundry DRM，见 `docs/PDK_RULE_EVIDENCE.md` 与 `docs/FOUNDRY_PACKAGE_DATA.md`）；剩 6 项需封装厂 pad 数据、ESD HBM 目标与设计规格。
 2. ~~安装完整 sky130 primitive 模型~~ 已闭合：`792e...` 版本含完整模型；`root_must_contain` 保证不再误选残缺版本，`check_device_extraction.py` 现在要求 3 套全部 MEASURED。
 3. 用实测 R_on / Cgg / gm/Id 反推 31 个设计参数，跑 `char_tb.spice` 的测量清单。
 4. 完整堆叠尾电流源仿真验证 ICMR 拓扑（替代代理判据）。

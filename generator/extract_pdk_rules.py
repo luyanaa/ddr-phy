@@ -108,6 +108,10 @@ def apply_to_constraints(fill_map, evidence, errors):
     for r in evidence["rules"]:
         if r["decision"] == "defer":
             block.append("    %s: %s" % (r["id"], r["verdict"]))
+    block += ["  filled_via_foundry_doc:"]
+    for r in evidence["rules"]:
+        if r["decision"] == "defer_local":
+            block.append("    %s: %s" % (r["id"], r.get("filled_via", "foundry_data.yaml")))
     block += [MARK_END, ""]
     new = "\n".join(block)
     if MARK_BEGIN in text:
@@ -179,10 +183,16 @@ def main():
             s = "%s:%s" % (s, r.get("source_line", "?"))
         md.append("| %s | %s | %s | %s | %s |" %
                   (r["id"], r["verdict"], r["decision"], v, s))
-    md += ["", "## Why 8 rules remain TBD", ""]
+    n_defer = sum(1 for r in evidence["rules"] if r["decision"] == "defer")
+    n_other = sum(1 for r in evidence["rules"] if r["decision"] == "defer_local")
+    md += ["", "## Why %d rules remain TBD from LOCAL PDK files" % n_defer, ""]
     for r in evidence["rules"]:
         if r["decision"] == "defer":
             md.append("- **%s** (%s): %s" % (r["id"], r["verdict"], r["reason"]))
+    if n_other:
+        md += ["", "%d rules have no local-PDK value but ARE filled from the public" % n_other,
+               "GF180MCU DRM by generator/extract_foundry_data.py (status foundry_doc);",
+               "see reports/foundry_data.md. They are NOT counted as local TBDs.", ""]
     md += ["", "## Filled now", ""]
     for rid, val in sorted(fill_map.items()):
         md.append("- %s = %s (verified live)" % (rid, val))
@@ -197,8 +207,10 @@ def main():
                 print("ERROR " + x, file=sys.stderr)
             return 1
 
-    print("pdk rule evidence checks PASS: %d filled, %d deferred, live sources verified" %
-          (len(fill_map), len(evidence["rules"]) - len(fill_map)))
+    n_defer_local = sum(1 for r in evidence["rules"] if r["decision"] == "defer_local")
+    n_defer = len(evidence["rules"]) - len(fill_map) - n_defer_local
+    print("pdk rule evidence checks PASS: %d filled (local), %d TBD, %d via foundry_doc, live sources verified" %
+          (len(fill_map), n_defer, n_defer_local))
     return 0
 
 

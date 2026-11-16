@@ -5,6 +5,7 @@
 set -e
 cd "$(dirname "$0")/.."
 python3 generator/extract_pdk_rules.py
+python3 generator/extract_foundry_data.py
 python3 generator/check_device_extraction.py
 python3 generator/check_layout.py
 echo PDK_RULES_DONE

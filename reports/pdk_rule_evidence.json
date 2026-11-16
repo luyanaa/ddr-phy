@@ -68,11 +68,12 @@
     },
     {
       "id": "METAL_JMAX",
-      "verdict": "not_in_pdk",
-      "decision": "defer",
+      "verdict": "foundry_doc",
+      "decision": "defer_local",
       "unit": "A/um",
       "candidates": [],
-      "reason": "No Jmax / current-density / electromigration limit anywhere in libs.tech or the IO library (only a comment mentioning IR drop in librelane/config.tcl). Metal EM limits are foundry-confidential in this open PDK. Keep TBD."
+      "reason": "No EM data in the LOCAL PDK files, but the GF180MCU DRM 14.2 Table 14.3 gives max line current density. Now filled (status foundry_doc) by generator/extract_foundry_data.py from specs/pads/foundry_data.yaml - NOT from a local file. See that file for the value, selection and caveats.",
+      "filled_via": "specs/pads/foundry_data.yaml"
     },
     {
       "id": "IO_CURRENT",
@@ -84,15 +85,15 @@
     },
     {
       "id": "GUARD_RING_RULE_MIN",
-      "verdict": "related_rule_only",
-      "decision": "defer",
+      "verdict": "foundry_doc",
+      "decision": "defer_local",
       "unit": "um",
       "candidates": [
         "libs.tech/klayout/tech/drc/rule_decks/guard_ring.rb:49 GR.2 GUARD_RING_MK space to prime die COMP: 10um",
         "libs.tech/klayout/tech/drc/rule_decks/guard_ring.rb:82 GR.4 Minimum Metal width: 12um",
         "libs.tech/klayout/tech/drc/rule_decks/guard_ring.rb:89 GR.6 Min PCOMP width: 16um"
       ],
-      "reason": "GR.2/4/6 are SEAL-RING / guard-ring-MARKER rules (distance from chip edge to core), not the latch-up tap-to-diffusion spacing that this parameter names. Different physics. Do NOT fill."
+      "reason": "GR.2/4/6 are SEAL-RING / guard-ring-MARKER rules (distance from chip edge to core), not the latch-up tap-to-diffusion spacing that this parameter names. Different physics. Do NOT fill.GR.2/4/6 are SEAL-RING / guard-ring-MARKER rules (distance from chip edge to core), not the latch-up tap-to-diffusion spacing that this parameter names. Different physics. Do NOT fill. LOCAL guard_ring.rb GR.* are seal-ring rules; the real I/O latch-up guard-ring width (DRM 14.3.2 IO.2/IO.4 = 2um) is filled via specs/pads/foundry_data.yaml (status foundry_doc)."
     },
     {
       "id": "DQ_BIT_SKEW_MAX",

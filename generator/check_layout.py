@@ -27,21 +27,31 @@ def main():
     dev = yaml.safe_load(open(SPECS / "devices" / "gf180mcuD.yaml"))
     ev = yaml.safe_load(open(SPECS / "pdk_rule_evidence.yaml"))
     verdicts = {r["id"]: r for r in ev["rules"]}
+    fd_path = SPECS / "foundry_data.yaml"
+    foundry = {x["applies_to"]: x for x in yaml.safe_load(open(fd_path))["data"]} if fd_path.exists() else {}
 
     for p in topo["params"]:
         if p["value"] is not None:
             e.append("design param %s invented value" % p["id"])
     for p in cons["pdk_rules"]:
-        v = verdicts.get(p["id"], {})
-        if v.get("verdict") == "verified":
-            # A filled rule must carry live-checked provenance.
-            if p["status"] != "verified" or p["value"] is None or not p.get("verified_from"):
-                e.append("verified PDK rule %s lacks value/status/provenance" % p["id"])
-            if p["value"] != v.get("value"):
-                e.append("verified PDK rule %s value drifted from evidence" % p["id"])
+        st = p["status"]
+        if st == "verified":
+            v = verdicts.get(p["id"], {})
+            if p["value"] is None or not p.get("verified_from"):
+                e.append("verified PDK rule %s lacks value/provenance" % p["id"])
+            if v.get("verdict") != "verified" or p["value"] != v.get("value"):
+                e.append("verified PDK rule %s disagrees with evidence" % p["id"])
+        elif st == "foundry_doc":
+            x = foundry.get(p["id"], {})
+            if p["value"] is None or not p.get("foundry_from"):
+                e.append("foundry_doc rule %s lacks value/provenance" % p["id"])
+            if x.get("decision") != "fill" or p["value"] != x.get("value"):
+                e.append("foundry_doc rule %s disagrees with foundry_data" % p["id"])
+        elif st == "TBD":
+            if p["value"] is not None:
+                e.append("TBD PDK rule %s has a value" % p["id"])
         else:
-            if p["value"] is not None or p["status"] != "TBD":
-                e.append("PDK rule %s invented value (must stay TBD)" % p["id"])
+            e.append("PDK rule %s has unknown status %s" % (p["id"], st))
     if dev["ddr1"]["status"] != "DEFERRED_LONG_TERM":
         e.append("gf180mcuD DDR1 is not DEFERRED_LONG_TERM")
 

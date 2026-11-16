@@ -3,14 +3,13 @@
   "backend": "gf180mcuD",
   "mode": "symbolic",
   "drc_clean": false,
-  "unresolved_param_count": 39,
+  "unresolved_param_count": 37,
   "unresolved_params": [
     "DQ_BIT_SKEW_MAX",
     "ESD_AREA_DN",
     "ESD_AREA_MIN",
     "ESD_AREA_UP",
     "ESD_CLAMP_W",
-    "GUARD_RING_RULE_MIN",
     "GUARD_RING_SPACING",
     "GUARD_RING_WIDTH",
     "IO_CURRENT",
@@ -18,7 +17,6 @@
     "L_N_OUT",
     "L_PDRV",
     "L_P_OUT",
-    "METAL_JMAX",
     "M_DEVICE",
     "NF_DEVICE",
     "NF_N_OUT",
@@ -101,8 +99,7 @@
       "ESD_DN_SIDE"
     ],
     "RAIL_WIDTH_FROM_EM": [
-      "IO_CURRENT",
-      "METAL_JMAX"
+      "IO_CURRENT"
     ]
   },
   "constraints": [
@@ -240,8 +237,7 @@
       "rhs": "GUARD_RING_RULE_MIN",
       "status": "unresolved",
       "unresolved_operands": [
-        "lhs",
-        "rhs"
+        "lhs"
       ]
     },
     {
@@ -344,9 +340,10 @@
     {
       "id": "METAL_JMAX",
       "unit": "A/um",
-      "value": null,
-      "status": "TBD",
-      "reason": "metal EM current density"
+      "value": 0.00067,
+      "status": "foundry_doc",
+      "reason": "metal EM current density",
+      "foundry_from": "https://gf180mcu-pdk.readthedocs.io/en/latest/physical_verification/design_manual/drm_14_2.html"
     },
     {
       "id": "IO_CURRENT",
@@ -358,9 +355,10 @@
     {
       "id": "GUARD_RING_RULE_MIN",
       "unit": "um",
-      "value": null,
-      "status": "TBD",
-      "reason": "latch-up rule"
+      "value": 2,
+      "status": "foundry_doc",
+      "reason": "latch-up rule",
+      "foundry_from": "https://gf180mcu-pdk.readthedocs.io/en/latest/physical_verification/design_manual/drm_14_3_2.html"
     },
     {
       "id": "DQ_BIT_SKEW_MAX",

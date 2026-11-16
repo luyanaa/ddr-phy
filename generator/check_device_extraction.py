@@ -99,14 +99,21 @@ def main():
     rules = cons.get("pdk_rules", [])
     ev_path = ROOT / "specs" / "pads" / "pdk_rule_evidence.yaml"
     ev = {r["id"]: r for r in yaml.safe_load(open(ev_path))["rules"]} if ev_path.exists() else {}
+    fd_path = ROOT / "specs" / "pads" / "foundry_data.yaml"
+    fd = {x["applies_to"]: x for x in yaml.safe_load(open(fd_path))["data"]} if fd_path.exists() else {}
     if len(rules) != 10:
         e.append("pdk_rules must have 10 entries")
     for x in rules:
-        v = ev.get(x["id"], {})
-        if v.get("verdict") == "verified":
-            if x["status"] != "verified" or x["value"] is None or not x.get("verified_from"):
+        st = x["status"]
+        if st == "verified":
+            v = ev.get(x["id"], {})
+            if x["value"] is None or not x.get("verified_from") or v.get("verdict") != "verified":
                 e.append("verified pdk_rule %s lacks provenance" % x["id"])
-        elif x["status"] != "TBD" or x["value"] is not None:
+        elif st == "foundry_doc":
+            f = fd.get(x["id"], {})
+            if x["value"] is None or not x.get("foundry_from") or f.get("decision") != "fill":
+                e.append("foundry_doc pdk_rule %s lacks provenance" % x["id"])
+        elif st != "TBD" or x["value"] is not None:
             e.append("pdk_rule %s must stay TBD/null" % x["id"])
     dm = cons.get("device_measurements", {})
     if dm.get("status") != "no_signoff_claim":
@@ -119,9 +126,11 @@ def main():
             print("ERROR " + x, file=sys.stderr)
         return 1
     meas = [k for k, v in d["backends"].items() if v["status"] == "MEASURED"]
-    nfill = sum(1 for x in cons["pdk_rules"] if x["status"] == "verified")
-    print("device extraction checks PASS: %d measured, 0 blocked, %d pdk_rules verified/%d TBD, 0 mock values" %
-          (len(meas), nfill, len(cons["pdk_rules"]) - nfill))
+    nv = sum(1 for x in cons["pdk_rules"] if x["status"] == "verified")
+    nf = sum(1 for x in cons["pdk_rules"] if x["status"] == "foundry_doc")
+    nt = sum(1 for x in cons["pdk_rules"] if x["status"] == "TBD")
+    print("device extraction checks PASS: %d measured, 0 blocked, %d verified/%d foundry_doc/%d TBD, 0 mock values" %
+          (len(meas), nv, nf, nt))
     return 0
 
 

@@ -1,6 +1,6 @@
 # gf180mcuD PDK 规则证据与 pdk_rules 填充
 
-状态：**10 项 pdk_rules 里 2 项由本机 PDK 规则文件核实填入，8 项保持 TBD。**
+状态：**10 项 pdk_rules 里 4 项已填（2 由本机 PDK 文件 + 2 由 foundry DRM），6 项保持 TBD。见 `docs/FOUNDRY_PACKAGE_DATA.md`。**
 填入的是 **DRC 规则限值**，不是"跑过 DRC 且 clean"：`drc_clean` 仍 `false`，能力报告仍全部 `NO_GO`。
 
 ## 1. 来源
@@ -27,15 +27,15 @@
 | `DRC_MIN_SPACING` | verified | **填** | 0.23 µm | `metal.rb:72` `min_space: 0.23`（Metal1）；`gf180mcuD.tech:2963` M1.2a 230 佐证 |
 | `DRC_MIN_WIDTH` | verified | **填** | 0.23 µm | `metal.rb:72` `min_width: 0.23`（Metal1）；`gf180mcuD.tech:2962` M1.1 230 佐证 |
 | `ESD_AREA_MIN` | related_rule_only | 不填 | — | `esd.rb:75` ESD.5a 0.49µm² 是 **implant 层多边形**最小面积，不是 HBM 二极管面积 |
-| `GUARD_RING_RULE_MIN` | related_rule_only | 不填 | — | `guard_ring.rb:49/82/89` GR.2/4/6 是 **seal ring 到 die 边**距离，不是 latch-up tap 间距 |
+| `GUARD_RING_RULE_MIN` | foundry_doc | **填** | 2 um | DRM 14.3.2 IO.2/IO.4（见 FOUNDRY_PACKAGE_DATA.md） |
 | `PAD_PITCH` | related_rule_only | 不填 | — | `bi_t.lef:9` 75µm 是**单个 IO cell 宽**，不是封装节距 |
 | `PAD_OPENING` | related_rule_only | 不填 | — | `guard_ring.rb:109` GR.11 只说"开窗在 GUARD_RING_MK 上"不给尺寸 |
-| `METAL_JMAX` | not_in_pdk | 不填 | — | 全 PDK 无 EM/电流密度数值（仅 config.tcl 一句注释提到 IR drop） |
+| `METAL_JMAX` | foundry_doc | **填** | 0.00067 A/um | DRM 14.2 Table 14.3（见 FOUNDRY_PACKAGE_DATA.md） |
 | `IO_CURRENT` | design_input | 不填 | — | SSTL-2 Class I 7.6mA 是设计规格 |
 | `DQ_BIT_SKEW_MAX` | design_input | 不填 | — | 来自 P0-1 时序预算 / 板级 SI |
 | `RAIL_WIDTH` | design_input | 不填 | — | EM/IR 设计决策，依赖仍 TBD 的 METAL_JMAX / IO_CURRENT |
 
-### 为什么只填 2 项
+### 为什么本机 PDK 只填 2 项（另 2 项由 foundry DRM 填）
 
 关键是**语义一致**，不是"找到一个数就填"：
 
@@ -46,9 +46,9 @@
 
 ## 3. 连锁影响
 
-填 2 项后 `solve_layout.py` 的未解输入从 41 降到 **39**（31 设计参数 + 8 个 TBD 规则）；11 条复合约束状态不变（9 unresolved + 2 structural），因为 `CELL_WIDTH` / `RAIL_WIDTH_FROM_EM` 等派生量仍依赖未解的设计参数。`drc_clean` 仍 `false`，GDS 仍是 `TOPOLOGY_ONLY` 符号草图。
+填 2 项后 `solve_layout.py` 的未解输入从 41 降到 **37**（31 设计参数 + 6 个 TBD 规则）；11 条复合约束状态不变（9 unresolved + 2 structural），因为 `CELL_WIDTH` / `RAIL_WIDTH_FROM_EM` 等派生量仍依赖未解的设计参数。`drc_clean` 仍 `false`，GDS 仍是 `TOPOLOGY_ONLY` 符号草图。
 
-三个校验器同步升级，不再硬编码"10 项全 TBD"：
+三个校验器按 status 分类校验 provenance（verified / foundry_doc / TBD）：
 
 - `check_layout.py`：verified 项必须有 `value/status/verified_from` 且与证据目录一致；其余必须 TBD/null；未解计数按实际 null 动态计算。
 - `check_device_extraction.py`：同样的 verified/TBD 二分校验。
@@ -60,7 +60,7 @@
 
 gf180mcu DDR1 仍是 `DEFERRED_LONG_TERM`（P4+，远期计划）。
 
-## 5. 剩余 8 项要闭合还差什么
+## 5. 剩余 6 项要闭合还差什么
 
 | 规则 | 需要的输入 |
 |---|---|
