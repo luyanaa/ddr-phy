@@ -333,8 +333,8 @@ tb/tb_sdram_checker.sv   间隔检查器。每条规则一个实例
 tb/tb_sdr_loop.sv        控制器、PHY、模型闭环
 rtl/ddr1_phy.sv          Class D，还没写
 rtl/ddr2_phy.sv          Class D2，更晚
-sch/pads/                生成器产出的拓扑模板；gf180mcuD 已生成，尺寸仍空着
-flow/                    LibreLane，还没跑
+sch/pads/                生成器产出的拓扑模板；gf180mcuD / sky130 / IHP 已绑定并生成，ics55 缺 3.3 V ESD 二极管卡；通用拓扑尺寸仍空着（第一版 sizing fixture 在 specs/pads/sizing/）；layout/profiles/ 存封装 profile 的闭合产物
+flow/                    LibreLane；sky130 控制组已 80/80 跑通，草稿 SDC 故意未接入（见 docs/STA_PLAN.md §5）
 docs/                    本文件
 ```
 
@@ -354,7 +354,7 @@ ECC 也不在 PHY 里。它是数据通路上的额外处理：要么 DQ 更宽�
 2. 引脚级 SDR 模型。`sim/sdram_model.sv` 接在 `sdr_phy` 的端口上，三态在测试台里用 `dq_oe` 接上。PHY 在沿 T 把命令打到端口；模型和 PHY 用同一个时钟，采样的是寄存器输出，所以在 T+1 才接受这条命令。读命令被接受之后，数据在 CL−1 个模型时钟之后驱动到 DQ，PHY 在发出读的那个 DFI 周期之后 CL+1 拍的 `dfi_rddata_valid` 上采到它。`tb/tb_sdram_model.sv` 跑过 CL 2 和 CL 3（x8、BL=1）：写入 `0xA5`，掩码写 `0xFF` 不改该字节，读回 `0xA5`；对已关闭的 bank 再读，`fault_code` 为 `RW_CLOSED`（3）。BL>1 的写被拒（`BAD_MRS`）。模型不测 tRCD、tRP、tRAS、tRFC。它只报四种命令顺序错误：`BAD_MRS`、`ACT_OPEN`、`RW_CLOSED`、`REF_OPEN`。这一步不证明 pad，也不证明 DDR。控制器闭环用的是 `rtl/sdr_ctrl.sv`，不是 LiteDRAM 网表。`tb/tb_sdr_loop.sv` 在 CL 2 和 CL 3 通过：行命中、换 bank、换行（先预充电再激活）、原行仍保持 `0xA5`，`fault` 保持 0。`sim/run.sh` 会跑这一项。它同样不测 tRCD、tRP、tRFC，只要求模型的 `fault` 不起。
 3. 命令间隔。`sim/sdram_checker.sv` 只数时钟，不存数组，也不驱动 DQ，所以模型把数据存错也不会让一条过早的命令漏过。默认计数是 Micron 256Mb SDRAM Rev. W（05/15，`256Mb_sdr.pdf`）的 -75 列，Table 12 和 Table 13，按 tCK = 10 ns 取整（这一档 CL = 2 合法，tCK(2) 最小 10 ns，tCK(3) 最小 7.5 ns）：tRCD 2、tRP 2、tRAS 5、tRC 7、tRRD 2、tRFC 7、tWR 2、tMRD 2、tCCD 1。tWR 的原文是“1 CLK + 7.5 ns”（注 13，自动预充电）和 15 ns（注 14，预充电）；Table 13 的 tDPL 是 2 tCK，检查器用 2。tMRD 表上是 2 tCK，注 21 写 JEDEC 和 PC100 要求 3，默认仍是 2。参数为 0 的那一项不检查。IS42/45S16160J Rev. C4（09/17/2020）速度 -7 是另一张纳秒表：tRCD/tRP 15 ns，tRAS 最小 37 ns，刷新恢复是 trc = 60 ns，没有单独的 tRFC。两张表不混用。检查器不看 tAC、tOH、tHZ、tLZ、建立保持、DQM 延迟，pad、封装和 PCB。`tb/tb_sdram_checker.sv` 每条规则单独一个实例，早一拍要保留对应的故障码，满足间隔的那一拍不要求把已经粘住的故障清掉。这一步不是时序仿真，也不是电气签核。
 4. 映到标准单元之后的功能仿真。`sim/gate.sh` 把 `sdr_phy` 映到 sky130 HD（`sky130_fd_sc_hd__tt_025C_1v80.lib`），再用单元的功能视图（`-DFUNCTIONAL`）跑 `tb/tb_sdr_phy.sv`。网表固定为 x8、CL 2、一个 rank；别的参数在 `sim/sdr_phy_gate.v` 里直接编译失败。`dfxtp` 的功能模型只有一级 `UNIT_DELAY`，输出就是触发器的 Q。`lpflow_isobufsrc` 用在 D 端做复位隔离，功能模型是组合的，不再加一级延迟。脚本把这个延迟定成 `#0.1`，测试台仍在沿后 `#1` 采样，两者不会落在同一时刻。没有 SDF，没有线延迟，没有 pad。这一步不是时序仿真，也不是签核。已跑出 `PASS CL=2 DATA_BITS=8` 和 `GATE_DONE`。带 SDF 的时序注解还没有做。`dfflibmap` 没有 `$_SDFF_PP0_` / `$_SDFF_PP1_` 的直接单元，`DFFLEGALIZE` 先把它们改成普通 `$_DFF_P_` 再映到 `dfxtp`。门级网表本身不证明同步置位的编码。
-5. 单管 pad。每个工艺先仿真一个双向单元：空载、短走线的集总参数、三态、上电时输出为关。DDR1 再加一个 VREF 接收器，输入是 PAD 和 VREF。通过标准是所选颗粒数据手册上的电压和时间，不是波形“看起来像”。没有这一步之前，不报告 tDS/tDH/tAC/tOH。
+5. 单管 pad。每个工艺先仿真一个双向单元：空载、短走线的集总参数、三态、上电时输出为关。DDR1 再加一个 VREF 接收器，输入是 PAD 和 VREF。通过标准是所选颗粒数据手册上的电压和时间，不是波形“看起来像”。没有这一步之前，不报告 tDS/tDH/tAC/tOH。当前只有 gf180mcuD 的一个**输出级/接收器切片**（`docs/PAD_GENERATOR.md` §4.1，`design_assumption`，无 ESD/预驱动/电平搬移/PVT），不是这一整步。
 6. 含封装的一条命令、一条 DQ 和 CK。仍然对数据手册，不对库 GPIO 的旧仿真。
 7. 硅。先跑 BIST，再跑带刷新的随机访问。失败时记录失败地址和刷新是否打开。
 
@@ -362,7 +362,7 @@ IHP 现成 IO 的 100 MHz 输入仿真、sky130 公开板对库 GPIO 的频率�
 
 ## 10. 分期
 
-1. P0。架构在本文件。Class S 数字核 `rtl/sdr_phy.sv`、引脚级模型、命令间隔检查器、`sdr_ctrl` 闭环，以及 sky130 HD 功能门级仿真已经有。行为仿真、间隔检查和这一层门级功能仿真通过。pad 原理图还没有可签核的尺寸；sch/pads/ 已有生成器产出的拓扑模板（见 docs/PAD_GENERATOR.md）。DDR1 RTL 还没开始；LibreLane 已在 P0-5 实跑（原始配置 80/80 完成，草稿 SDC 接上会在 PostCTS 失败，见 `docs/STA_PLAN.md` §5）。下一步仍是四套工艺各画一个 CMOS 双向 pad，再在 sky130、IHP、ics55 上各画一个 VREF 接收器。尺寸仍然空着。
+1. P0。架构在本文件。Class S 数字核 `rtl/sdr_phy.sv`、引脚级模型、命令间隔检查器、`sdr_ctrl` 闭环，以及 sky130 HD 功能门级仿真已经有。行为仿真、间隔检查和这一层门级功能仿真通过。pad 原理图还没有可签核的尺寸；sch/pads/ 已有生成器产出的拓扑模板（见 docs/PAD_GENERATOR.md），gf180mcuD / sky130 / IHP 三套 device map 已绑定并生成拓扑，ics55 缺 3.3 V ESD 二极管 SPICE 卡。DDR1 RTL 还没开始；LibreLane 已在 P0-5 实跑（原始配置 80/80 完成，草稿 SDC 接上会在 PostCTS 失败，见 `docs/STA_PLAN.md` §5）。已有三套 `design_assumption` sizing fixture 和 ngspice 输出级/接收器切片（docs/PAD_GENERATOR.md §4.1）；下一步是把它们变成签核尺寸：补 ESD、预驱动、电平搬移、PVT、PEX/IBIS/SI-PI，并为 ics55 解决 3.3 V ESD（docs/ICS55_ESD_3V3.md）。
 2. P1。`sdr_phy` 加四套 pad。x8、100 MHz。第 9 节第 1、2、3 步已经过，第 4 步的 sky130 HD 功能门级也已经过。没有 SDF。pad 和第 5 步还没有。gf180 用 3.3 V 标准单元，不用 5 V GPIO。LibreLane 的 `gf180-as-7t3v3` 要先在 `./pdks/gf180mcuD` 组好 3.3 V 视图；5 V 标准单元不是一条规格。这一步之前不开 DDR1 RTL。
 3. P2。`ddr1_phy` 加行为级 DDR 模型。那是另一个模型，不是现在这个 SDR 模型。仍不接 pad 延迟。`ck90` 在仿真里用理想时钟源。
 4. P3。把 DDR1 pad 和一条尚未定实现的 `ck90` 接上 P2。只在 sky130、IHP、ics55。IHP 必须先有 2.5 V 下的器件仿真，否则停在这一步前面。
@@ -392,7 +392,7 @@ IHP 现成 IO 的 100 MHz 输入仿真、sky130 公开板对库 GPIO 的频率�
 - 驱动管的宽度、指条数和预驱动级数。要等负载仿真，不能从库 GPIO 的毫安档推回来。
 - `ck90` 用什么电路。现有 PLL 都不提供已知的 90°。
 - IHP 的 HV 管在 2.5 V 下能否当驱动和 VREF 接收器。模型只保证了 Vds 不超过 3.3 V。
-- ics55 的 3.3 V 过驱管在 3.3 V 下的寿命和阈值，以及 3.3 V ESD 二极管用哪张 SPICE 卡。LVS 有 `dio_3p3_pp_nw_lp`，foundry 清单没有。
+- ics55 的 3.3 V 过驱管在 3.3 V 下的寿命和阈值，以及 3.3 V ESD 二极管用哪张 SPICE 卡。LVS 有 `dio_3p3_pp_nw_lp`，foundry 清单没有。自绘 GGNMOS/GGPMOS 钳位只是 STUDY_ONLY，见 `docs/ICS55_ESD_3V3.md`；没有 TLP/HBM 数据前不改 ics55 的 `NO_GO`。
 - 55 nm IO 数据手册 PDF 还没有抽成文本。现成 GPIO 的驱动电流、输入阈值和翻转时间未知，而且即使知道也不替代自研单元。
 - ECOS PLL 的许可，以及两路输出能不能用作同频不同相。
 - 目录中 DDR PHY 的许可与交付时间。在此之前不做适配器。

@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: Apache-2.0
+# FIRST-PASS SIZING FIXTURE - DESIGN ASSUMPTION, NOT SIGNOFF.
+#
+# This is the explicit sizing overlay used by generator/emit_char_pad.py to
+# make the pad topology simulatable. It is NOT a characterized pad, NOT an
+# optimized drive strength, NOT a PVT signoff, and NOT an ESD qualification.
+#
+# Basis:
+#   - Output devices: measured Class-I calibration in reports/device_extraction.json
+#     (gf180mcuD: 80 um NMOS / 200 um PMOS, 7.6 mA target, SS/125 C).
+#     The template uses per-finger width w and NF fingers.
+#   - Pre-driver / receiver / VREF sizes: minimum-ish placeholders. They are
+#     not used by the first output-stage characterization slice.
+#   - ESD areas: provisional 100 um^2; no HBM target was selected. The ESD
+#     diodes are reverse-biased during the normal-operation measurements.
+#   - L_R_SERIES: on-chip resistor length placeholder; the target resistance
+#     is a board-level SI input and is not converted here (no Rsh relation).
+#   - Guard ring: 2 um nominal from the gf180 DRM; layout DRC is not run.
+meta:
+  version: 1
+  backend: gf180mcuD
+  status: design_assumption
+  note: "First-pass fixture only. No signoff claim. Level shifter and pre-driver are excluded from the char slice; ESD is not qualified."
+  source: "reports/device_extraction.json (measured 2026-11-15, ngspice-44.2); specs/pads/devices/gf180mcuD.yaml"
+  load: "50 ohm to VDDIO/2 + 5 pF, placeholder board load"
+  char:
+    series_r_ohm: 22
+    vdd_v: 3.3
+    vddio_v: 3.3
+params:
+  - {id: W_N_OUT,          value: 2,     unit: um,  basis: "per-finger width; global M=40 -> 80 um measured Class-I NMOS"}
+  - {id: L_N_OUT,          value: 0.28,  unit: um,  basis: "driver L; nfet_03v3 PDK range"}
+  - {id: NF_N_OUT,         value: 1,     unit: count, basis: "nf is a split parameter here; the multiplier is M_DEVICE"}
+  - {id: W_P_OUT,          value: 5,     unit: um,  basis: "per-finger width; global M=40 -> 200 um measured Class-I PMOS"}
+  - {id: L_P_OUT,          value: 0.28,  unit: um,  basis: "driver L; pfet_03v3 PDK range"}
+  - {id: NF_P_OUT,         value: 1,     unit: count, basis: "nf is a split parameter here; the multiplier is M_DEVICE"}
+  - {id: PDRV_STAGES,      value: 1,     unit: count, basis: "placeholder; pre-driver not in the first char slice"}
+  - {id: W_N_PDRV,         value: 1,     unit: um,  basis: "pre-driver placeholder; not characterized"}
+  - {id: W_P_PDRV,         value: 2,     unit: um,  basis: "pre-driver placeholder; not characterized"}
+  - {id: L_PDRV,           value: 0.28,  unit: um,  basis: "pre-driver/receiver L placeholder"}
+  - {id: L_R_SERIES,       value: 22,    unit: um,  basis: "on-chip length placeholder; target R not converted"}
+  - {id: W_R_SERIES,       value: 2,     unit: um,  basis: "resistor width placeholder"}
+  - {id: ESD_AREA_UP,      value: 20.0e-12, unit: m2, basis: "20 um^2, IO-cell scale; no HBM target, not qualified"}
+  - {id: ESD_AREA_DN,      value: 20.0e-12, unit: m2, basis: "20 um^2, IO-cell scale; no HBM target, not qualified"}
+  - {id: ESD_CLAMP_W,      value: 1.0e-10, unit: m2,  basis: "provisional; no HBM target, not qualified"}
+  - {id: W_RX_N,           value: 2,     unit: um,  basis: "receiver placeholder"}
+  - {id: W_RX_P,           value: 4,     unit: um,  basis: "receiver placeholder"}
+  - {id: RX_HYST,          value: 0,     unit: V,   basis: "no Schmitt option in this slice"}
+  - {id: W_VREF_N,         value: 2,     unit: um,  basis: "VREF placeholder; VREF not in the SDR char slice"}
+  - {id: W_VREF_P,         value: 4,     unit: um,  basis: "VREF placeholder"}
+  - {id: I_TAIL,           value: 1.0e-5,  unit: A,   basis: "placeholder tail current"}
+  - {id: W_TAIL,           value: 2,     unit: um,  basis: "placeholder current-mirror width"}
+  - {id: W_LOAD,           value: 4,     unit: um,  basis: "placeholder mirror-load width"}
+  - {id: VREF_CM_MIN,      value: 0.8,   unit: V,   basis: "placeholder common-mode bound"}
+  - {id: VREF_CM_MAX,      value: 1.7,   unit: V,   basis: "placeholder common-mode bound"}
+  - {id: VREF_OFFSET,      value: 0,     unit: V,   basis: "not measured"}
+  - {id: VREF_HYST,        value: 0,     unit: V,   basis: "not measured"}
+  - {id: GUARD_RING_WIDTH, value: 2,     unit: um,  basis: "gf180 DRM 14.3.2 nominal; layout DRC not run"}
+  - {id: GUARD_RING_SPACING, value: 2,   unit: um,  basis: "gf180 DRM 14.3.2 nominal; layout DRC not run"}
+  - {id: NF_DEVICE,        value: 1,     unit: count, basis: "generic finger placeholder"}
+  - {id: M_DEVICE,         value: 40,    unit: count, basis: "global multiplier chosen to match the 40-finger PMOS; NMOS width scaled to 2 um/finger"}

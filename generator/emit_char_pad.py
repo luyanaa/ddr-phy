@@ -1,0 +1,306 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+"""Runnable first-pass characterization slice for the SDR output pad.
+
+This is NOT a signoff flow and NOT an ESD qualification. It takes an
+explicitly labelled sizing fixture (meta.status: design_assumption), renders
+the shared pad topology with concrete .param values, and measures:
+
+  - tOE_on / tOE_off (from the OE input to the PAD, pre-driver excluded)
+  - PAD rise/fall slew into a placeholder 50 ohm / 5 pF load
+  - SDR receiver input threshold (PAD -> IN)
+  - power-up Hi-Z current with PU_OK low (output stage disabled)
+
+The level shifter and pre-driver are deliberately excluded from this first
+slice. The output-stage gates are driven by a behavioural OE control in the
+testbench. Every reported number belongs to the fixture, not to a designed
+or characterized pad.
+"""
+import argparse
+import glob
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+import yaml
+
+import emit_pads as ep
+
+ROOT = Path(__file__).resolve().parent.parent
+SPECS = ROOT / "specs" / "pads"
+REPORTS = ROOT / "reports"
+OUT = ROOT / "sim" / "char"
+MEASURES = ("t_oe_on", "t_oe_off", "tr_pad", "tf_pad", "vth_pad", "ihiz_max")
+
+
+def discover_root(dev):
+    c = dev.get("char", {})
+    pats = sorted(glob.glob(os.path.expanduser(c["root_glob"])))
+    must = c.get("root_must_contain")
+    for p in pats:
+        if must and not (Path(p) / must).exists():
+            continue
+        return Path(p)
+    raise SystemExit("ERROR: no PDK root matched %s" % c.get("root_glob"))
+
+
+def load_sizing(backend, path):
+    f = path or (SPECS / "sizing" / ("%s.first_pass.yaml" % backend))
+    d = yaml.safe_load(open(f))
+    meta = d.get("meta", {})
+    if meta.get("status") != "design_assumption":
+        raise SystemExit("ERROR: %s status must be design_assumption" % f)
+    if meta.get("backend") != backend:
+        raise SystemExit("ERROR: fixture backend mismatch in %s" % f)
+    vals = {}
+    for p in d.get("params", []):
+        if p["id"] in vals:
+            raise SystemExit("ERROR: duplicate sizing id %s" % p["id"])
+        vals[p["id"]] = p
+    return d, vals
+
+
+def spice_num(value, unit, backend):
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        raise SystemExit("ERROR: non-numeric sizing value %r" % (value,))
+    if unit == "count":
+        return str(int(value))
+    if unit == "um":
+        # sky130 subckts use .option scale=1u, so w/l/area are in microns.
+        return ("%gu" % value) if backend != "sky130" else ("%g" % value)
+    if unit in ("m", "m2", "A", "V"):
+        return "%.6e" % value if unit in ("m", "m2", "A") else ("%g" % value)
+    raise SystemExit("ERROR: unknown sizing unit %s" % unit)
+
+
+def param_block(topo, vals, backend):
+    missing = [p["id"] for p in topo["params"] if p["id"] not in vals]
+    extra = [k for k in vals if k not in {p["id"] for p in topo["params"]}]
+    if missing or extra:
+        raise SystemExit("ERROR: sizing missing=%s extra=%s" % (missing, extra))
+    lines = [".param " + p["id"] + "=" + spice_num(
+        vals[p["id"]]["value"], vals[p["id"]]["unit"], backend)
+        for p in topo["params"]]
+    return "\n".join(lines)
+
+
+def model_lines(dev, root):
+    lines = []
+    for inc in dev.get("char", {}).get("includes", []):
+        p = (root / inc.get("lib", inc.get("include", ""))).resolve()
+        if not p.exists():
+            raise SystemExit("ERROR: model file not found: %s" % p)
+        if "lib" in inc:
+            lines.append('.lib "%s" %s' % (p, inc.get("section", "typical")))
+        else:
+            lines.append('.include "%s"' % p)
+    return "\n".join(lines)
+
+
+def oe_stub():
+    return """
+* OPEN-LOOP GATE DRIVE for the characterization slice only.
+* The real OE/pre-driver logic is NOT characterized here.
+* 0-4.0n disabled; 4.0-6.0n enable high; 6.0-12.0n enable low;
+* 12.0-18.0n enable high; 18.0n+ disabled.
+.subckt PAD_OE_CTRL n_gp n_gn OUT OE_N PU_OK VDDIO VSSIO
+VGP n_gp VSSIO PWL(0 3.3 3.9n 3.3 4.0n 0 5.9n 0 6.0n 3.3 11.9n 3.3 12.0n 0 17.9n 0 18.0n 3.3 24n 3.3)
+VGN n_gn VSSIO PWL(0 0 3.9n 0 4.0n 0 5.9n 0 6.0n 3.3 11.9n 3.3 12.0n 0 17.9n 0 18.0n 0 24n 0)
+.ends
+"""
+
+
+def tran_deck(netlist_name, models, vdd, vddio):
+    return """
+* TRANSIENT SLICE: OE timing and PAD slew. Fixture values, not signoff.
+%s
+.include "%s"
+%s
+VDD VDD 0 %g
+VSS VSS 0 0
+VDDIO VDDIO 0 %g
+VSSIO VSSIO 0 0
+VPU PU_OK 0 PWL(0 0 1n 0 1.1n 3.3 24n 3.3)
+VOE OE_N 0 PWL(0 3.3 3.9n 3.3 4.0n 0 17.9n 0 18.0n 3.3 24n 3.3)
+VOUT OUT 0 PWL(0 3.3 5.9n 3.3 6.0n 0 11.9n 0 12.0n 3.3 24n 3.3)
+VTT VTT 0 1.65
+RLOAD PAD VTT 1k
+CLOAD PAD 0 1p
+* simulation-only bleed resistor; not a design element
+RIN IN VSSIO 1G
+X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
+.tran 20p 24n
+.options trtol=10 reltol=1e-3
+.meas tran t_oe_on TRIG v(OE_N) VAL=1.65 FALL=1 TARG v(PAD) VAL=2.9 RISE=1
+.meas tran t_oe_off TRIG v(OE_N) VAL=1.65 RISE=1 TARG v(PAD) VAL=1.8 FALL=2
+.meas tran tr_pad TRIG v(PAD) VAL=0.33 RISE=1 TARG v(PAD) VAL=2.9 RISE=2
+.meas tran tf_pad TRIG v(PAD) VAL=2.9 FALL=1 TARG v(PAD) VAL=0.33 FALL=1
+.end
+""" % (models, netlist_name, oe_stub(), vdd, vddio)
+
+
+def dc_deck(netlist_name, models, vdd, vddio):
+    return """
+* DC SLICE: receiver threshold and power-up Hi-Z current. Fixture values.
+%s
+.include "%s"
+%s
+VDD VDD 0 %g
+VSS VSS 0 0
+VDDIO VDDIO 0 %g
+VSSIO VSSIO 0 0
+VPU PU_OK 0 0
+VOE OE_N 0 3.3
+VEXT PAD 0 0
+* simulation-only bleed resistor; not a design element
+RIN IN VSSIO 1G
+X_DUT OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
+.dc VEXT 0 3.3 0.02
+.meas dc vth_pad FIND v(PAD) WHEN v(IN)=1.65
+.meas dc ihiz_max MAX i(VEXT)
+.end
+""" % (models, netlist_name, oe_stub(), vdd, vddio)
+
+
+def run_ngspice(workdir, deck, flags, pdk_root):
+    env = dict(os.environ)
+    env["PDK_ROOT"] = str(pdk_root)
+    cmd = ["ngspice", "-b"] + list(flags) + [str(deck.resolve())]
+    r = subprocess.run(cmd, cwd=str(workdir), capture_output=True, text=True,
+                       env=env, timeout=600)
+    text = r.stdout + "\n" + r.stderr
+    if r.returncode != 0:
+        raise SystemExit("ERROR: ngspice failed in %s\n%s" % (deck, text[-3000:]))
+    return text
+
+
+def parse_measures(text):
+    out = {}
+    for line in text.splitlines():
+        m = re.match(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([-+0-9.eE]+)", line)
+        if m:
+            out[m.group(1)] = float(m.group(2))
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--backend", default="gf180mcuD")
+    ap.add_argument("--sizing", help="sizing fixture YAML")
+    args = ap.parse_args()
+
+    topo, maps = ep.load()
+    dev = maps[args.backend]
+    if not ep.bound(dev, topo):
+        raise SystemExit("ERROR: %s device map is not bound" % args.backend)
+    if not dev.get("char"):
+        raise SystemExit("ERROR: %s has no machine-readable char wiring" % args.backend)
+
+    _, vals = load_sizing(args.backend, args.sizing)
+    root = discover_root(dev)
+    workdir = root / dev["char"].get("cwd", ".")
+    outdir = OUT / args.backend
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    # Render the shared topology with the char conditions: no level shifter,
+    # no pre-driver. The output stage and receiver remain.
+    tokens = ep.tokens_for(topo, dev)
+    char_meta = yaml.safe_load(open(args.sizing or (SPECS / "sizing" / ("%s.first_pass.yaml" % args.backend))))["meta"].get("char", {})
+    series_r = char_meta.get("series_r_ohm")
+    vdd = char_meta.get("vdd_v")
+    vddio = char_meta.get("vddio_v")
+    if series_r is None or vdd is None or vddio is None:
+        raise SystemExit("ERROR: fixture meta.char needs series_r_ohm, vdd_v, vddio_v")
+    tokens["R_SERIES_IDEAL"] = "%g" % float(series_r)
+    conds = {"LEVEL_SHIFTER": False, "NO_LEVEL_SHIFTER": True,
+             "PREDRIVER": False, "REAL_RSER": False, "IDEAL_RSER": True, "ESD": False, "NO_ESD": True, "RX": True}
+    tpl = (SPECS / "templates" / "sdr_bidir_pad.spice.tpl").read_text()
+    conds_tran = dict(conds, RX=False)
+    body_tran = ep.render(tpl, tokens, conds_tran)
+    body_dc = ep.render(tpl, tokens, conds)
+    header = "\n".join([
+        "* SIZED CHARACTERIZATION SLICE - DESIGN ASSUMPTION, NOT SIGNOFF",
+        "* backend: %s" % args.backend,
+        "* sizing: %s" % (args.sizing or "specs/pads/sizing/%s.first_pass.yaml" % args.backend),
+        "* excluded: level shifter, pre-driver, package/PCB, PVT, ESD qualification",
+        "* ESD diodes omitted from this electrical slice; ESD is a separate gate.",
+        param_block(topo, vals, args.backend),
+        "",
+    ])
+    netlist_tran = outdir / "sized_sdr_tran.spice"
+    netlist_dc = outdir / "sized_sdr_dc.spice"
+    netlist_tran.write_text(header + "\n" + body_tran)
+    netlist_dc.write_text(header + "\n" + body_dc)
+    models = model_lines(dev, root)
+
+    flags = dev["char"].get("ngspice_flags", [])
+    decks = {}
+    with tempfile.TemporaryDirectory(prefix="pad_char_") as td:
+        cwd_rel = dev["char"].get("cwd") or ""
+        run_cwd = (root / cwd_rel) if cwd_rel else Path(td)
+        # A PDK-owned cwd must not be polluted; a local .spiceinit
+        # neutralizes the user's ~/.spiceinit for temp-dir runs.
+        if run_cwd == Path(td):
+            (run_cwd / ".spiceinit").write_text(
+                dev["char"].get("spiceinit", "* local\n").replace("@root@", str(root)))
+        for name, text in (("char_tran.spice", tran_deck(str(netlist_tran.resolve()), models, vdd, vddio)),
+                           ("char_dc.spice", dc_deck(str(netlist_dc.resolve()), models, vdd, vddio))):
+            p = outdir / name
+            p.write_text(text)
+            decks[name] = parse_measures(run_ngspice(run_cwd, p, flags, root))
+
+    measures = {}
+    for d in decks.values():
+        measures.update({k: v for k, v in d.items() if k in MEASURES})
+    missing = [m for m in MEASURES if m not in measures]
+    if missing:
+        raise SystemExit("ERROR: missing measurements %s\n%s" % (missing, json.dumps(decks, indent=2)))
+
+    rep = {
+        "generated_by": "generator/emit_char_pad.py",
+        "backend": args.backend,
+        "status": "design_assumption - no signoff, no ESD qualification",
+        "sizing_fixture": str(args.sizing or "specs/pads/sizing/%s.first_pass.yaml" % args.backend),
+        "pdk_root": str(root),
+        "ngspice": next((l.strip().lstrip("* ").strip() for l in subprocess.run(
+            ["ngspice", "--version"], capture_output=True, text=True
+        ).stdout.splitlines() if "ngspice" in l.lower()), "unknown"),
+        "load": "1 kohm to VDDIO/2 + 1 pF (light first-pass load)",
+        "series_r_ohm": float(series_r),
+        "excluded": ["level shifter", "pre-driver", "package/PCB RLC", "PVT corners",
+                     "SDF/PEX", "ESD qualification"],
+        "measures": measures,
+    }
+    (REPORTS / ("pad_char_%s.json" % args.backend)).write_text(json.dumps(rep, indent=2) + "\n")
+
+    units = {"t_oe_on": "s", "t_oe_off": "s", "tr_pad": "s", "tf_pad": "s",
+             "vth_pad": "V", "ihiz_max": "A"}
+    md = ["# Pad first-pass characterization: %s" % args.backend, "",
+          "Generated by generator/emit_char_pad.py. **DESIGN ASSUMPTION, NOT SIGNOFF.**",
+          "The sizing fixture and load are placeholders; ESD is not qualified.", "",
+          "- fixture: `%s` (status: design_assumption)" % rep["sizing_fixture"],
+          "- load: %s; ideal series R = %g ohm" % (rep["load"], rep["series_r_ohm"]),
+          "- ESD diodes: omitted from this electrical slice (separate gate)",
+          "- level shifter / pre-driver: excluded; gates driven open-loop", "",
+          "| measure | value | unit |", "|---|---|---|"]
+    for k in MEASURES:
+        md.append("| %s | %.6g | %s |" % (k, measures[k], units[k]))
+    md += ["", "`t_oe_on` / `t_oe_off` are open-loop gate-drive proxies, not the real",
+           "OE/pre-driver path. `tr_pad` / `tf_pad` are 0.33 V -> 2.9 V slews.",
+           "`ihiz_max` is a swept external-source current with PU_OK low.", "",
+           "Excluded: level shifter, pre-driver, package/PCB RLC, PVT corners,",
+           "SDF/PEX, and ESD qualification.", ""]
+    (REPORTS / ("pad_char_%s.md" % args.backend)).write_text("\n".join(md) + "\n")
+    print("backend=%s measures=%s" % (args.backend, json.dumps(measures)))
+    print("report: reports/pad_char_%s.md" % args.backend)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

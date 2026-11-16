@@ -1,0 +1,26 @@
+{
+  "generated_by": "generator/emit_char_pad.py",
+  "backend": "ihp130",
+  "status": "design_assumption - no signoff, no ESD qualification",
+  "sizing_fixture": "specs/pads/sizing/ihp130.first_pass.yaml",
+  "pdk_root": "/home/yanlu/.ciel/ciel/ihp-sg13/versions/89d42ee6d2fd9b50b86a1aada6fee6673c3e6008/ihp-sg13g2",
+  "ngspice": "ngspice-44.2 : Circuit level simulation program",
+  "load": "1 kohm to VDDIO/2 + 1 pF (light first-pass load)",
+  "series_r_ohm": 22.0,
+  "excluded": [
+    "level shifter",
+    "pre-driver",
+    "package/PCB RLC",
+    "PVT corners",
+    "SDF/PEX",
+    "ESD qualification"
+  ],
+  "measures": {
+    "t_oe_on": 9.926267e-11,
+    "t_oe_off": 2.748689e-09,
+    "tr_pad": 1.19942e-10,
+    "tf_pad": 1.272252e-10,
+    "vth_pad": 1.465673,
+    "ihiz_max": 5.703679e-11
+  }
+}

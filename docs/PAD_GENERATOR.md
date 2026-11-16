@@ -1,6 +1,6 @@
 # Pad 原理图与 VREF 接收器生成器
 
-状态：**拓扑模板，未表征，NO_GO。** 本轮按"尽量不手工设计、用可重用生成器"的要求，先落地生成器与 gf180mcuD 的首套产物；器件尺寸、指条数、驱动电流、串联电阻、ESD 面积、保护环间距全部仍是参数（`null`），`docs/ARCHITECTURE.md` §12 的开放问题没有被绕过。
+状态：**拓扑模板 + 三套已绑定 PDK 的第一版可跑表征切片；未表征，NO_GO。** 共享拓扑已扩到 gf180mcuD / sky130 / IHP SG13G2 三套已绑定 device map，并生成 SPICE/xschem 拓扑；ics55 因缺 3.3 V ESD 二极管 SPICE 卡保持未绑定（自绘 GGNMOS 只在 `docs/ICS55_ESD_3V3.md` 做研究）。gf180mcuD / sky130 / ihp130 各有一条明确标注 `design_assumption` 的 sizing fixture 和 ngspice 输出级/接收器切片（§4.1），但它们不是签核尺寸。器件尺寸、指条数、驱动电流、串联电阻、ESD 面积、保护环间距在通用拓扑里仍是参数（`null`）。
 
 ## 1. 为什么是生成器
 
@@ -26,7 +26,8 @@ reports/pad_generator_report.md
 |---|---|
 | `specs/pads/topology.yaml` | 共享信号链、端口、电源轨、10 个器件槽、31 个全为 `null` 的参数、表征清单 |
 | `specs/pads/devices/gf180mcuD.yaml` | **本机实测**的器件映射（见 §3） |
-| `specs/pads/devices/{sky130,ihp130,ics55}.yaml` | 名字抄自 ARCHITECTURE.md §5.1，`status: TBD`、`verified: false`，未核对本地 PDK |
+| `specs/pads/devices/{sky130,ihp130}.yaml` | 已绑定：器件名、模型 include、许可与实例语法均按本机 PDK 核对（见 §3.1）；整份 map 仍标 `NO_GO`，尺寸未选 |
+| `specs/pads/devices/ics55.yaml` | 未绑定：`nmod3p3_lp` / `pmod3p3_lp` / `nm1p2_svt_lp` / `pm1p2_svt_lp` 与 `re_ppo_sab_3t` 已核对，但 3.3 V ESD 二极管 SPICE 卡缺失（LVS 有 `dio_3p3_pp_nw_lp`，foundry SPICE 只有 1.2 V / 2.5 V）→ 不生成 SPICE；自绘 GGNMOS 只做设计研究，见 `docs/ICS55_ESD_3V3.md` |
 | `specs/pads/templates/*.tpl` | 4 个模板：SDR 双向 pad SPICE、VREF 接收器 SPICE、xschem `.sch`、表征 TB 骨架 |
 
 拓扑与 `docs/ARCHITECTURE.md` §5 的散文图一致：电平搬移（仅 VDD≠VDDIO）-> 厚氧预驱动 -> 三态输出（PMOS 到 VDDIO / NMOS 到 VSSIO）-> 串联电阻 -> PAD；PAD 上挂主 ESD 二极管与电源钳位；接收侧 SDR 用厚氧 CMOS 反相器/施密特，DDR1 用 PAD 对 VREF 的差分对再变单端；上电 Hi-Z 直到两套电源都在。
@@ -46,16 +47,57 @@ PDK 根：`~/.ciel/ciel/gf180mcu/versions/*/gf180mcuD`
 
 因此 gf180mcuD 映射：core 3.3 V = VDDIO 3.3 V -> **不做电平搬移**（§5.1 明确"名义电压相同，不做搬移，预驱动仍要"）；驱动/接收用 `nfet_03v3`/`pfet_03v3`；二极管用两张 3.3 V 卡；串联电阻留 `ppolyf_u` 占位。**禁止**：`nfet_06v0`/`pfet_06v0`（6 V）、5 V GPIO、以及任何核心标准单元当 pad 驱动。
 
+## 3.1 另外两套已绑定 map 与本机证据（2026-11-16）
+
+| backend | 槽位与器件 | 本机来源 |
+|---|---|---|
+| sky130 | IO `sky130_fd_pr__nfet_g5v0d10v5` / `pfet_g5v0d10v5`；core `nfet_01v8` / `pfet_01v8`；二极管 `diode_pd2nw_11v0` / `diode_pw2nd_11v0`；电阻 `res_high_po` | `libs.ref/sky130_fd_pr/spice/*.pm3.spice`、`*.model.spice`；`libs.tech/ngspice/sky130.lib.spice`；Apache-2.0 |
+| ihp130 | IO `sg13_hv_nmos` / `sg13_hv_pmos`；core `sg13_lv_nmos` / `sg13_lv_pmos`；ESD `diodevdd_2kv` / `diodevss_2kv`；电阻 `rppd` | `libs.tech/ngspice/models/sg13g2_moshv_mod.lib`、`sg13g2_moslv_mod.lib`、`sg13g2_esd.lib`、`resistors_mod.lib`；corner libs；Apache-2.0 |
+| ics55 | IO `nmod3p3_lp` / `pmod3p3_lp`；core `nm1p2_svt_lp` / `pm1p2_svt_lp`；电阻 `re_ppo_sab_3t`；**3.3 V 二极管缺失** | `libs.tech/spice/foundry/ngspice/model_wrapper1_hsp.lib`、`res/resistor.ckt`、`dio/dio_io25.mdl`；vendor 评估许可 |
+
+跨 PDK 的实例语法不再硬编码在共享模板里，而是放在各 map 的 `spice` 段：`nf`（gf180/sky130/ics55）vs `ng`（IHP）、`m`（gf180/sky130/IHP）vs `mr`（ics55）、`r_length/r_width`（gf180）vs `w/l`（其余）、2 端 `.model` 二极管（gf180/sky130/ics55）vs 3 端 ESD 子电路（IHP）。共享拓扑只保留节点与器件槽。
+
+本轮同时修正了一个真实拓扑缺陷：电源钳位二极管的阳极/阴极原来写成 `D_CLAMP VDDIO VSSIO`，在正常供电下正偏。现在统一为阳极 `VSSIO`、阴极 `VDDIO`；IHP 的 3 端 ESD 单元对应 `X_CLAMP VDDIO VSSIO VSSIO <cell>`。`check_pads.py` 会拒绝 `D_CLAMP VDDIO VSSIO`。
+
+**语法冒烟**（不是表征）：把 31 个参数换成明确标注的临时值后，sky130 与 IHP 的 `sdr_bidir_pad.spice` 和 `vref_receiver.spice` 都能被 ngspice 读入并跑完 `.op`；没有 unknown-subckt / unknown-parameter 错误。模型自身的 `IKR too small`、PSP 噪声参数 `<NAN>` 警告仍会出现，且这些临时值不是设计尺寸，不能用于任何电气结论。ics55 因二极管卡缺失未生成网表。
+
+单位仍需注意：拓扑参数以米为单位；sky130 的子电路在 `.option scale=1u` 下按微米解释，填值时要做 ×1e6；IHP/ics55/gf180 按米解释（可带 `u` 后缀）。模板头部的 `SIZE UNITS` 行记录这一点。
+
 ## 4. 产物
 
 | backend | device map | 产物 |
 |---|---|---|
 | gf180mcuD | 已绑定（实测） | `sdr_bidir_pad.spice/.sch`、`vref_receiver.spice/.sch`、`pad_topology.dot`、`char_tb.spice`、`required_params.json`、`manifest.json`、`README.md` |
-| sky130 / ihp130 / ics55 | `TBD`（未核对） | 只有 manifest / README / params / DOT / char_tb + `DEVICE_MAP_TBD.md`；**不发 SPICE**，避免编造未核实的器件名 |
+| sky130 | 已绑定（实测） | 同上 |
+| ihp130 | 已绑定（实测） | 同上；ESD 用固定几何 2 kV 单元，`ESD_AREA_*` 参数不适用 |
+| ics55 | 未绑定（3.3 V ESD 二极管卡缺失） | manifest / README / params / DOT / char_tb + `DEVICE_MAP_TBD.md`；**不发 SPICE**，不把 `dio_2p5_*` 改名成 3.3 V |
 
-SPICE 网表用 `@@DEV_*@@` 绑器件、`@@P_*@@` 留参数名（如 `w=W_N_OUT`、`nf=NF_DEVICE`），条件块 `@if LEVEL_SHIFTER@` 由 `core_v != vddio_v` 决定。gf180 输出里电平搬移块被正确移除。
+SPICE 网表用 `@@DEV_*@@` 绑器件、`@@P_*@@` 留参数名（如 `w=W_N_OUT`、`nf=NF_DEVICE`），条件块 `@if LEVEL_SHIFTER@` 由 `core_v != vddio_v` 决定。模板里的实例行由 map 的 `spice` 段生成，生成后不留 `@@` 占位符。
 
-**验证**：`generator/check_pads.py` 通过（31 参数未解、4 backend、0 签核声明、无 `@@` 残留、无硬编码尺寸）；xschem `-x -n -s` 无 X 头模式能把两张 `.sch` 网表出来（SDR 10 条、VREF 8 条器件/二极管行）；`dot -Tsvg` 能渲染拓扑图。
+**验证**：`generator/check_pads.py` 通过（31 参数未解、4 backend 中 3 套已绑定、0 签核声明、无 `@@` 残留、无硬编码尺寸、无 `UNBOUND_` 占位、钳位方向正确）；`sh sim/char_pad.sh` 跑出 gf180mcuD / sky130 / ihp130 三份 `reports/pad_char_*.{json,md}`（§4.1，全部 `design_assumption`）；sky130 与 IHP 的生成网表也用临时参数跑过 ngspice `.op` 语法冒烟（见 §3.1）。xschem 自动网表本轮未重跑（本机 `xschem -x -n -s` 在写输出文件时超时），所以不把“xschem 能网表”当作本轮证据；`.sch` 仍只是生成产物。
+
+## 4.1 第一版可跑表征切片（三套 PDK，DESIGN ASSUMPTION）
+
+`sim/char_pad.sh` 默认依次跑 gf180mcuD / sky130 / ihp130；也可以传一个或多个 backend。每条读取 `specs/pads/sizing/<backend>.first_pass.yaml`（`meta.status: design_assumption`），把通用拓扑渲染成带 `.param` 的网表，跑 ngspice 并写 `reports/pad_char_<backend>.{json,md}`。
+
+这一片的边界：
+
+- **只测输出级 + 理想 22Ω 串联电阻 + PAD + 接收器输入门限**。
+- **不包含**电平搬移、预驱动、封装/PCB RLC、PVT、SDF/PEX、ESD 资格；ESD 二极管在这一片里被显式省略。
+- 输出级栅极由测试台的**开环 PWL 栅驱动**控制，不是真实 OE/预驱动路径。
+- 负载是 1kΩ 到 VDDIO/2 + 1pF，轻载占位；不是板级模型。
+- 尺寸来自各 PDK 的实测 Class-I 器件校准；gf180 用全局 `M_DEVICE=40` + 2µm/5µm per-finger，sky130 用 `M_DEVICE=4` + 30µm/82.5µm，IHP 用 `ng=14/42` + 70µm/210µm。这些是 fixture 的写法，不是最优尺寸。
+
+| 测量 | gf180mcuD | sky130 | ihp130 | 条件 |
+|---|---|---|---|---|
+| `t_oe_on` | **0.101 ns** | **0.105 ns** | **0.099 ns** | 开环栅驱动，OE 标志到 PAD 2.9V |
+| `t_oe_off` | **2.85 ns** | **2.91 ns** | **2.75 ns** | OE 标志到 PAD 1.8V（1k 负载释放） |
+| `tr_pad` | **0.125 ns** | **0.115 ns** | **0.120 ns** | 0.33V → 2.9V |
+| `tf_pad` | **0.129 ns** | **0.119 ns** | **0.127 ns** | 2.9V → 0.33V |
+| `vth_pad` | **1.526 V** | **1.514 V** | **1.466 V** | 接收器 IN 跨 1.65V 时的 PAD 电压 |
+| `ihiz_max` | **0.146 nA** | **13.5 pA** | **57.0 pA** | PU_OK=0，外部源扫 PAD 0→3.3V |
+
+**解释边界**：这些数字只属于各自的 fixture 和该轻载。`t_oe_on/off` 是开环代理，不是真实 OE/预驱动延时；`vth_pad` 不是 VDDIO/2；`ihiz_max` 不含 ESD 二极管。不能用于签核、PVT、IBIS 或板级 SI。`reports/capability_report.md` 仍全部 `NO_GO`。
 
 ## 5. VREF 接收器
 
@@ -75,18 +117,21 @@ SPICE 网表用 `@@DEV_*@@` 绑器件、`@@P_*@@` 留参数名（如 `w=W_N_OUT`
 
 ## 6. 什么还没做 / 下一步
 
-1. **填 31 个参数**：驱动管宽/指条、预驱动级数、串联电阻、ESD 面积、保护环间距 —— 都要负载仿真，不能从库 GPIO 的毫安档推回来（§11/§12）。
+1. **填 31 个参数**：gf180mcuD / sky130 / ihp130 各有一份 `design_assumption` fixture 和可跑切片（§4.1），但都不是签核尺寸；ics55 仍未绑定。驱动管宽/指条、ESD 面积、保护环间距仍要负载/ESD 仿真。
 2. **展开 `PAD_OE_CTRL` 与 `PDRV_STAGES`**：现在是命名占位子电路与单级代表，不是可综合网表。
 3. **原理图复核**：二极管极性、体端接法、三端电阻第三端、guard ring 规则。
-4. **绑定另外三套 device map**：核对各自本地 PDK 的器件卡与许可，再重跑生成器。
-5. **表征链**：`char_tb.spice` 只是测量清单（`tOE_on/off`、slew、输入门限、上电 Hi-Z、ESD、VREF 共模/失调、SSO），不是可跑 TB；之后才是 PVT/min-max SPICE、PEX、IBIS、SI/PI、DRC/LVS。
-6. **能力报告不变**：`reports/capability_report.md` 仍是全部 `NO_GO`，`backends/gf180mcu.yaml` 的 `toe_on_ps/off_ps` 仍是 `null`，`schematic_drawn` 仍是 `false` —— 拓扑模板不等于"原理图已画完、可签核"。
+4. **绑定 device map**：gf180mcuD / sky130 / IHP 已绑定并生成拓扑；ics55 还差 3.3 V ESD 二极管 SPICE 卡，不能用 2.5 V 卡替代。
+5. **表征链**：三套 PDK 的输出级/接收器切片已可跑（§4.1）；`char_tb.spice` 仍是完整测量清单，ESD、VREF 共模/失调、SSO、PVT/min-max SPICE、PEX、IBIS、SI/PI、DRC/LVS 都还没做。
+6. **参数语义**：`L_R_SERIES` 现在是片上电阻长度；目标阻值属于板级 SI，不在 pad 参数里。把目标阻值换算成长度仍需要每套 PDK 的 sheet resistance。sky130 的微米/米换算也仍只在注释里，没有代码守卫。
+7. **能力报告不变**：`reports/capability_report.md` 仍是全部 `NO_GO`，`backends/gf180mcu.yaml` 的 `toe_on_ps/off_ps` 仍是 `null`，`schematic_drawn` 仍是 `false` —— 拓扑模板不等于"原理图已画完、可签核"。
 
 ## 7. 不这样做
 
 - 不把现成 GPIO 当本设计的 pad；不用 5 V / 6 V 器件接 3.3 V SDRAM。
 - 不填任何猜测的宽度、电流、阻值、面积或 `nf=1` 之类的默认值（指条数本身就是 §12 的开放问题，已改成 `NF_DEVICE` 参数）。
 - 不把核心标准单元当 pad 驱动，不把未核实的器件名写进 SPICE。
+- 不把 ics55 的 `dio_2p5_*` 改名成 3.3 V，也不因为三套已绑定就把 ics55 说成已支持。
+- 不把“ngspice 能跑 `.op` 的临时值”说成电气表征、尺寸选择或 PVT 结论。
 - 不把 xschem 能网表说成电气仿真已跑，不把 DOT 图说成版图。
 - 不把生成 gf180 VREF 接收器说成"gf180 支持 DDR1"。
 - 不因为写了生成器就改 `NO_GO` 判定；改判定要先改能力证据并重跑 `check_capabilities.py`。

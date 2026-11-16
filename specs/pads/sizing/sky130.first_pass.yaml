@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: Apache-2.0
+# FIRST-PASS SIZING FIXTURE - DESIGN ASSUMPTION, NOT SIGNOFF.
+#
+# sky130: output devices use the measured Class-I equivalents
+# (120 um NMOS / 330 um PMOS at 7.6 mA, SS/125 C) expressed as W=30/82.5 um
+# with the global M_DEVICE=4, because the BSIM4 bins cap W at 100 um.
+# ESD is omitted from the characterization slice. Level shifter and
+# pre-driver are excluded. No PVT, PEX, IBIS, SI/PI or ESD qualification.
+meta:
+  version: 1
+  backend: sky130
+  status: design_assumption
+  note: "First-pass fixture only. No signoff claim. W is total width; nf splits; m multiplies."
+  source: "reports/device_extraction.json (measured 2026-11-15, ngspice-44.2); specs/pads/devices/sky130.yaml"
+  load: "1 kohm to VDDIO/2 + 1 pF, light first-pass load"
+  char:
+    series_r_ohm: 22
+    vdd_v: 1.8
+    vddio_v: 3.3
+params:
+  - {id: W_N_OUT,          value: 30,    unit: um,  basis: "30 um x M=4 = 120 um measured Class-I NMOS"}
+  - {id: L_N_OUT,          value: 0.5,   unit: um,  basis: "g5v0d10v5 driver L"}
+  - {id: NF_N_OUT,         value: 1,     unit: count, basis: "nf splits W and reduces current; m is the multiplier"}
+  - {id: W_P_OUT,          value: 82.5,  unit: um,  basis: "82.5 um x M=4 = 330 um measured Class-I PMOS"}
+  - {id: L_P_OUT,          value: 0.5,   unit: um,  basis: "g5v0d10v5 driver L"}
+  - {id: NF_P_OUT,         value: 1,     unit: count, basis: "nf splits W; m is the multiplier"}
+  - {id: PDRV_STAGES,      value: 1,     unit: count, basis: "placeholder; pre-driver excluded"}
+  - {id: W_N_PDRV,         value: 0.5,   unit: um,  basis: "pre-driver placeholder"}
+  - {id: W_P_PDRV,         value: 1,     unit: um,  basis: "pre-driver placeholder"}
+  - {id: L_PDRV,           value: 0.5,   unit: um,  basis: "pre-driver/receiver L placeholder"}
+  - {id: L_R_SERIES,       value: 22,    unit: um,  basis: "on-chip length placeholder; target R not converted"}
+  - {id: W_R_SERIES,       value: 2,     unit: um,  basis: "resistor width placeholder"}
+  - {id: ESD_AREA_UP,      value: 20.0e-12, unit: m2, basis: "not used; ESD omitted from this slice"}
+  - {id: ESD_AREA_DN,      value: 20.0e-12, unit: m2, basis: "not used; ESD omitted from this slice"}
+  - {id: ESD_CLAMP_W,      value: 20.0e-12, unit: m2, basis: "not used; ESD omitted from this slice"}
+  - {id: W_RX_N,           value: 1,     unit: um,  basis: "receiver placeholder; x M=4 = 4 um"}
+  - {id: W_RX_P,           value: 2,     unit: um,  basis: "receiver placeholder; x M=4 = 8 um"}
+  - {id: RX_HYST,          value: 0,     unit: V,   basis: "no Schmitt option in this slice"}
+  - {id: W_VREF_N,         value: 1,     unit: um,  basis: "VREF placeholder; not in SDR slice"}
+  - {id: W_VREF_P,         value: 2,     unit: um,  basis: "VREF placeholder"}
+  - {id: I_TAIL,           value: 1.0e-5, unit: A,  basis: "placeholder tail current"}
+  - {id: W_TAIL,           value: 1,     unit: um,  basis: "placeholder current-mirror width"}
+  - {id: W_LOAD,           value: 2,     unit: um,  basis: "placeholder mirror-load width"}
+  - {id: VREF_CM_MIN,      value: 0.8,   unit: V,   basis: "placeholder common-mode bound"}
+  - {id: VREF_CM_MAX,      value: 1.7,   unit: V,   basis: "placeholder common-mode bound"}
+  - {id: VREF_OFFSET,      value: 0,     unit: V,   basis: "not measured"}
+  - {id: VREF_HYST,        value: 0,     unit: V,   basis: "not measured"}
+  - {id: GUARD_RING_WIDTH, value: 2,     unit: um,  basis: "layout placeholder; DRC not run"}
+  - {id: GUARD_RING_SPACING, value: 2,   unit: um,  basis: "layout placeholder; DRC not run"}
+  - {id: NF_DEVICE,        value: 1,     unit: count, basis: "generic finger placeholder"}
+  - {id: M_DEVICE,         value: 4,     unit: count, basis: "global multiplier to fit the 100 um BSIM bin; NMOS/PMOS widths are divided by 4"}

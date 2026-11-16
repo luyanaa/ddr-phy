@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: Apache-2.0
+# FIRST-PASS SIZING FIXTURE - DESIGN ASSUMPTION, NOT SIGNOFF.
+#
+# IHP SG13G2: output devices use the measured Class-I equivalents
+# (70 um HV NMOS / 210 um HV PMOS at 7.6 mA, mos_ss/125 C). w is total
+# width and ng only splits it; M_DEVICE stays 1. ESD is omitted from the
+# characterization slice. Level shifter and pre-driver are excluded.
+meta:
+  version: 1
+  backend: ihp130
+  status: design_assumption
+  note: "First-pass fixture only. No signoff claim. w is total width; ng splits; m multiplies."
+  source: "reports/device_extraction.json (measured 2026-11-15, ngspice-44.2); specs/pads/devices/ihp130.yaml"
+  load: "1 kohm to VDDIO/2 + 1 pF, light first-pass load"
+  char:
+    series_r_ohm: 22
+    vdd_v: 1.2
+    vddio_v: 3.3
+params:
+  - {id: W_N_OUT,          value: 70,    unit: um,  basis: "measured Class-I HV NMOS total width"}
+  - {id: L_N_OUT,          value: 0.45,  unit: um,  basis: "sg13_hv_nmos driver L range"}
+  - {id: NF_N_OUT,         value: 14,    unit: count, basis: "ng splits the 70 um total into 14 fingers"}
+  - {id: W_P_OUT,          value: 210,   unit: um,  basis: "measured Class-I HV PMOS total width"}
+  - {id: L_P_OUT,          value: 0.40,  unit: um,  basis: "sg13_hv_pmos driver L range"}
+  - {id: NF_P_OUT,         value: 42,    unit: count, basis: "ng splits the 210 um total into 42 fingers"}
+  - {id: PDRV_STAGES,      value: 1,     unit: count, basis: "placeholder; pre-driver excluded"}
+  - {id: W_N_PDRV,         value: 2,     unit: um,  basis: "pre-driver placeholder"}
+  - {id: W_P_PDRV,         value: 4,     unit: um,  basis: "pre-driver placeholder"}
+  - {id: L_PDRV,           value: 0.45,  unit: um,  basis: "pre-driver/receiver L placeholder"}
+  - {id: L_R_SERIES,       value: 22,    unit: um,  basis: "on-chip length placeholder; target R not converted"}
+  - {id: W_R_SERIES,       value: 2,     unit: um,  basis: "resistor width placeholder"}
+  - {id: ESD_AREA_UP,      value: 20.0e-12, unit: m2, basis: "not used; IHP ESD cells are fixed-geometry and omitted"}
+  - {id: ESD_AREA_DN,      value: 20.0e-12, unit: m2, basis: "not used; ESD omitted from this slice"}
+  - {id: ESD_CLAMP_W,      value: 20.0e-12, unit: m2, basis: "not used; ESD omitted from this slice"}
+  - {id: W_RX_N,           value: 2,     unit: um,  basis: "receiver placeholder"}
+  - {id: W_RX_P,           value: 4,     unit: um,  basis: "receiver placeholder"}
+  - {id: RX_HYST,          value: 0,     unit: V,   basis: "no Schmitt option in this slice"}
+  - {id: W_VREF_N,         value: 2,     unit: um,  basis: "VREF placeholder; not in SDR slice"}
+  - {id: W_VREF_P,         value: 4,     unit: um,  basis: "VREF placeholder"}
+  - {id: I_TAIL,           value: 1.0e-5, unit: A,  basis: "placeholder tail current"}
+  - {id: W_TAIL,           value: 2,     unit: um,  basis: "placeholder current-mirror width"}
+  - {id: W_LOAD,           value: 4,     unit: um,  basis: "placeholder mirror-load width"}
+  - {id: VREF_CM_MIN,      value: 0.8,   unit: V,   basis: "placeholder common-mode bound"}
+  - {id: VREF_CM_MAX,      value: 1.7,   unit: V,   basis: "placeholder common-mode bound"}
+  - {id: VREF_OFFSET,      value: 0,     unit: V,   basis: "not measured"}
+  - {id: VREF_HYST,        value: 0,     unit: V,   basis: "not measured"}
+  - {id: GUARD_RING_WIDTH, value: 2,     unit: um,  basis: "layout placeholder; DRC not run"}
+  - {id: GUARD_RING_SPACING, value: 2,   unit: um,  basis: "layout placeholder; DRC not run"}
+  - {id: NF_DEVICE,        value: 1,     unit: count, basis: "generic finger placeholder"}
+  - {id: M_DEVICE,         value: 1,     unit: count, basis: "single device; ng is the finger count"}
