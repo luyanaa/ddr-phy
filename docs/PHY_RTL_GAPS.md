@@ -74,7 +74,7 @@ PRBS-32 图案经 `sdr_ctrl` 用户接口写入再读回比较，含 `error_coun
 - `sdr_ctrl` 新增 `phy_turnaround_busy` 输入：忙时 WRITE 不被 `user_ready` 接受，`S_IDLE` 也不发 WRITE 命令；READ 仍可继续。
 - `dq_turnaround` 的 guard 参数拆成 `GUARD_CYCLES + READ_TAIL_CYCLES + DQM_OFF_CYCLES + T_OE_OFF_CYCLES`，总时长仍是设计参数，不是已表征的 tHZ/tOE_off。
 - `tb/tb_turnaround_ctrl.sv` 验证：忙时 WRITE 不被接受/不发命令；释放后 WRITE 发出且数据正确；READ 不被阻塞。
-- `tb/tb_micron_diff.sv` 在可选 Micron 参考模型上覆盖 CL2/3、DQM、Refresh、Turnaround；模型缺失时 `sim/micron_diff.sh` 跳过。
+- `tb/tb_micron_diff.sv` 在可选 Micron 参考模型上覆盖 CL2/3、DQM、Refresh、Turnaround；`tb/tb_micron_burst.sv` 另做模型级 BL2/4/8 Burst 差分。模型缺失时 `sim/micron_diff.sh` 跳过。
 - 现有 `tb_sdr_loop` / `tb_refresh` / `tb_bist_loop` 把 `phy_turnaround_busy` 接 0，保持原有闭环行为；新测试单独覆盖协商。
 
 ### 3.4 Read Capture 与 CDC（第一版）
