@@ -22,6 +22,27 @@ forbidden:
   - "nfet_06v0 / pfet_06v0 (6 V devices; section 5.1)"
   - "gf180mcu_ef_io / gf180mcu_fd_io 5 V GPIO (4.5-5.5 V, cannot drive 3.3 V SDRAM)"
   - "any core standard cell as the pad driver"
+size_note: "topology params are metres; nfet_03v3/pfet_03v3 take w/l in metres"
+esd_note: "2-terminal .model diodes; area unit and orientation still need schematic review"
+spice:
+  # Verified .subckt nfet_03v3 d g s b w=.. l=.. nf=.. m=..
+  finger_param: nf
+  mult_param: m
+  mos_format: "X_{name} {d} {g} {s} {b} {device} w={w} l={l} {fp}={nf} {mp}={m}"
+  # ppolyf_u uses r_length/r_width (metres) rather than w/l.
+  res_format: "X_{name} {p} {q} {b} {device} r_length={l} r_width={w}"
+  # 2-terminal .model diodes; clamp anode is VSSIO, cathode VDDIO.
+  diode_format: "D_{name} {a} {c} {device} area={area}"
+char:
+  # Machine-readable model wiring for generator/emit_char_pad.py.
+  root_glob: "~/.ciel/ciel/gf180mcu/versions/*/gf180mcuD"
+  cwd: ""
+  ngspice_flags: []
+  spiceinit: "* local empty spiceinit: neutralizes global ~/.spiceinit\n"
+  includes:
+    - {include: "libs.tech/ngspice/design.ngspice"}
+    - {lib: "libs.tech/ngspice/sm141064.ngspice", section: "typical"}
+    - {lib: "libs.tech/ngspice/sm141064.ngspice", section: "diode_typical"}
 slots:
   NMOS_IO:        {device: nfet_03v3,        symbol: gf180mcu_fd_pr/nfet_03v3.sym,       verified: ".subckt nfet_03v3 d g s b w=.. l=.. nf=.. m=.."}
   PMOS_IO:        {device: pfet_03v3,        symbol: gf180mcu_fd_pr/pfet_03v3.sym,       verified: ".subckt pfet_03v3 d g s b w=.. l=.. nf=.. m=.."}
@@ -29,7 +50,7 @@ slots:
   PMOS_CORE:      {device: null, symbol: null, note: "no level shifter (core_v == vddio_v)"}
   DIODE_TO_VSSIO: {device: diode_nd2ps_03v3, symbol: gf180mcu_fd_pr/diode_nd2ps_03v3.sym, verified: "3.3 V N+/Psub diode; orientation to confirm"}
   DIODE_TO_VDDIO: {device: diode_pd2nw_03v3, symbol: gf180mcu_fd_pr/diode_pd2nw_03v3.sym, verified: "3.3 V P+/Nwell diode; orientation to confirm"}
-  DIODE_CLAMP:    {device: diode_pd2nw_03v3, symbol: gf180mcu_fd_pr/diode_pd2nw_03v3.sym, verified: "VDDIO-VSSIO clamp; topology only"}
+  DIODE_CLAMP:    {device: diode_pd2nw_03v3, symbol: gf180mcu_fd_pr/diode_pd2nw_03v3.sym, verified: "VDDIO-VSSIO clamp, anode VSSIO; topology only"}
   RES_SERIES:     {device: ppolyf_u,         symbol: gf180mcu_fd_pr/ppolyf_u.sym,        verified: ".subckt ppolyf_u 1 2 3 r_length=l r_width=w"}
   PREDRIVER:      {device: param_stage,      symbol: null, note: "PDRV_STAGES unresolved; one representative inverter stage emitted"}
   RX_INV:         {device: cmos_inverter,    symbol: null, note: "nfet_03v3 + pfet_03v3 pair; Schmitt option TBD"}

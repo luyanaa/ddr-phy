@@ -2,6 +2,8 @@
 * backend: @@BACKEND@@   pdk: @@PDK@@
 * topology: @@TOPOLOGY@@ (DDR1 VREF receiver, shared across PDKs)
 * STATUS: @@STATUS@@
+* SIZE UNITS: @@SIZE_NOTE@@
+* ESD NOTE: @@ESD_NOTE@@
 * DDR1 decision for this backend: @@DDR1_STATUS@@
 * @@DDR1_REASON@@
 *
@@ -12,6 +14,9 @@
 *
 * Expected includes (NOT bundled): @@MODEL_INCLUDE@@ ; @@DESIGN_INCLUDE@@
 *
+* Device-instantiation syntax is per backend; the differential-pair
+* topology is shared. See specs/pads/devices/<backend>.yaml.
+*
 * DDR1 read capture topology:
 *   PAD and VREF are both VDDIO-domain inputs -> IO devices only.
 *   Differential pair + PMOS mirror load -> single-ended -> RX buffer.
@@ -19,23 +24,23 @@
 
 .subckt vref_receiver PAD VREF IN PU_OK VDD VSS VDDIO VSSIO
 * --- differential pair ---
-X_VP n_outp PAD  n_tail VSSIO @@DEV_NMOS_IO@@ w=@@P_W_VREF_N@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
-X_VN n_outn VREF n_tail VSSIO @@DEV_NMOS_IO@@ w=@@P_W_VREF_N@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
+@@VP_LINE@@
+@@VN_LINE@@
 * --- tail current: ideal placeholder ---
 I_TAIL n_tail VSSIO DC @@P_I_TAIL@@
-* W_TAIL (@@P_W_TAIL@@) belongs to the real current mirror, TBD.
+* W_TAIL belongs to the real current mirror, TBD.
 * --- PMOS current-mirror load ---
-X_LP n_outp n_outp VDDIO VDDIO @@DEV_PMOS_IO@@ w=@@P_W_LOAD@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
-X_LN n_outn n_outp VDDIO VDDIO @@DEV_PMOS_IO@@ w=@@P_W_LOAD@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
+@@LP_LINE@@
+@@LN_LINE@@
 * --- single-ended output buffer ---
-X_RX_N IN n_outn VSSIO VSSIO @@DEV_NMOS_IO@@ w=@@P_W_RX_N@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
-X_RX_P IN n_outn VDDIO VDDIO @@DEV_PMOS_IO@@ w=@@P_W_RX_P@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
+@@VRX_N_LINE@@
+@@VRX_P_LINE@@
 * Unresolved: VREF_CM_MIN / VREF_CM_MAX / VREF_OFFSET / VREF_HYST.
 * Common-mode range, offset and hysteresis are NOT reported here.
 .ends vref_receiver
 
 * VREF pad: ESD diodes + metal ONLY. No output driver, no DAC/ADC.
 .subckt vref_pad VREF VDDIO VSSIO
-D_VREF_UP VREF  VDDIO @@DEV_DIODE_TO_VDDIO@@ area=@@P_ESD_AREA_UP@@
-D_VREF_DN VSSIO VREF  @@DEV_DIODE_TO_VSSIO@@ area=@@P_ESD_AREA_DN@@
+@@VREF_UP_LINE@@
+@@VREF_DN_LINE@@
 .ends vref_pad

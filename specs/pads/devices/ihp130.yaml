@@ -1,26 +1,63 @@
 # SPDX-License-Identifier: Apache-2.0
-# Stub: names from docs/ARCHITECTURE.md section 5.1, NOT yet verified
-# against the local PDK. No characterization, no sizes.
+# ihp130 device map. Names verified against the LOCAL PDK on 2026-11-16:
+#   libs.tech/ngspice/models/sg13g2_moshv_mod.lib
+#       .subckt sg13_hv_nmos / sg13_hv_pmos d g s b  (w, l, ng, m)
+#   libs.tech/ngspice/models/sg13g2_moslv_mod.lib
+#       .subckt sg13_lv_nmos / sg13_lv_pmos d g s b  (1.2 V core)
+#   libs.tech/ngspice/models/sg13g2_esd.lib
+#       .subckt diodevdd_2kv / diodevss_2kv VDD PAD VSS (3-terminal ESD cell)
+#   libs.tech/ngspice/models/resistors_mod.lib
+#       .subckt rppd 1 2 bn (w, l; bulk = bn)
+#   libs.tech/ngspice/models/cornerMOShv.lib / cornerMOSlv.lib / cornerRES.lib
+# License: Apache-2.0 (IHP PDK Authors).
+# The HV model has a 3.3 V Vds rating; there is NO characterized 2.5 V IO.
 backend: ihp130
 pdk: ihp-sg13g2
-status: TBD
+status: topology_template_only
 decision: NO_GO
 core_v: 1.2
 vddio_v: 3.3
 level_shifter_required: true
-model_include: "TBD"
-license: "TBD - sg13g2_io; not checked"
-forbidden: ["core standard cell as pad driver"]
+model_include: "libs.tech/ngspice/models/cornerMOShv.lib; cornerMOSlv.lib; cornerRES.lib; sg13g2_esd.lib"
+design_include: "none (device models only)"
+license: "Apache-2.0 (IHP PDK Authors)"
+forbidden:
+  - "core standard cell as pad driver"
+  - "claiming the 2.5 V DDR1 operating point is characterized"
+  - "assuming the input threshold equals VDDIO/2"
+size_note: "topology params are metres; HV/LV subckts take w/l in metres (u suffix accepted)"
+esd_note: "fixed-geometry 2 kV ESD subckts; ESD_AREA_* params are NOT applied"
+spice:
+  # w is TOTAL width; ng splits it; m multiplies the subckt.
+  finger_param: ng
+  mult_param: m
+  mos_format: "X_{name} {d} {g} {s} {b} {device} w={w} l={l} {fp}={nf} {mp}={m}"
+  res_format: "X_{name} {p} {q} {b} {device} w={w} l={l}"
+  # ESD cells are 3-terminal subckts, not 2-terminal diode models.
+  diode_format: "X_{name} {vdd} {pad} {vss} {device}"
+char:
+  root_glob: "~/.ciel/ciel/ihp-sg13/versions/*/ihp-sg13g2"
+  cwd: ""
+  ngspice_flags: []
+  spiceinit: |
+    setcs sourcepath = ( $sourcepath @root@/libs.tech/ngspice/models )
+    osdi '@root@/libs.tech/ngspice/osdi/psp103.osdi'
+    osdi '@root@/libs.tech/ngspice/osdi/psp103_nqs.osdi'
+    osdi '@root@/libs.tech/ngspice/osdi/r3_cmc.osdi'
+    osdi '@root@/libs.tech/ngspice/osdi/mosvar.osdi'
+  includes:
+    - {lib: "libs.tech/ngspice/models/cornerMOShv.lib", section: "mos_tt"}
+    - {lib: "libs.tech/ngspice/models/cornerMOSlv.lib", section: "mos_tt"}
 slots:
-  NMOS_IO:        {device: sg13_hv_nmos, symbol: null, verified: false}
-  PMOS_IO:        {device: sg13_hv_pmos, symbol: null, verified: false}
-  NMOS_CORE:      {device: null, symbol: null, verified: false}
-  PMOS_CORE:      {device: null, symbol: null, verified: false}
-  DIODE_TO_VSSIO: {device: diodevss_2kv, symbol: null, verified: false}
-  DIODE_TO_VDDIO: {device: diodevdd_2kv, symbol: null, verified: false}
-  DIODE_CLAMP:    {device: null, symbol: null, verified: false}
-  RES_SERIES:     {device: null, symbol: null, verified: false}
-  PREDRIVER:      {device: null, symbol: null, verified: false}
-  RX_INV:         {device: null, symbol: null, verified: false}
+  NMOS_IO:        {device: sg13_hv_nmos, symbol: null, verified: ".subckt sg13_hv_nmos d g s b w.. l.. ng.. m.."}
+  PMOS_IO:        {device: sg13_hv_pmos, symbol: null, verified: ".subckt sg13_hv_pmos d g s b w.. l.. ng.. m.."}
+  NMOS_CORE:      {device: sg13_lv_nmos, symbol: null, verified: ".subckt sg13_lv_nmos d g s b; 1.2 V core device"}
+  PMOS_CORE:      {device: sg13_lv_pmos, symbol: null, verified: ".subckt sg13_lv_pmos d g s b; 1.2 V core device"}
+  DIODE_TO_VSSIO: {device: diodevss_2kv, symbol: null, verified: ".subckt diodevss_2kv VDD PAD VSS; 2 kV ESD cell"}
+  DIODE_TO_VDDIO: {device: diodevdd_2kv, symbol: null, verified: ".subckt diodevdd_2kv VDD PAD VSS; 2 kV ESD cell"}
+  DIODE_CLAMP:    {device: diodevdd_2kv, symbol: null, verified: ".subckt ...; clamp VDDIO/VSSIO, topology only"}
+  RES_SERIES:     {device: rppd, symbol: null, verified: ".subckt rppd 1 2 bn w=.. l=.."}
+  PREDRIVER:      {device: null, symbol: null, note: "composite HV inverter; PDRV_STAGES unresolved"}
+  RX_INV:         {device: null, symbol: null, note: "composite HV inverter; Schmitt option TBD"}
 sdr: {status: IN_SCOPE, note: "section 6: DO; HV devices, level shifter needed"}
-ddr1: {status: TBD, reason: "2.5 V operating point uncharacterized; no 2.5 V device", vref_receiver: "topology only"}
+ddr1: {status: TBD, reason: "2.5 V operating point uncharacterized; no 2.5 V device; VREF receiver is topology only", vref_receiver: "topology only"}

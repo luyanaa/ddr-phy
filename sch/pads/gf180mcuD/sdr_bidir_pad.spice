@@ -3,6 +3,8 @@
 * topology: specs/pads/topology.yaml v1 -- ONE shared schematic, only device names change
 * STATUS: topology_template_only
 * license: Apache-2.0 (GlobalFoundries PDK Authors, design.ngspice header)
+* SIZE UNITS: topology params are metres; nfet_03v3/pfet_03v3 take w/l in metres
+* ESD NOTE: 2-terminal .model diodes; area unit and orientation still need schematic review
 *
 * NOT SIMULATABLE. This is a TOPOLOGY TEMPLATE:
 *   - every W / L / NF / R / area is an unresolved parameter
@@ -12,6 +14,14 @@
 *     and PDRV_STAGES are bound.
 *   - diode orientation, bulk ties and the series-R third terminal must
 *     be confirmed at schematic review; they are NOT signed off here.
+*   - L_R_SERIES is the on-chip resistor LENGTH. The target
+*     resistance in ohm is a board-level SI input, not a pad param;
+*     converting target R to L needs a per-PDK sheet resistance.
+*
+* Device-instantiation syntax is per backend (nf vs ng, m vs mr,
+* r_length/r_width vs w/l, 2-terminal diode model vs 3-terminal ESD
+* subckt). It lives in specs/pads/devices/<backend>.yaml; the block
+* topology below stays shared.
 *
 * Expected includes (NOT bundled; integrator supplies models.spice):
 *   libs.tech/ngspice/sm141064.ngspice
@@ -40,12 +50,12 @@ X_OUT_P n_pre n_gp VDDIO VDDIO pfet_03v3 w=W_P_OUT l=L_P_OUT nf=NF_P_OUT m=M_DEV
 X_OUT_N n_pre n_gn VSSIO VSSIO nfet_03v3 w=W_N_OUT l=L_N_OUT nf=NF_N_OUT m=M_DEVICE
 
 * --- on-chip series damping resistor (may instead live on the board) ---
-X_RSER n_pre PAD VSSIO ppolyf_u r_length=R_SERIES r_width=W_R_SERIES
+X_RSER n_pre PAD VSSIO ppolyf_u r_length=L_R_SERIES r_width=W_R_SERIES
 
 * --- ESD: primary diodes + VDDIO-to-VSSIO clamp ---
-D_ESD_UP PAD   VDDIO diode_pd2nw_03v3 area=ESD_AREA_UP
-D_ESD_DN VSSIO PAD   diode_nd2ps_03v3 area=ESD_AREA_DN
-D_CLAMP  VDDIO VSSIO diode_pd2nw_03v3   area=ESD_CLAMP_W
+D_ESD_UP PAD VDDIO diode_pd2nw_03v3 area=ESD_AREA_UP
+D_ESD_DN VSSIO PAD diode_nd2ps_03v3 area=ESD_AREA_DN
+D_CLAMP VSSIO VDDIO diode_pd2nw_03v3 area=ESD_CLAMP_W
 
 * --- SDR receiver: thick-oxide CMOS inverter (Schmitt optional) ---
 X_RX_N IN PAD VSSIO VSSIO nfet_03v3 w=W_RX_N l=L_PDRV nf=NF_DEVICE m=M_DEVICE

@@ -7,6 +7,7 @@
   "simulatable": false,
   "signoff": false,
   "device_map_bound": true,
+  "blocker": null,
   "level_shifter": false,
   "core_v": 3.3,
   "vddio_v": 3.3,
@@ -67,7 +68,7 @@
     "DIODE_CLAMP": {
       "device": "diode_pd2nw_03v3",
       "symbol": "gf180mcu_fd_pr/diode_pd2nw_03v3.sym",
-      "verified": "VDDIO-VSSIO clamp; topology only"
+      "verified": "VDDIO-VSSIO clamp, anode VSSIO; topology only"
     },
     "RES_SERIES": {
       "device": "ppolyf_u",

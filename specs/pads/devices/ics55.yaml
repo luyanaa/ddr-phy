@@ -1,7 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
-# Stub: names from docs/ARCHITECTURE.md section 5.1, NOT yet verified.
-# Foundry SPICE is evaluation-only (not Apache-2.0) -> cannot be a
-# tapeout signoff source.
+# ics55 device map. Names verified against the LOCAL PDK on 2026-11-16:
+#   libs.tech/spice/foundry/ngspice/model_wrapper1_hsp.lib
+#       .subckt nmod3p3_lp / pmod3p3_lp d g s b (w, l, nf, mr)
+#       .subckt nm1p2_svt_lp / pm1p2_svt_lp d g s b (1.2 V core)
+#   libs.tech/spice/foundry/ngspice/dio/dio_io25.mdl
+#       .MODEL dio_2p5_np_pw_lp / dio_2p5_pp_nw_lp d (2.5 V only)
+#   libs.tech/spice/foundry/ngspice/res/resistor.ckt
+#       .subckt re_ppo_sab_3t n2 n1 sub l=lr w=wr mr=1
+# License: vendor data, evaluation/research only; NOT Apache-2.0.
+# The 3.3 V SDR ESD diode is the hard blocker: LVS knows
+# dio_3p3_pp_nw_lp, but the foundry SPICE set has only 1.2 V and 2.5 V
+# diodes. Do NOT substitute dio_2p5_* for a 3.3 V pad.
 backend: ics55
 pdk: icsprout55-pdk
 status: TBD
@@ -9,19 +18,46 @@ decision: NO_GO
 core_v: 1.2
 vddio_v: 3.3
 level_shifter_required: true
-model_include: "TBD"
+model_include: "libs.tech/spice/foundry/ngspice/model_wrapper1_hsp.lib; model_wrapper2_hsp.lib; res/resistor.ckt; dio/dio_io25.mdl"
+design_include: "none (foundry models only; evaluation licence)"
 license: "foundry SPICE evaluation-only; 3.3 V ESD diode card missing from foundry list"
-forbidden: ["core standard cell as pad driver", "dio_2p5_* used as a 3.3 V ESD diode"]
+blocker: "3.3 V ESD diode SPICE card missing: LVS has dio_3p3_pp_nw_lp, foundry SPICE has only 1.2 V/2.5 V diodes. The SDR pad cannot be bound without inventing a model; dio_2p5_* must not be relabelled as 3.3 V. A custom GGNMOS/GGPMOS clamp using nmod3p3_lp/pmod3p3_lp is a STUDY_ONLY option (docs/ICS55_ESD_3V3.md), not a characterized ESD cell."
+custom_esd:
+  status: STUDY_ONLY
+  topology: "GGNMOS PAD->VSSIO + GGPMOS PAD->VDDIO + GGNMOS VDDIO->VSSIO, gate resistors"
+  devices: [nmod3p3_lp, pmod3p3_lp]
+  note: "See docs/ICS55_ESD_3V3.md. BSIM4 does not model snapback; TLP/HBM/latch-up evidence is required before binding."
+  evidence_required:
+    - "TLP I-V (trigger, holding, It2)"
+    - "HBM/CDM target and measurement"
+    - "3.3 V / 125 C off-state leakage"
+    - "gate-oxide lifetime / HTOL at 3.3 V"
+    - "latch-up and guard-ring DRC"
+    - "comparison against the foundry 3.3 V IO cell"
+  decision: NO_GO
+forbidden:
+  - "core standard cell as pad driver"
+  - "dio_2p5_* used as a 3.3 V ESD diode"
+  - "claiming the 3.3 V overdrive MOS is characterized at 3.3 V"
+size_note: "topology params are metres; foundry subckts take w/l in metres (u suffix accepted)"
+esd_note: "2-terminal .model diodes; 3.3 V card missing, so this map stays unbound"
+spice:
+  # w is total width, nf splits it, mr multiplies the subckt.
+  finger_param: nf
+  mult_param: mr
+  mos_format: "X_{name} {d} {g} {s} {b} {device} w={w} l={l} {fp}={nf} {mp}={m}"
+  res_format: "X_{name} {p} {q} {b} {device} w={w} l={l} mr={m}"
+  diode_format: "D_{name} {a} {c} {device} area={area}"
 slots:
-  NMOS_IO:        {device: nmod3p3_lp, symbol: null, verified: false}
-  PMOS_IO:        {device: pmod3p3_lp, symbol: null, verified: false}
-  NMOS_CORE:      {device: null, symbol: null, verified: false}
-  PMOS_CORE:      {device: null, symbol: null, verified: false}
-  DIODE_TO_VSSIO: {device: null, symbol: null, verified: false, note: "3.3 V SPICE card missing"}
+  NMOS_IO:        {device: nmod3p3_lp, symbol: null, verified: ".subckt nmod3p3_lp d g s b; 2.5 V overdrive to 3.3 V, rating uncharacterized"}
+  PMOS_IO:        {device: pmod3p3_lp, symbol: null, verified: ".subckt pmod3p3_lp d g s b; 2.5 V overdrive to 3.3 V, rating uncharacterized"}
+  NMOS_CORE:      {device: nm1p2_svt_lp, symbol: null, verified: ".subckt nm1p2_svt_lp d g s b; 1.2 V core device"}
+  PMOS_CORE:      {device: pm1p2_svt_lp, symbol: null, verified: ".subckt pm1p2_svt_lp d g s b; 1.2 V core device"}
+  DIODE_TO_VSSIO: {device: null, symbol: null, verified: false, note: "3.3 V SPICE card missing; only dio_2p5_* exists"}
   DIODE_TO_VDDIO: {device: null, symbol: null, verified: false, note: "LVS has dio_3p3_pp_nw_lp, foundry SPICE does not"}
-  DIODE_CLAMP:    {device: null, symbol: null, verified: false}
-  RES_SERIES:     {device: null, symbol: null, verified: false}
-  PREDRIVER:      {device: null, symbol: null, verified: false}
-  RX_INV:         {device: null, symbol: null, verified: false}
-sdr: {status: IN_SCOPE, note: "section 6: DO but 3.3 V rating needs simulation first"}
-ddr1: {status: IN_SCOPE, note: "only PDK with devices named 2.5 V (nm2p5_lp/pm2p5_lp + dio_2p5_*)", vref_receiver: "topology only"}
+  DIODE_CLAMP:    {device: null, symbol: null, verified: false, note: "3.3 V SPICE card missing"}
+  RES_SERIES:     {device: re_ppo_sab_3t, symbol: null, verified: ".subckt re_ppo_sab_3t n2 n1 sub l=lr w=wr mr=1"}
+  PREDRIVER:      {device: null, symbol: null, note: "composite overdrive inverter; PDRV_STAGES unresolved"}
+  RX_INV:         {device: null, symbol: null, note: "composite overdrive inverter; Schmitt option TBD"}
+sdr: {status: IN_SCOPE, note: "section 6: DO but 3.3 V rating needs simulation first; ESD diode card is the current blocker"}
+ddr1: {status: IN_SCOPE, note: "only PDK with devices named 2.5 V (nm2p5_lp/pm2p5_lp + dio_2p5_*); VREF receiver topology only", vref_receiver: "topology only"}

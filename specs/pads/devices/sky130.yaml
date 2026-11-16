@@ -1,26 +1,58 @@
 # SPDX-License-Identifier: Apache-2.0
-# Stub: names from docs/ARCHITECTURE.md section 5.1, NOT yet verified
-# against the local PDK. No characterization, no sizes.
+# sky130 device map. Names verified against the LOCAL PDK on 2026-11-16:
+#   libs.ref/sky130_fd_pr/spice/sky130_fd_pr__nfet_g5v0d10v5.pm3.spice
+#       .subckt ... d g s b  (W is TOTAL width; nf splits; m multiplies)
+#   libs.ref/sky130_fd_pr/spice/sky130_fd_pr__nfet_01v8__tt.pm3.spice
+#       .subckt ... d g s b  (1.8 V core device for the level shifter)
+#   libs.ref/sky130_fd_pr/spice/sky130_fd_pr__diode_pd2nw_11v0.model.spice
+#   libs.ref/sky130_fd_pr/spice/sky130_fd_pr__diode_pw2nd_11v0.model.spice
+#   libs.ref/sky130_fd_pr/spice/sky130_fd_pr__res_high_po.model.spice
+#       .subckt sky130_fd_pr__res_high_po r0 r1 b w=1 l=1
+#   libs.tech/ngspice/sky130.lib.spice (corner sections tt/ss/ff)
+# License: Apache-2.0 (SkyWater PDK Authors).
+# 11 V in the diode class name is a device class, not the operating voltage.
 backend: sky130
 pdk: sky130A
-status: TBD
+status: topology_template_only
 decision: NO_GO
 core_v: 1.8
 vddio_v: 3.3
 level_shifter_required: true
-model_include: "TBD"
-license: "TBD - sky130_fd_io / sky130_ef_io views; not checked"
-forbidden: ["core standard cell as pad driver", "treating 5 V/11 V device class names as operating voltages"]
+model_include: "libs.tech/ngspice/sky130.lib.spice (corner section tt/ss/ff)"
+design_include: "none (device models only)"
+license: "Apache-2.0 (SkyWater PDK Authors)"
+forbidden:
+  - "core standard cell as pad driver"
+  - "treating 5 V/11 V device class names as operating voltages"
+  - "assuming the input threshold equals VDDIO/2"
+size_note: "topology params are metres; sky130 subckts use .option scale=1u (micrometres), apply x1e6 when filling"
+esd_note: "2-terminal .model diodes; area unit and clamp orientation still need schematic review"
+spice:
+  # W is TOTAL width with .option scale=1.0u; nf only splits it, m
+  # multiplies the whole subckt. Sizes stay symbolic.
+  finger_param: nf
+  mult_param: m
+  mos_format: "X_{name} {d} {g} {s} {b} {device} w={w} l={l} {fp}={nf} {mp}={m}"
+  res_format: "X_{name} {p} {q} {b} {device} w={w} l={l}"
+  diode_format: "D_{name} {a} {c} {device} area={area}"
+char:
+  root_glob: "~/.ciel/ciel/sky130/versions/*/sky130A"
+  root_must_contain: "libs.tech/ngspice/sky130.lib.spice"
+  cwd: "libs.tech/ngspice"
+  ngspice_flags: ["-n"]
+  spiceinit: "* unused (ngspice -n)\n"
+  includes:
+    - {lib: "libs.tech/ngspice/sky130.lib.spice", section: "tt"}
 slots:
-  NMOS_IO:        {device: sky130_fd_pr__nfet_g5v0d10v5, symbol: null, verified: false}
-  PMOS_IO:        {device: sky130_fd_pr__pfet_g5v0d10v5, symbol: null, verified: false}
-  NMOS_CORE:      {device: null, symbol: null, verified: false}
-  PMOS_CORE:      {device: null, symbol: null, verified: false}
-  DIODE_TO_VSSIO: {device: diode_pw2nd_11v0, symbol: null, verified: false}
-  DIODE_TO_VDDIO: {device: diode_pd2nw_11v0, symbol: null, verified: false}
-  DIODE_CLAMP:    {device: null, symbol: null, verified: false}
-  RES_SERIES:     {device: null, symbol: null, verified: false}
-  PREDRIVER:      {device: null, symbol: null, verified: false}
-  RX_INV:         {device: null, symbol: null, verified: false}
+  NMOS_IO:        {device: sky130_fd_pr__nfet_g5v0d10v5, symbol: null, verified: ".subckt ... d g s b; W total, nf splits, m multiplies; measured"}
+  PMOS_IO:        {device: sky130_fd_pr__pfet_g5v0d10v5, symbol: null, verified: ".subckt ... d g s b; measured"}
+  NMOS_CORE:      {device: sky130_fd_pr__nfet_01v8, symbol: null, verified: ".subckt ... d g s b; 1.8 V core device"}
+  PMOS_CORE:      {device: sky130_fd_pr__pfet_01v8, symbol: null, verified: ".subckt ... d g s b; 1.8 V core device"}
+  DIODE_TO_VSSIO: {device: sky130_fd_pr__diode_pw2nd_11v0, symbol: null, verified: ".model ... d; N+/Pwell, anode VSSIO"}
+  DIODE_TO_VDDIO: {device: sky130_fd_pr__diode_pd2nw_11v0, symbol: null, verified: ".model ... d; P+/Nwell, cathode VDDIO"}
+  DIODE_CLAMP:    {device: sky130_fd_pr__diode_pd2nw_11v0, symbol: null, verified: ".model ... d; clamp anode VSSIO, cathode VDDIO"}
+  RES_SERIES:     {device: sky130_fd_pr__res_high_po, symbol: null, verified: ".subckt ... r0 r1 b w=1 l=1"}
+  PREDRIVER:      {device: null, symbol: null, note: "composite NMOS_IO/PMOS_IO inverter; PDRV_STAGES unresolved"}
+  RX_INV:         {device: null, symbol: null, note: "composite NMOS_IO/PMOS_IO inverter; Schmitt option TBD"}
 sdr: {status: IN_SCOPE, note: "section 6: DO with self-drawn pad and level shifter"}
-ddr1: {status: TBD, reason: "2.5 V operating point not a characterized IO library", vref_receiver: "topology only"}
+ddr1: {status: TBD, reason: "2.5 V operating point is not a characterized IO library; VREF receiver is topology only", vref_receiver: "topology only"}

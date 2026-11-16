@@ -3,6 +3,8 @@
 * topology: @@TOPOLOGY@@ -- ONE shared schematic, only device names change
 * STATUS: @@STATUS@@
 * license: @@LICENSE@@
+* SIZE UNITS: @@SIZE_NOTE@@
+* ESD NOTE: @@ESD_NOTE@@
 *
 * NOT SIMULATABLE. This is a TOPOLOGY TEMPLATE:
 *   - every W / L / NF / R / area is an unresolved parameter
@@ -12,6 +14,14 @@
 *     and PDRV_STAGES are bound.
 *   - diode orientation, bulk ties and the series-R third terminal must
 *     be confirmed at schematic review; they are NOT signed off here.
+*   - L_R_SERIES is the on-chip resistor LENGTH. The target
+*     resistance in ohm is a board-level SI input, not a pad param;
+*     converting target R to L needs a per-PDK sheet resistance.
+*
+* Device-instantiation syntax is per backend (nf vs ng, m vs mr,
+* r_length/r_width vs w/l, 2-terminal diode model vs 3-terminal ESD
+* subckt). It lives in specs/pads/devices/<backend>.yaml; the block
+* topology below stays shared.
 *
 * Expected includes (NOT bundled; integrator supplies models.spice):
 *   @@MODEL_INCLUDE@@
@@ -27,10 +37,10 @@
 
 @if LEVEL_SHIFTER@
 * --- core -> IO level shifter (VDD != VDDIO): 4 devices, sizes TBD ---
-X_LS_N  n_lsn OUT   VSS   VSS   @@DEV_NMOS_CORE@@ w=@@P_W_N_PDRV@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
-X_LS_P  n_lsp OUT   VDD   VDD   @@DEV_PMOS_CORE@@ w=@@P_W_P_PDRV@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
-X_LS_N2 n_lsn n_lsp VSSIO VSSIO @@DEV_NMOS_IO@@   w=@@P_W_N_PDRV@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
-X_LS_P2 n_lsp n_lsn VDDIO VDDIO @@DEV_PMOS_IO@@   w=@@P_W_P_PDRV@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
+@@LS_N_LINE@@
+@@LS_P_LINE@@
+@@LS_N2_LINE@@
+@@LS_P2_LINE@@
 @endif@
 @if NO_LEVEL_SHIFTER@
 * --- core_v == vddio_v: NO level shifter (@@LEVEL_NOTE@@) ---
@@ -40,26 +50,42 @@ X_LS_P2 n_lsp n_lsn VDDIO VDDIO @@DEV_PMOS_IO@@   w=@@P_W_P_PDRV@@ l=@@P_L_PDRV@
 * --- OE / power-up gating: named placeholder, NOT supplied ---
 X_OE_CTRL n_gp n_gn OUT OE_N PU_OK VDDIO VSSIO PAD_OE_CTRL
 
+@if PREDRIVER@
 * --- pre-driver: ONE representative stage; repeat PDRV_STAGES times ---
-X_PDRV_N n_pdrv n_gp VSSIO VSSIO @@DEV_NMOS_IO@@ w=@@P_W_N_PDRV@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
-X_PDRV_P n_pdrv n_gp VDDIO VDDIO @@DEV_PMOS_IO@@ w=@@P_W_P_PDRV@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
+@@PDRV_N_LINE@@
+@@PDRV_P_LINE@@
+@endif@
 
 * --- tri-state output (PMOS to VDDIO, NMOS to VSSIO) ---
-X_OUT_P n_pre n_gp VDDIO VDDIO @@DEV_PMOS_IO@@ w=@@P_W_P_OUT@@ l=@@P_L_P_OUT@@ nf=@@P_NF_P_OUT@@ m=@@P_M_DEVICE@@
-X_OUT_N n_pre n_gn VSSIO VSSIO @@DEV_NMOS_IO@@ w=@@P_W_N_OUT@@ l=@@P_L_N_OUT@@ nf=@@P_NF_N_OUT@@ m=@@P_M_DEVICE@@
+@@OUT_P_LINE@@
+@@OUT_N_LINE@@
 
 * --- on-chip series damping resistor (may instead live on the board) ---
-X_RSER n_pre PAD VSSIO @@DEV_RES_SERIES@@ r_length=@@P_R_SERIES@@ r_width=@@P_W_R_SERIES@@
+@if REAL_RSER@
+@@RES_LINE@@
+@endif@
+@if IDEAL_RSER@
+* Characterization slice uses an ideal resistor: the poly model is not
+* usable stand-alone in this PDK (missing global res params).
+R_RSER n_pre PAD @@R_SERIES_IDEAL@@
+@endif@
 
+@if ESD@
 * --- ESD: primary diodes + VDDIO-to-VSSIO clamp ---
-D_ESD_UP PAD   VDDIO @@DEV_DIODE_TO_VDDIO@@ area=@@P_ESD_AREA_UP@@
-D_ESD_DN VSSIO PAD   @@DEV_DIODE_TO_VSSIO@@ area=@@P_ESD_AREA_DN@@
-D_CLAMP  VDDIO VSSIO @@DEV_DIODE_CLAMP@@   area=@@P_ESD_CLAMP_W@@
+@@DIODE_UP_LINE@@
+@@DIODE_DN_LINE@@
+@@DIODE_CLAMP_LINE@@
+@endif@
+@if NO_ESD@
+* --- ESD omitted from this characterization slice ---
+@endif@
 
+@if RX@
 * --- SDR receiver: thick-oxide CMOS inverter (Schmitt optional) ---
-X_RX_N IN PAD VSSIO VSSIO @@DEV_NMOS_IO@@ w=@@P_W_RX_N@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
-X_RX_P IN PAD VDDIO VDDIO @@DEV_PMOS_IO@@ w=@@P_W_RX_P@@ l=@@P_L_PDRV@@ nf=@@P_NF_DEVICE@@ m=@@P_M_DEVICE@@
+@@RX_N_LINE@@
+@@RX_P_LINE@@
 * RX_HYST unresolved; do NOT assume the input threshold equals VDDIO/2.
+@endif@
 
 @if LEVEL_SHIFTER@
 * --- IO -> core level shifter for IN: topology TBD (not a drawn netlist) ---

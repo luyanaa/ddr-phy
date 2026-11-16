@@ -14,7 +14,7 @@
     "W_N_PDRV",
     "W_P_PDRV",
     "L_PDRV",
-    "R_SERIES",
+    "L_R_SERIES",
     "W_R_SERIES",
     "ESD_AREA_UP",
     "ESD_AREA_DN",
@@ -108,11 +108,11 @@
       "reason": "PDK device limits"
     },
     {
-      "id": "R_SERIES",
-      "unit": "ohm",
+      "id": "L_R_SERIES",
+      "unit": "m",
       "value": null,
       "status": "TBD",
-      "reason": "board-level SI"
+      "reason": "resistor geometry; target resistance is board-level SI"
     },
     {
       "id": "W_R_SERIES",

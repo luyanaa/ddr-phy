@@ -18,12 +18,13 @@ and specs/pads/devices/ics55.yaml. Regenerate, do not hand-edit.
 ## DDR1 / VREF
 
 - decision: **IN_SCOPE**
-- only PDK with devices named 2.5 V (nm2p5_lp/pm2p5_lp + dio_2p5_*)
+- only PDK with devices named 2.5 V (nm2p5_lp/pm2p5_lp + dio_2p5_*); VREF receiver topology only
 
 ## Forbidden
 
 - core standard cell as pad driver
 - dio_2p5_* used as a 3.3 V ESD diode
+- claiming the 3.3 V overdrive MOS is characterized at 3.3 V
 
 ## Files
 

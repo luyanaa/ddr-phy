@@ -47,6 +47,38 @@ def render(text, tokens, conditions):
     return text
 
 
+DEFAULT_MOS = "X_{name} {d} {g} {s} {b} {device} w={w} l={l} {fp}={nf} {mp}={m}"
+DEFAULT_RES = "X_{name} {p} {q} {b} {device} r_length={l} r_width={w}"
+DEFAULT_DIODE = "D_{name} {a} {c} {device} area={area}"
+
+
+def mos_line(dev, name, slot, d, g, s, b, w, l, nf):
+    sp = dev.get("spice", {})
+    return sp.get("mos_format", DEFAULT_MOS).format(
+        name=name, d=d, g=g, s=s, b=b,
+        device="@@DEV_%s@@" % slot,
+        w="@@P_%s@@" % w, l="@@P_%s@@" % l, nf="@@P_%s@@" % nf,
+        m="@@P_M_DEVICE@@",
+        fp=sp.get("finger_param", "nf"), mp=sp.get("mult_param", "m"))
+
+
+def res_line(dev):
+    sp = dev.get("spice", {})
+    return sp.get("res_format", DEFAULT_RES).format(
+        name="RSER", p="n_pre", q="PAD", b="VSSIO",
+        device="@@DEV_RES_SERIES@@",
+        w="@@P_W_R_SERIES@@", l="@@P_L_R_SERIES@@",
+        m="@@P_M_DEVICE@@")
+
+
+def diode_line(dev, name, slot, *, a=None, c=None, area, pad=None,
+               vdd=None, vss=None):
+    sp = dev.get("spice", {})
+    return sp.get("diode_format", DEFAULT_DIODE).format(
+        name=name, a=a, c=c, device="@@DEV_%s@@" % slot,
+        area="@@P_%s@@" % area, pad=pad, vdd=vdd, vss=vss)
+
+
 def tokens_for(topo, dev):
     t = {}
     t["BACKEND"] = dev["backend"]
@@ -59,18 +91,94 @@ def tokens_for(topo, dev):
     t["DDR1_STATUS"] = dev["ddr1"]["status"]
     t["DDR1_REASON"] = dev["ddr1"].get("reason", dev["ddr1"].get("note", ""))
     t["LEVEL_NOTE"] = dev.get("level_shifter_note", "core and IO rails differ")
+    t["SIZE_NOTE"] = dev.get("size_note", "topology params are metres; check the PDK subckt unit convention")
+    t["ESD_NOTE"] = dev.get("esd_note", "ESD device area/orientation still needs schematic review")
     t["CHAR_LIST"] = "\n".join("*   - " + c for c in topo["characterization"])
     for p in topo["params"]:
         t["P_" + p["id"]] = p["id"]
     for s in dev["slots"]:
         t["DEV_" + s] = dev["slots"][s].get("device") or "UNBOUND_" + s
+
+    # Per-backend device-instantiation syntax. The shared topology is
+    # expressed as line tokens so a PDK can use nf/ng, m/mr, w/l vs
+    # r_length/r_width, and a 2-terminal diode model vs a 3-terminal
+    # ESD subckt without forking the schematic.
+    cond = conditions_for(dev)
+    lines = {
+        "LS_N_LINE": mos_line(dev, "LS_N", "NMOS_CORE",
+                              "n_lsn", "OUT", "VSS", "VSS",
+                              "W_N_PDRV", "L_PDRV", "NF_DEVICE"),
+        "LS_P_LINE": mos_line(dev, "LS_P", "PMOS_CORE",
+                              "n_lsp", "OUT", "VDD", "VDD",
+                              "W_P_PDRV", "L_PDRV", "NF_DEVICE"),
+        "LS_N2_LINE": mos_line(dev, "LS_N2", "NMOS_IO",
+                               "n_lsn", "n_lsp", "VSSIO", "VSSIO",
+                               "W_N_PDRV", "L_PDRV", "NF_DEVICE"),
+        "LS_P2_LINE": mos_line(dev, "LS_P2", "PMOS_IO",
+                               "n_lsp", "n_lsn", "VDDIO", "VDDIO",
+                               "W_P_PDRV", "L_PDRV", "NF_DEVICE"),
+        "PDRV_N_LINE": mos_line(dev, "PDRV_N", "NMOS_IO",
+                                "n_pdrv", "n_gp", "VSSIO", "VSSIO",
+                                "W_N_PDRV", "L_PDRV", "NF_DEVICE"),
+        "PDRV_P_LINE": mos_line(dev, "PDRV_P", "PMOS_IO",
+                                "n_pdrv", "n_gp", "VDDIO", "VDDIO",
+                                "W_P_PDRV", "L_PDRV", "NF_DEVICE"),
+        "OUT_P_LINE": mos_line(dev, "OUT_P", "PMOS_IO",
+                               "n_pre", "n_gp", "VDDIO", "VDDIO",
+                               "W_P_OUT", "L_P_OUT", "NF_P_OUT"),
+        "OUT_N_LINE": mos_line(dev, "OUT_N", "NMOS_IO",
+                               "n_pre", "n_gn", "VSSIO", "VSSIO",
+                               "W_N_OUT", "L_N_OUT", "NF_N_OUT"),
+        "RX_N_LINE": mos_line(dev, "RX_N", "NMOS_IO",
+                              "IN", "PAD", "VSSIO", "VSSIO",
+                              "W_RX_N", "L_PDRV", "NF_DEVICE"),
+        "RX_P_LINE": mos_line(dev, "RX_P", "PMOS_IO",
+                              "IN", "PAD", "VDDIO", "VDDIO",
+                              "W_RX_P", "L_PDRV", "NF_DEVICE"),
+        "VP_LINE": mos_line(dev, "VP", "NMOS_IO",
+                            "n_outp", "PAD", "n_tail", "VSSIO",
+                            "W_VREF_N", "L_PDRV", "NF_DEVICE"),
+        "VN_LINE": mos_line(dev, "VN", "NMOS_IO",
+                            "n_outn", "VREF", "n_tail", "VSSIO",
+                            "W_VREF_N", "L_PDRV", "NF_DEVICE"),
+        "LP_LINE": mos_line(dev, "LP", "PMOS_IO",
+                            "n_outp", "n_outp", "VDDIO", "VDDIO",
+                            "W_LOAD", "L_PDRV", "NF_DEVICE"),
+        "LN_LINE": mos_line(dev, "LN", "PMOS_IO",
+                            "n_outn", "n_outp", "VDDIO", "VDDIO",
+                            "W_LOAD", "L_PDRV", "NF_DEVICE"),
+        "VRX_N_LINE": mos_line(dev, "RX_N", "NMOS_IO",
+                               "IN", "n_outn", "VSSIO", "VSSIO",
+                               "W_RX_N", "L_PDRV", "NF_DEVICE"),
+        "VRX_P_LINE": mos_line(dev, "RX_P", "PMOS_IO",
+                               "IN", "n_outn", "VDDIO", "VDDIO",
+                               "W_RX_P", "L_PDRV", "NF_DEVICE"),
+        "RES_LINE": res_line(dev),
+        "DIODE_UP_LINE": diode_line(dev, "ESD_UP", "DIODE_TO_VDDIO",
+                                    a="PAD", c="VDDIO", area="ESD_AREA_UP",
+                                    pad="PAD", vdd="VDDIO", vss="VSSIO"),
+        "DIODE_DN_LINE": diode_line(dev, "ESD_DN", "DIODE_TO_VSSIO",
+                                    a="VSSIO", c="PAD", area="ESD_AREA_DN",
+                                    pad="PAD", vdd="VDDIO", vss="VSSIO"),
+        "DIODE_CLAMP_LINE": diode_line(dev, "CLAMP", "DIODE_CLAMP",
+                                       a="VSSIO", c="VDDIO", area="ESD_CLAMP_W",
+                                       pad="VSSIO", vdd="VDDIO", vss="VSSIO"),
+        "VREF_UP_LINE": diode_line(dev, "VREF_UP", "DIODE_TO_VDDIO",
+                                   a="VREF", c="VDDIO", area="ESD_AREA_UP",
+                                   pad="VREF", vdd="VDDIO", vss="VSSIO"),
+        "VREF_DN_LINE": diode_line(dev, "VREF_DN", "DIODE_TO_VSSIO",
+                                   a="VSSIO", c="VREF", area="ESD_AREA_DN",
+                                   pad="VREF", vdd="VDDIO", vss="VSSIO"),
+    }
+    for k, v in lines.items():
+        t[k] = render(v, t, cond)
     return t
 
 
 def conditions_for(dev):
     ls = bool(dev.get("level_shifter_required", False)) or \
          (dev.get("core_v") != dev.get("vddio_v"))
-    return {"LEVEL_SHIFTER": ls, "NO_LEVEL_SHIFTER": not ls}
+    return {"LEVEL_SHIFTER": ls, "NO_LEVEL_SHIFTER": not ls, "PREDRIVER": True, "REAL_RSER": True, "IDEAL_RSER": False, "ESD": True, "NO_ESD": False, "RX": True}
 
 
 def bound(dev, topo):
@@ -133,6 +241,7 @@ def main():
     REPORTS.mkdir(exist_ok=True)
 
     rows = []
+    blockers = []
     for name, dev in sorted(maps.items()):
         outdir = OUT / name
         outdir.mkdir(exist_ok=True)
@@ -182,14 +291,16 @@ def main():
             (outdir / "DEVICE_MAP_TBD.md").write_text(
                 "# %s\n\nDevice map is not yet bound (status: %s). No SPICE or xschem\n"
                 "schematic is emitted for this backend, because that would require\n"
-                "inventing device names. Verify the PDK device cards first.\n"
-                % (name, dev["status"]))
+                "inventing device names. Verify the PDK device cards first.\n\n"
+                "**Blocker:** %s\n"
+                % (name, dev["status"], dev.get("blocker", "not recorded")))
             files.append("DEVICE_MAP_TBD.md")
 
         manifest = {
             "generated_by": "generator/emit_pads.py", "backend": name,
             "pdk": dev["pdk"], "status": dev["status"], "decision": dev["decision"],
             "simulatable": False, "signoff": False, "device_map_bound": is_bound,
+            "blocker": dev.get("blocker"),
             "level_shifter": conds["LEVEL_SHIFTER"],
             "core_v": dev.get("core_v"), "vddio_v": dev.get("vddio_v"),
             "sdr": dev.get("sdr", {}), "ddr1": dev.get("ddr1", {}),
@@ -239,6 +350,8 @@ def main():
             ]
         (outdir / "README.md").write_text("\n".join(readme) + "\n")
         rows.append((name, dev["decision"], is_bound, len(files)))
+        if not is_bound:
+            blockers.append((name, dev.get("blocker", "not recorded")))
 
     rep = ["# Pad generator report", "",
            "Generated by generator/emit_pads.py. One shared topology + per-PDK device maps.",
@@ -246,11 +359,14 @@ def main():
            "| backend | decision | device map bound | files |", "|---|---|---|---|"]
     for n, d, b, nf in rows:
         rep.append("| %s | %s | %s | %d |" % (n, d, "yes" if b else "no (TBD)", nf))
+    if blockers:
+        rep += ["", "## Unbound maps", ""]
+        rep += ["- **%s**: %s" % (n, why) for n, why in blockers]
     rep += ["", "Unresolved sizing parameters: %d (all null)." % len(topo["params"]), "",
             "Not performed: load simulation, width/finger selection, PVT corners,",
             "PEX/SPICE/IBIS/SI-PI, DRC/LVS, guard-ring rules, ESD qualification.", "",
-            "The gf180mcuD VREF receiver is a topology study only: gf180mcu DDR1 is",
-            "DEFERRED_LONG_TERM by docs/ARCHITECTURE.md section 6.", ""]
+            "All VREF receivers are topology studies: sky130/IHP DDR1 is TBD (no",
+            "characterized 2.5 V IO); gf180mcu DDR1 is DEFERRED_LONG_TERM.", ""]
     (REPORTS / "pad_generator_report.md").write_text("\n".join(rep) + "\n")
     for n, d, b, nf in rows:
         print("%-12s %s  bound=%s  files=%d" % (n, d, b, nf))

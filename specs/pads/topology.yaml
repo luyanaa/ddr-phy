@@ -58,7 +58,7 @@ params:
   - {id: W_N_PDRV,         unit: m,    value: null, status: TBD, reason: "progressive widening"}
   - {id: W_P_PDRV,         unit: m,    value: null, status: TBD, reason: "progressive widening"}
   - {id: L_PDRV,           unit: m,    value: null, status: TBD, reason: "PDK device limits"}
-  - {id: R_SERIES,         unit: ohm,  value: null, status: TBD, reason: "board-level SI"}
+  - {id: L_R_SERIES,       unit: m,    value: null, status: TBD, reason: "resistor geometry; target resistance is board-level SI"}
   - {id: W_R_SERIES,       unit: m,    value: null, status: TBD, reason: "resistor geometry"}
   - {id: ESD_AREA_UP,      unit: m2,   value: null, status: TBD, reason: "ESD target"}
   - {id: ESD_AREA_DN,      unit: m2,   value: null, status: TBD, reason: "ESD target"}

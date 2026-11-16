@@ -7,49 +7,51 @@
   "simulatable": false,
   "signoff": false,
   "device_map_bound": false,
+  "blocker": "3.3 V ESD diode SPICE card missing: LVS has dio_3p3_pp_nw_lp, foundry SPICE has only 1.2 V/2.5 V diodes. The SDR pad cannot be bound without inventing a model; dio_2p5_* must not be relabelled as 3.3 V. A custom GGNMOS/GGPMOS clamp using nmod3p3_lp/pmod3p3_lp is a STUDY_ONLY option (docs/ICS55_ESD_3V3.md), not a characterized ESD cell.",
   "level_shifter": true,
   "core_v": 1.2,
   "vddio_v": 3.3,
   "sdr": {
     "status": "IN_SCOPE",
-    "note": "section 6: DO but 3.3 V rating needs simulation first"
+    "note": "section 6: DO but 3.3 V rating needs simulation first; ESD diode card is the current blocker"
   },
   "ddr1": {
     "status": "IN_SCOPE",
-    "note": "only PDK with devices named 2.5 V (nm2p5_lp/pm2p5_lp + dio_2p5_*)",
+    "note": "only PDK with devices named 2.5 V (nm2p5_lp/pm2p5_lp + dio_2p5_*); VREF receiver topology only",
     "vref_receiver": "topology only"
   },
   "license": "foundry SPICE evaluation-only; 3.3 V ESD diode card missing from foundry list",
   "forbidden": [
     "core standard cell as pad driver",
-    "dio_2p5_* used as a 3.3 V ESD diode"
+    "dio_2p5_* used as a 3.3 V ESD diode",
+    "claiming the 3.3 V overdrive MOS is characterized at 3.3 V"
   ],
   "slots": {
     "NMOS_IO": {
       "device": "nmod3p3_lp",
       "symbol": null,
-      "verified": false
+      "verified": ".subckt nmod3p3_lp d g s b; 2.5 V overdrive to 3.3 V, rating uncharacterized"
     },
     "PMOS_IO": {
       "device": "pmod3p3_lp",
       "symbol": null,
-      "verified": false
+      "verified": ".subckt pmod3p3_lp d g s b; 2.5 V overdrive to 3.3 V, rating uncharacterized"
     },
     "NMOS_CORE": {
-      "device": null,
+      "device": "nm1p2_svt_lp",
       "symbol": null,
-      "verified": false
+      "verified": ".subckt nm1p2_svt_lp d g s b; 1.2 V core device"
     },
     "PMOS_CORE": {
-      "device": null,
+      "device": "pm1p2_svt_lp",
       "symbol": null,
-      "verified": false
+      "verified": ".subckt pm1p2_svt_lp d g s b; 1.2 V core device"
     },
     "DIODE_TO_VSSIO": {
       "device": null,
       "symbol": null,
       "verified": false,
-      "note": "3.3 V SPICE card missing"
+      "note": "3.3 V SPICE card missing; only dio_2p5_* exists"
     },
     "DIODE_TO_VDDIO": {
       "device": null,
@@ -60,22 +62,23 @@
     "DIODE_CLAMP": {
       "device": null,
       "symbol": null,
-      "verified": false
+      "verified": false,
+      "note": "3.3 V SPICE card missing"
     },
     "RES_SERIES": {
-      "device": null,
+      "device": "re_ppo_sab_3t",
       "symbol": null,
-      "verified": false
+      "verified": ".subckt re_ppo_sab_3t n2 n1 sub l=lr w=wr mr=1"
     },
     "PREDRIVER": {
       "device": null,
       "symbol": null,
-      "verified": false
+      "note": "composite overdrive inverter; PDRV_STAGES unresolved"
     },
     "RX_INV": {
       "device": null,
       "symbol": null,
-      "verified": false
+      "note": "composite overdrive inverter; Schmitt option TBD"
     }
   },
   "unresolved_param_count": 31,

@@ -2,11 +2,12 @@
   "generated_by": "generator/emit_pads.py",
   "backend": "sky130",
   "pdk": "sky130A",
-  "status": "TBD",
+  "status": "topology_template_only",
   "decision": "NO_GO",
   "simulatable": false,
   "signoff": false,
-  "device_map_bound": false,
+  "device_map_bound": true,
+  "blocker": null,
   "level_shifter": true,
   "core_v": 1.8,
   "vddio_v": 3.3,
@@ -16,64 +17,65 @@
   },
   "ddr1": {
     "status": "TBD",
-    "reason": "2.5 V operating point not a characterized IO library",
+    "reason": "2.5 V operating point is not a characterized IO library; VREF receiver is topology only",
     "vref_receiver": "topology only"
   },
-  "license": "TBD - sky130_fd_io / sky130_ef_io views; not checked",
+  "license": "Apache-2.0 (SkyWater PDK Authors)",
   "forbidden": [
     "core standard cell as pad driver",
-    "treating 5 V/11 V device class names as operating voltages"
+    "treating 5 V/11 V device class names as operating voltages",
+    "assuming the input threshold equals VDDIO/2"
   ],
   "slots": {
     "NMOS_IO": {
       "device": "sky130_fd_pr__nfet_g5v0d10v5",
       "symbol": null,
-      "verified": false
+      "verified": ".subckt ... d g s b; W total, nf splits, m multiplies; measured"
     },
     "PMOS_IO": {
       "device": "sky130_fd_pr__pfet_g5v0d10v5",
       "symbol": null,
-      "verified": false
+      "verified": ".subckt ... d g s b; measured"
     },
     "NMOS_CORE": {
-      "device": null,
+      "device": "sky130_fd_pr__nfet_01v8",
       "symbol": null,
-      "verified": false
+      "verified": ".subckt ... d g s b; 1.8 V core device"
     },
     "PMOS_CORE": {
-      "device": null,
+      "device": "sky130_fd_pr__pfet_01v8",
       "symbol": null,
-      "verified": false
+      "verified": ".subckt ... d g s b; 1.8 V core device"
     },
     "DIODE_TO_VSSIO": {
-      "device": "diode_pw2nd_11v0",
+      "device": "sky130_fd_pr__diode_pw2nd_11v0",
       "symbol": null,
-      "verified": false
+      "verified": ".model ... d; N+/Pwell, anode VSSIO"
     },
     "DIODE_TO_VDDIO": {
-      "device": "diode_pd2nw_11v0",
+      "device": "sky130_fd_pr__diode_pd2nw_11v0",
       "symbol": null,
-      "verified": false
+      "verified": ".model ... d; P+/Nwell, cathode VDDIO"
     },
     "DIODE_CLAMP": {
-      "device": null,
+      "device": "sky130_fd_pr__diode_pd2nw_11v0",
       "symbol": null,
-      "verified": false
+      "verified": ".model ... d; clamp anode VSSIO, cathode VDDIO"
     },
     "RES_SERIES": {
-      "device": null,
+      "device": "sky130_fd_pr__res_high_po",
       "symbol": null,
-      "verified": false
+      "verified": ".subckt ... r0 r1 b w=1 l=1"
     },
     "PREDRIVER": {
       "device": null,
       "symbol": null,
-      "verified": false
+      "note": "composite NMOS_IO/PMOS_IO inverter; PDRV_STAGES unresolved"
     },
     "RX_INV": {
       "device": null,
       "symbol": null,
-      "verified": false
+      "note": "composite NMOS_IO/PMOS_IO inverter; Schmitt option TBD"
     }
   },
   "unresolved_param_count": 31,
@@ -81,6 +83,9 @@
     "required_params.json",
     "pad_topology.dot",
     "char_tb.spice",
-    "DEVICE_MAP_TBD.md"
+    "sdr_bidir_pad.spice",
+    "sdr_bidir_pad.sch",
+    "vref_receiver.spice",
+    "vref_receiver.sch"
   ]
 }
