@@ -1,6 +1,6 @@
 # 外部 DRAM 模型参考资料目录
 
-状态：**本地 import 一个 Micron SDR 模型（仅供评估，不入库）；其余全部只作参考索引。**
+状态：**本地 import 一个 Micron SDR 模型（仅供评估，不入库），并增加可选的差分运行；其余全部只作参考索引。**
 本仓库的 `sim/sdram_model.sv` 仍是自己写的 Apache-2.0 行为模型，没有被任何外部模型替换。与 `docs/ARCHITECTURE.md` §7 / §11 的许可纪律一致：源码不抄、许可未核对的不写"已核实"。
 
 ## 1. 本次 import 的模型
@@ -142,6 +142,13 @@ Micron TN 的一句话值得记住：数据手册本身不足以完成设计，�
 
 - DDR1 `JESD79F`、DDR2 `JESD79-2F` + `JESD208`（1066 扩展）、DFI `6.0.1`。
 - 本项目 P0 是 SDR，ARCHITECTURE.md §2 写明"JEDEC 正文不在本仓库，不抄"；这些 PDF 只在需要核对 DDR1/DDR2 具体电气定义时查阅。
+
+### 3.4 可选差分运行
+
+- `tb/tb_micron_diff.sv` 把同一套 DFI 流量同时送进两个 PHY：一个接自研 `sim/sdram_model.sv`，一个接 Micron `mt48lc16m16a2`（x16，使用低字节，`Dqm[0]`）。逐拍比较 `dfi_rddata_valid` 和 `dfi_rddata`。
+- `sim/micron_diff.sh` 在模型存在时编译/运行；模型不存在时打印 `SKIP` 并以 0 退出。模型仍在 `.gitignore`，不提交。
+- 测试把 `T_RFC` 设为 7 拍（10 ns 下 70 ns），以满足 Micron -7E 模型的 tRFC；这**不是**把模型的 -7E 参数写进本项目 -75 contract。
+- 通过只证明这条命令/数据 trace 在两个模型上一致；不证明 tAC/tOH/tDS/tDH、PVT、pad 或板级时序。模型报 `ERROR:` 时脚本失败。
 
 ## 4. 决策与不做的事
 

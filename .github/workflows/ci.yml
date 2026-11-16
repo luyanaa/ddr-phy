@@ -43,3 +43,6 @@ jobs:
 
       - name: Exit-code mutation test
         run: sh sim/mutation.sh
+
+      - name: Optional Micron differential (skips if model absent)
+        run: sh sim/micron_diff.sh
