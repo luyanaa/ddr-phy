@@ -1,0 +1,50 @@
+{
+  "generated_by": "generator/gf180_pad_layout.py (KLayout pya + GF180 API PCells)",
+  "status": "layout_slice_pad_core",
+  "signoff": false,
+  "drc_clean": true,
+  "lvs": "pass",
+  "pex": "magic_first_pass",
+  "cell": "gf180_pad_core",
+  "bbox_um": [
+    -62.0,
+    -65.0,
+    45.0,
+    51.63
+  ],
+  "devices": {
+    "output_pmos": {
+      "w_um": 200.0,
+      "l_um": 0.28,
+      "nf": 40
+    },
+    "output_nmos": {
+      "w_um": 80.0,
+      "l_um": 0.28,
+      "nf": 40
+    },
+    "series_r": {
+      "l_um": 1.4,
+      "w_um": 22.0,
+      "target_ohm": 22
+    },
+    "esd_up": {
+      "area_um2": 20.0,
+      "type": "diode_pd2nw_03v3"
+    },
+    "esd_dn": {
+      "area_um2": 20.0,
+      "type": "diode_nd2ps_03v3"
+    },
+    "esd_clamp": {
+      "area_um2": 100.0,
+      "type": "diode_pd2nw_03v3"
+    }
+  },
+  "not_included": [
+    "OE logic",
+    "pre-driver",
+    "guard ring",
+    "pad ring"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "generated_by": "generator/gf180_pad_pcell.py (KLayout pya)",
+  "status": "pad_only_test_structure",
+  "signoff": false,
+  "drc_clean": false,
+  "lvs": "not_run",
+  "pex": "not_run",
+  "parameters": {
+    "pad_um": 60.0,
+    "metal_um": 64.0,
+    "guard_ring_marker_um": 80.0,
+    "via_um": 0.26,
+    "via_pitch_um": 2.0
+  },
+  "layers": {
+    "Comp": "22/0",
+    "Nwell": "21/0",
+    "Pplus": "31/0",
+    "Nplus": "32/0",
+    "Poly2": "30/0",
+    "Contact": "33/0",
+    "Metal1": "34/0",
+    "Metal2": "36/0",
+    "Metal3": "42/0",
+    "Metal4": "46/0",
+    "Metal5": "81/0",
+    "MetalTop": "53/0",
+    "Via1": "35/0",
+    "Via2": "38/0",
+    "Via3": "40/0",
+    "Via4": "41/0",
+    "Via5": "82/0",
+    "Pad": "37/0",
+    "GUARD_RING_MK": "167/5",
+    "PR_bndry": "0/0"
+  },
+  "not_included": [
+    "ESD diodes",
+    "driver/receiver devices",
+    "schematic/netlist",
+    "full guard ring",
+    "pad ring"
+  ],
+  "drc_subset": {
+    "metal": "PASS",
+    "via": "PASS",
+    "geom": "PASS"
+  },
+  "full_drc": "not_obtained_pad_only_no_connectivity",
+  "note": "pad-only test structure; no ESD/driver devices; not signoff"
+}

@@ -1,0 +1,58 @@
+Use openwrapper to create a new GUI-based layout window
+Use closewrapper to remove a new GUI-based layout window
+
+Magic 8.3 revision 685 - Compiled on Tuesday, October 20, 2026 PM09:45:53 HKT.
+Starting magic under Tcl interpreter
+Using the terminal as the console.
+WARNING: RLIMIT_NOFILE is above 1024 and Tcl_Version<9 this may cause runtime issues [rlim_cur=524288]
+Using TrueColor, VisualID 0x21 depth 24
+Processing system .magicrc file
+Switching to WIRING tool.
+Switching to NETLIST tool.
+Switching to PICK tool.
+Switching to BOX tool.
+Sourcing design .magicrc for technology gf180mcuD ...
+10 Magic internal units = 1 Lambda
+Input style import: scaleFactor=10, multiplier=2
+The following types are not handled by extraction and will be treated as non-electrical types:
+    obsactive mvobsactive filldiff fillpoly m1hole obsm1 fillm1 obsv1 m2hole obsm2 fillm2 obsv2 m3hole obsm3 fillm3 m4hole obsm4 fillm4 m5hole obsm5 fillm5 glass fillblock lvstext obscomment 
+Scaled tech values by 10 / 1 to match internal grid scaling
+Loading gf180mcuD Device Generator Menu ...
+New windows will not have a title caption.
+New windows will not have scroll bars.
+New windows will not have a border.
+Using technology "gf180mcuD", version 1.0.588-105-g792ef67
+Root cell box:
+           width x height  (   llx,  lly  ), (   urx,  ury  )  area (units^2)
+
+microns:   0.050 x 0.050   ( 0.000,  0.000), ( 0.050,  0.050)  0.002     
+lambda:     1.00 x 1.00    (  0.00,  0.00 ), (  1.00,  1.00 )  1.00      
+internal:     10 x 10      (     0,  0    ), (    10,  10   )  100       
+Warning: Calma reading is not undoable!  I hope that's OK.
+Library written using GDS-II Release 6.0
+Library name: LIB
+Reading "pmos$1".
+Reading "nfet$1".
+Reading "diode_pn$1".
+Reading "diode_np".
+Reading "diode_pn".
+Reading "ppolyf_u_resistor".
+Reading "nfet".
+Reading "pmos".
+Reading "gf180_pad_core".
+Extracting gf180_pad_core_flat into gf180_pad_core_flat.ext:
+Processing gf180_pad_core_flat
+Device pdiodec does not have a compatible substrate node!
+Device pdiodec does not have a compatible substrate node!
+Processing cell gf180_pad_core_flat for resistance extraction.
+Extracting a_n7856_9000#
+Extracting VSSIO
+Extracting VDDIO
+Extracting GP
+Extracting GN
+Extracting PAD
+Extracting IN
+Total Nets: 8
+Nets extracted: 7 (0.875000)
+Nets output: 7 (0.875000)
+exttospice finished.

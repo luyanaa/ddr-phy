@@ -1,0 +1,200 @@
+2026-11-16 22:55:26 +0800: Memory Usage (417476K) : Starting running GF180MCU Klayout DRC runset on /grid/ddr-phy/sch/pads/gf180mcuD/pcell/gf180_pad_pcell.gds
+2026-11-16 22:55:26 +0800: Memory Usage (417476K) : Ruby Version for klayout: 3.3.8
+2026-11-16 22:55:26 +0800: Memory Usage (417860K) : Input file: /grid/ddr-phy/sch/pads/gf180mcuD/pcell/gf180_pad_pcell.gds
+2026-11-16 22:55:26 +0800: Memory Usage (417860K) : DRC Run Report: /grid/ddr-phy/reports/gf180_pad_pcell_drc_via.lyrdb
+2026-11-16 22:55:26 +0800: Memory Usage (417860K) : MIM Option selected: B
+2026-11-16 22:55:26 +0800: Memory Usage (417860K) : Verbose enabled: false
+2026-11-16 22:55:26 +0800: Memory Usage (417860K) : Number of parallel workers: 1
+2026-11-16 22:55:26 +0800: Memory Usage (417860K) : Number of threads for DRC functions: 1
+2026-11-16 22:55:26 +0800: Memory Usage (417860K) : Run mode: flat
+2026-11-16 22:55:26 +0800: Memory Usage (417860K) : metal_top selected: 11K
+2026-11-16 22:55:26 +0800: Memory Usage (417860K) : metal_level selected: 5LM
+2026-11-16 22:55:26 +0800: Memory Usage (417860K) : Selected decks: V1.1, V1.2a, V1.2b, V1.3a, V1.3c, V1.3d, V1.4a, V1.4b, V1.4c, V2.1, V2.2a, V2.2b, V2.3b, V2.3c, V2.3d, V2.4a, V2.4b, V2.4c, V3.1, V3.2a, V3.2b, V3.3b, V3.3c, V3.3d, V3.4a, V3.4b, V3.4c, V4.1, V4.2a, V4.2b, V4.3b, V4.3c, V4.3d, V4.4a, V4.4b, V4.4c, V5.1, V5.2a, V5.2b, V5.3b, V5.3c, V5.3d, V5.4a, V5.4b, V5.4c
+2026-11-16 22:55:26 +0800: Memory Usage (418816K) : Total area of the design is 8100.0 um^2.
+2026-11-16 22:55:26 +0800: Memory Usage (418816K) : Read in polygons from layers
+2026-11-16 22:55:26 +0800: Memory Usage (418816K) : comp has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (418944K) : dnwell has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (418944K) : nwell has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (418944K) : lvpwell has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (418944K) : dualgate has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419072K) : poly2_drawn has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419072K) : nplus has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419072K) : pplus has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419200K) : sab has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419200K) : esd has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419328K) : resistor has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419328K) : fhres has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419456K) : fusetop has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419584K) : fusewindow_d has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419584K) : polyfuse has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419712K) : mvsd has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419712K) : mvpsd has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419840K) : nat has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419840K) : comp_dummy has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (419968K) : poly2_dummy has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420096K) : schottky_diode has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420096K) : zener has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420224K) : res_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420352K) : opc_drc has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420352K) : v5_xtor has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420352K) : cap_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420352K) : mos_cap_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420480K) : ind_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420736K) : diode_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420736K) : drc_bjt has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420736K) : lvs_bjt has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420736K) : mim_l_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420736K) : latchup_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420924K) : guard_ring_mk has 1 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420924K) : otp_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420924K) : mtpmark has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420924K) : neo_ee_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420924K) : sramcore has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420924K) : lvs_rf has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420924K) : lvs_drain has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (420924K) : hvpolyrs has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (421052K) : lvs_io has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (421180K) : probe_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (421180K) : esd_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (421308K) : lvs_source has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (421436K) : well_diode_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (421436K) : ldmos_xtor has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (421564K) : plfuse has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (421692K) : efuse_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (421692K) : mcell_feol_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (421820K) : ymtp_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (421948K) : dev_wf_mk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (421948K) : comp_label has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (422076K) : poly2_label has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (422204K) : mdiode has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (422204K) : ndmy has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (422332K) : pmndmy has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (422460K) : pad has 1 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (422588K) : ubmpperi has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (422588K) : ubmparray has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (422716K) : ubmeplate has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (422844K) : pr_bndry has 1 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (422844K) : border has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (422972K) : contact has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (423100K) : metal1_drawn has 1 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (423100K) : metal1_slot has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (423228K) : metal1_dummy has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (423356K) : metal1_label has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (423484K) : metal1_blk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (423484K) : metal1_res has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (423868K) : via1 has 1024 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (423996K) : metal2_drawn has 1 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (424124K) : metal2_slot has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (424124K) : metal2_dummy has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (424124K) : metal2_blk has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (424124K) : metal2_label has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (424124K) : metal2_res has 0 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (424124K) : via2 has 1024 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (424124K) : metal3_drawn has 1 polygons
+2026-11-16 22:55:26 +0800: Memory Usage (424124K) : metal3_slot has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal3_dummy has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal3_blk has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal3_label has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal3_res has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : via3 has 1024 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal4_drawn has 1 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal4_slot has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal4_dummy has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal4_blk has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal4_label has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal4_res has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : via4 has 1024 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal5_drawn has 1 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal5_slot has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal5_dummy has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal5_blk has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal5_label has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : metal5_res has 0 polygons
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : No rules requiring connectivity, skipping connectivity generation.
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : # Setup took 0.833365912 seconds
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : Starting GF180MCU DRC rules.
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : Starting DRC: executing 45 deck(s).
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : Executing deck V1.1 from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (424124K) : Executing rule V1.1
+2026-11-16 22:55:27 +0800: Memory Usage (424616K) : Executing deck V1.2a from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (424616K) : Executing rule V1.2a
+2026-11-16 22:55:27 +0800: Memory Usage (425856K) : Executing deck V1.2b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (425856K) : Executing rule V1.2b
+2026-11-16 22:55:27 +0800: Memory Usage (425856K) : Executing deck V1.3a from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (425856K) : Executing rule V1.3a
+2026-11-16 22:55:27 +0800: Memory Usage (425856K) : Executing deck V1.3c from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (425856K) : Executing rule V1.3c
+2026-11-16 22:55:27 +0800: Memory Usage (425856K) : Executing deck V1.3d from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (425856K) : Executing rule V1.3d
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing deck V1.4a from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing rule V1.4a
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing deck V1.4b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing rule V1.4b
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing deck V1.4c from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing rule V1.4c
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing deck V2.1 from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing rule V2.1
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing deck V2.2a from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing rule V2.2a
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing deck V2.2b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing rule V2.2b
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing deck V2.3b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing rule V2.3b
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing deck V2.3c from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing rule V2.3c
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing deck V2.3d from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (426040K) : Executing rule V2.3d
+2026-11-16 22:55:27 +0800: Memory Usage (426680K) : Executing deck V2.4a from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (426680K) : Executing rule V2.4a
+2026-11-16 22:55:27 +0800: Memory Usage (426936K) : Executing deck V2.4b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (426936K) : Executing rule V2.4b
+2026-11-16 22:55:27 +0800: Memory Usage (427704K) : Executing deck V2.4c from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (427704K) : Executing rule V2.4c
+2026-11-16 22:55:27 +0800: Memory Usage (427960K) : Executing deck V3.1 from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (427960K) : Executing rule V3.1
+2026-11-16 22:55:27 +0800: Memory Usage (427960K) : Executing deck V3.2a from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (427960K) : Executing rule V3.2a
+2026-11-16 22:55:27 +0800: Memory Usage (427960K) : Executing deck V3.2b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (427960K) : Executing rule V3.2b
+2026-11-16 22:55:27 +0800: Memory Usage (427960K) : Executing deck V3.3b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:27 +0800: Memory Usage (427960K) : Executing rule V3.3b
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V3.3c from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V3.3c
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V3.3d from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V3.3d
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V3.4a from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V3.4a
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V3.4b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V3.4b
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V3.4c from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V3.4c
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V4.1 from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V4.1
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V4.2a from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V4.2a
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V4.2b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V4.2b
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V4.3b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V4.3b
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V4.3c from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V4.3c
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V4.3d from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V4.3d
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V4.4a from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V4.4a
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V4.4b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V4.4b
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing deck V4.4c from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (427960K) : Executing rule V4.4c
+2026-11-16 22:55:28 +0800: Memory Usage (428088K) : Executing deck V5.1 from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (428088K) : Executing deck V5.2a from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (428088K) : Executing deck V5.2b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (428088K) : Executing deck V5.3b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (428088K) : Executing deck V5.3c from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (428088K) : Executing deck V5.3d from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (428088K) : Executing deck V5.4a from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (428088K) : Executing deck V5.4b from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (428088K) : Executing deck V5.4c from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/via.rb
+2026-11-16 22:55:28 +0800: Memory Usage (428884K) : 
+2026-11-16 22:55:28 +0800: Memory Usage (428884K) : DRC RESULT: SUCCESS (0 violations)
+2026-11-16 22:55:28 +0800: Memory Usage (428884K) : # DRC Total Run time 1.982500037 seconds

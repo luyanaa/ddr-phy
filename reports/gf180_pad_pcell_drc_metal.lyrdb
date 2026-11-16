@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<report-database>
+ <description/>
+ <original-file/>
+ <generator>drc: script='gf180mcu.drc'</generator>
+ <top-cell>gf180_pad_pcell</top-cell>
+ <tags>
+ </tags>
+ <categories>
+  <category>
+   <name>M1.1</name>
+   <description>M1.1 : min. metal1 width : 0.23µm</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M1.2a</name>
+   <description>M1.2a : min. metal1 spacing : 0.23µm</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M1.2b</name>
+   <description>M1.2b : Space to wide Metal1 (length &amp; width &gt; 10um) : 0.3µm</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M1.3</name>
+   <description>M1.3 : Minimum metal1 area : 0.1444µm²</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M2.1</name>
+   <description>M2.1 : min. metal2 width : 0.28µm</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M2.2a</name>
+   <description>M2.2a : min. metal2 spacing : 0.28µm</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M2.2b</name>
+   <description>M2.2b : Space to wide Metal2 (length &amp; width &gt; 10um) : 0.3µm</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M2.3</name>
+   <description>M2.3 : Minimum metal2 area : 0.1444µm²</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M3.1</name>
+   <description>M3.1 : min. metal3 width : 0.28µm</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M3.2a</name>
+   <description>M3.2a : min. metal3 spacing : 0.28µm</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M3.2b</name>
+   <description>M3.2b : Space to wide Metal3 (length &amp; width &gt; 10um) : 0.3µm</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M3.3</name>
+   <description>M3.3 : Minimum metal3 area : 0.1444µm²</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M4.1</name>
+   <description>M4.1 : min. metal4 width : 0.28µm</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M4.2a</name>
+   <description>M4.2a : min. metal4 spacing : 0.28µm</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M4.2b</name>
+   <description>M4.2b : Space to wide Metal4 (length &amp; width &gt; 10um) : 0.3µm</description>
+   <categories>
+   </categories>
+  </category>
+  <category>
+   <name>M4.3</name>
+   <description>M4.3 : Minimum metal4 area : 0.1444µm²</description>
+   <categories>
+   </categories>
+  </category>
+ </categories>
+ <cells>
+  <cell>
+   <name>gf180_pad_pcell</name>
+   <variant/>
+   <layout-name/>
+   <references>
+   </references>
+  </cell>
+ </cells>
+ <items>
+ </items>
+</report-database>

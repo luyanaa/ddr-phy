@@ -1,0 +1,322 @@
+2026-11-16 22:55:33 +0800: Memory Usage (417256K) : Starting running GF180MCU Klayout DRC runset on /grid/ddr-phy/sch/pads/gf180mcuD/pcell/gf180_pad_pcell.gds
+2026-11-16 22:55:33 +0800: Memory Usage (417256K) : Ruby Version for klayout: 3.3.8
+2026-11-16 22:55:34 +0800: Memory Usage (417640K) : Input file: /grid/ddr-phy/sch/pads/gf180mcuD/pcell/gf180_pad_pcell.gds
+2026-11-16 22:55:34 +0800: Memory Usage (417640K) : DRC Run Report: /grid/ddr-phy/reports/gf180_pad_pcell_drc_geom.lyrdb
+2026-11-16 22:55:34 +0800: Memory Usage (417640K) : MIM Option selected: B
+2026-11-16 22:55:34 +0800: Memory Usage (417640K) : Verbose enabled: false
+2026-11-16 22:55:34 +0800: Memory Usage (417640K) : Number of parallel workers: 1
+2026-11-16 22:55:34 +0800: Memory Usage (417640K) : Number of threads for DRC functions: 1
+2026-11-16 22:55:34 +0800: Memory Usage (417640K) : Run mode: flat
+2026-11-16 22:55:34 +0800: Memory Usage (417640K) : metal_top selected: 11K
+2026-11-16 22:55:34 +0800: Memory Usage (417640K) : metal_level selected: 5LM
+2026-11-16 22:55:34 +0800: Memory Usage (417640K) : Selected decks: geom_base_1, geom_base_2, geom_dbu, geom_m1m2, geom_m3, geom_m4, geom_m5, geom_metaltop, geom_topmarkers
+2026-11-16 22:55:34 +0800: Memory Usage (418596K) : Total area of the design is 8100.0 um^2.
+2026-11-16 22:55:34 +0800: Memory Usage (418596K) : Read in polygons from layers
+2026-11-16 22:55:34 +0800: Memory Usage (418596K) : comp has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (418596K) : dnwell has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (418724K) : nwell has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (418724K) : lvpwell has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (418724K) : dualgate has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (418724K) : poly2_drawn has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (418852K) : nplus has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (418852K) : pplus has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (418852K) : sab has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (418852K) : esd has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (418852K) : resistor has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (418980K) : fhres has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (418980K) : fusetop has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419108K) : fusewindow_d has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419236K) : polyfuse has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419236K) : mvsd has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419236K) : mvpsd has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419364K) : nat has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419492K) : comp_dummy has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419492K) : poly2_dummy has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419620K) : schottky_diode has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419620K) : zener has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419748K) : res_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419748K) : opc_drc has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419876K) : v5_xtor has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419876K) : cap_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (419876K) : mos_cap_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420004K) : ind_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420132K) : diode_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420260K) : drc_bjt has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420260K) : lvs_bjt has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420260K) : mim_l_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420260K) : latchup_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420448K) : guard_ring_mk has 1 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420448K) : otp_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420448K) : mtpmark has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420448K) : neo_ee_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420448K) : sramcore has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420448K) : lvs_rf has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420448K) : lvs_drain has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420576K) : hvpolyrs has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420576K) : lvs_io has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : probe_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : esd_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : lvs_source has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : well_diode_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : ldmos_xtor has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : plfuse has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : efuse_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : mcell_feol_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : ymtp_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : dev_wf_mk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : comp_label has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : poly2_label has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : mdiode has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : ndmy has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : pmndmy has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : pad has 1 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : ubmpperi has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : ubmparray has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : ubmeplate has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : pr_bndry has 1 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : border has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : contact has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : metal1_drawn has 1 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : metal1_slot has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : metal1_dummy has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : metal1_label has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : metal1_blk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (420704K) : metal1_res has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421020K) : via1 has 1024 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421020K) : metal2_drawn has 1 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421020K) : metal2_slot has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421020K) : metal2_dummy has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421020K) : metal2_blk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421020K) : metal2_label has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421020K) : metal2_res has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421148K) : via2 has 1024 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421276K) : metal3_drawn has 1 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421404K) : metal3_slot has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421532K) : metal3_dummy has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421532K) : metal3_blk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421660K) : metal3_label has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421788K) : metal3_res has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421916K) : via3 has 1024 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (421916K) : metal4_drawn has 1 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (422044K) : metal4_slot has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (422044K) : metal4_dummy has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (422172K) : metal4_blk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (422300K) : metal4_label has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (422300K) : metal4_res has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (422428K) : via4 has 1024 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (422556K) : metal5_drawn has 1 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (422684K) : metal5_slot has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (422684K) : metal5_dummy has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (422812K) : metal5_blk has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (422940K) : metal5_label has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (422940K) : metal5_res has 0 polygons
+2026-11-16 22:55:34 +0800: Memory Usage (425116K) : No rules requiring connectivity, skipping connectivity generation.
+2026-11-16 22:55:34 +0800: Memory Usage (425116K) : # Setup took 0.972630025 seconds
+2026-11-16 22:55:34 +0800: Memory Usage (425116K) : Starting GF180MCU DRC rules.
+2026-11-16 22:55:34 +0800: Memory Usage (425116K) : Starting DRC: executing 9 deck(s).
+2026-11-16 22:55:34 +0800: Memory Usage (425116K) : Executing deck geom_base_1 from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/geom.rb
+2026-11-16 22:55:34 +0800: Memory Usage (425116K) : OFFGRID-ANGLES section (geom_base_1)
+2026-11-16 22:55:34 +0800: Memory Usage (425116K) : Executing rule comp_OFFGRID
+2026-11-16 22:55:34 +0800: Memory Usage (425428K) : Executing rule comp_ACUTE
+2026-11-16 22:55:34 +0800: Memory Usage (425428K) : Executing rule dnwell_OFFGRID
+2026-11-16 22:55:34 +0800: Memory Usage (425428K) : Executing rule dnwell_ACUTE
+2026-11-16 22:55:34 +0800: Memory Usage (425428K) : Executing rule nwell_OFFGRID
+2026-11-16 22:55:34 +0800: Memory Usage (425428K) : Executing rule nwell_ACUTE
+2026-11-16 22:55:34 +0800: Memory Usage (425428K) : Executing rule lvpwell_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule lvpwell_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule dualgate_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule dualgate_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule poly2_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule poly2_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule nplus_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule nplus_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule pplus_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule pplus_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule sab_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule sab_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule esd_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule esd_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule resistor_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule resistor_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule fhres_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule fhres_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule fusetop_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule fusetop_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule fusewindow_d_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule fusewindow_d_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule polyfuse_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule polyfuse_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule mvsd_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule mvsd_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule mvpsd_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule mvpsd_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule nat_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule nat_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule comp_dummy_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule comp_dummy_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule poly2_dummy_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule poly2_dummy_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule schottky_diode_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule schottky_diode_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule zener_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule zener_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule res_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule res_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule opc_drc_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule opc_drc_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule ndmy_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule ndmy_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule pmndmy_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule pmndmy_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule v5_xtor_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule v5_xtor_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule cap_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule cap_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule mos_cap_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule mos_cap_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule ind_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule ind_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule diode_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule diode_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule drc_bjt_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule drc_bjt_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule lvs_bjt_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule lvs_bjt_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing deck geom_base_2 from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/geom.rb
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : OFFGRID-ANGLES section (geom_base_2)
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule mim_l_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule mim_l_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule latchup_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule latchup_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425428K) : Executing rule guard_ring_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425600K) : Executing rule guard_ring_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule otp_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule otp_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule mtpmark_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule mtpmark_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule neo_ee_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule neo_ee_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule sramcore_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule sramcore_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule lvs_rf_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule lvs_rf_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule lvs_drain_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule lvs_drain_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule hvpolyrs_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule hvpolyrs_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule lvs_io_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule lvs_io_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule probe_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule probe_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule esd_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule esd_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule lvs_source_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule lvs_source_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule well_diode_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule well_diode_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule ldmos_xtor_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule ldmos_xtor_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule plfuse_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule plfuse_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule efuse_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule efuse_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule mcell_feol_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule mcell_feol_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule ymtp_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule ymtp_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule dev_wf_mk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule dev_wf_mk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule comp_label_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule comp_label_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule poly2_label_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule poly2_label_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule mdiode_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule mdiode_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing deck geom_dbu from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/geom.rb
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule DBU
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing deck geom_m1m2 from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/geom.rb
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : OFFGRID-ANGLES section (geom_m1m2)
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule contact_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule contact_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal1_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal1_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal1_slot_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal1_slot_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal1_blk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal1_blk_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal1_label_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal1_label_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal1_res_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal1_res_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule via1_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule via1_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal2_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal2_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal2_label_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal2_label_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal2_slot_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal2_slot_ACUTE
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal2_blk_OFFGRID
+2026-11-16 22:55:35 +0800: Memory Usage (425728K) : Executing rule metal2_blk_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal2_res_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal2_res_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing deck geom_m3 from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/geom.rb
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : OFFGRID-ANGLES section (geom_m3)
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule via2_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule via2_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal3_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal3_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal3_dummy_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal3_dummy_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal3_label_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal3_label_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal3_blk_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal3_blk_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal3_res_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal3_res_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing deck geom_m4 from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/geom.rb
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : OFFGRID-ANGLES section (geom_m4)
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule via3_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule via3_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal4_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal4_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal4_dummy_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal4_dummy_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal4_label_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal4_label_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal4_blk_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal4_blk_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal4_res_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal4_res_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing deck geom_m5 from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/geom.rb
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : OFFGRID-ANGLES section (geom_m5)
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule via4_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule via4_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal5_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal5_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal5_dummy_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425728K) : Executing rule metal5_dummy_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425856K) : Executing rule metal5_label_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425856K) : Executing rule metal5_label_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (425856K) : Executing rule metal5_blk_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (425984K) : Executing rule metal5_blk_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (426240K) : Executing rule metal5_res_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (426368K) : Executing rule metal5_res_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (426624K) : Executing deck geom_metaltop from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/geom.rb
+2026-11-16 22:55:36 +0800: Memory Usage (426624K) : Executing deck geom_topmarkers from /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/klayout/tech/drc/rule_decks/geom.rb
+2026-11-16 22:55:36 +0800: Memory Usage (426624K) : OFFGRID-ANGLES section (geom_topmarkers)
+2026-11-16 22:55:36 +0800: Memory Usage (426624K) : Executing rule pad_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (426752K) : Executing rule pad_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (426880K) : Executing rule ubmpperi_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (426880K) : Executing rule ubmpperi_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (426880K) : Executing rule ubmparray_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (426880K) : Executing rule ubmparray_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (426880K) : Executing rule ubmeplate_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (426880K) : Executing rule ubmeplate_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (426880K) : Executing rule pr_bndry_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (426880K) : Executing rule pr_bndry_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (426880K) : Executing rule border_OFFGRID
+2026-11-16 22:55:36 +0800: Memory Usage (426880K) : Executing rule border_ACUTE
+2026-11-16 22:55:36 +0800: Memory Usage (427616K) : 
+2026-11-16 22:55:36 +0800: Memory Usage (427616K) : DRC RESULT: SUCCESS (0 violations)
+2026-11-16 22:55:36 +0800: Memory Usage (427616K) : # DRC Total Run time 2.530393327 seconds

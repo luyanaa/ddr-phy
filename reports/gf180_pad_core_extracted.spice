@@ -1,0 +1,25 @@
+* Extracted by KLayout with GF180MCU LVS runset on : 17/11/2026 00:27
+
+* cell gf180_pad_core
+.SUBCKT gf180_pad_core
+* device instance $1 r0 *1 -9.42,-60 pfet_03v3
+M$1 IN PAD VDDIO VDDIO pfet_03v3 L=0.28U W=4U AS=1.76P AD=1.76P PS=8.88U
++ PD=8.88U
+* device instance $2 r0 *1 -39.42,47.5 pfet_03v3
+M$2 \$6 GP VDDIO VDDIO pfet_03v3 L=0.28U W=200U AS=52.9P AD=52.9P PS=226.16U
++ PD=226.16U
+* device instance $42 r0 *1 -9.42,-49 nfet_03v3
+M$42 IN PAD VSSIO VSSIO nfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
++ PD=4.88U
+* device instance $43 r0 *1 0.58,46 nfet_03v3
+M$43 \$6 GN VSSIO VSSIO nfet_03v3 L=0.28U W=80U AS=21.16P AD=21.16P PS=103.16U
++ PD=103.16U
+* device instance $83 r0 *1 -52.16,-7.5 diode_nd2ps_03v3
+D$83 VSSIO PAD diode_nd2ps_03v3 A=20P P=18U
+* device instance $84 r0 *1 -49.16,-25 diode_pd2nw_03v3
+D$84 VSSIO VDDIO diode_pd2nw_03v3 A=100P P=40U
+* device instance $85 r0 *1 -52.16,12.5 diode_pd2nw_03v3
+D$85 PAD VDDIO diode_pd2nw_03v3 A=20P P=18U
+* device instance $86 r0 *1 36.7,0 ppolyf_u
+R$86 \$6 PAD VSSIO 22.2727272727 ppolyf_u L=1.4U W=22U
+.ENDS gf180_pad_core
