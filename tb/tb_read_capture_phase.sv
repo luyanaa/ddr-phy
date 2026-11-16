@@ -22,9 +22,11 @@ module tb_read_capture_phase;
 
     reg clk = 1'b0;
     reg clk_early = 1'b0;
+    reg clk_late = 1'b0;
     reg rst = 1'b1;
     always #5 clk = ~clk;
     initial begin #3; forever #5 clk_early = ~clk_early; end
+    initial begin #7; forever #5 clk_late = ~clk_late; end
 
     reg [AB-1:0] dfi_a = 0;
     reg [BB-1:0] dfi_ba = 0;
@@ -50,9 +52,10 @@ module tb_read_capture_phase;
     reg ext_oe = 0;
     assign pad_dq = ext_oe ? ext_dq : {DB{1'bz}};
 
-    always @(*) phase_clks = {2'b00, clk_early, clk};
+    always @(*) phase_clks = {1'b0, clk_late, clk_early, clk};
 
     integer errors = 0;
+    integer guard;
     task automatic chk(input cond, input [8*64:1] name);
         begin
             if (cond) $display("PASS %0s", name);
@@ -93,22 +96,50 @@ module tb_read_capture_phase;
             ext_dq = early_value;
             dfi_rden = 1'b1;
             @(posedge clk); #1;              // command edge
-            @(posedge clk); #1;              // P1
-            @(posedge clk); #1;              // P2
-            @(posedge clk_early); #1;        // early edge before the valid edge
+            dfi_rden = 1'b0;
+            @(posedge clk); #1;              // one cycle before the capture
+            @(posedge clk_early); #1;        // first early edge
+            @(posedge clk_early); #1;        // capture edge for phase 1
             ext_dq = late_value;
-            @(posedge clk); #1;              // core valid edge
+            guard = 0;
+            while (!(dfi_rdvalid === 1'b1) && guard < 20) begin
+                @(posedge clk); #1;
+                guard = guard + 1;
+            end
             got = dfi_rddata;
             if (dfi_rdvalid !== 1'b1) begin
                 $display("FAIL read_capture_phase: rddata_valid missing");
                 errors = errors + 1;
             end
-            dfi_rden = 1'b0;
             @(posedge clk);
         end
     endtask
 
-    reg [DB-1:0] got0, got1;
+    reg [DB-1:0] got0, got1, got2;
+
+    task automatic read_static;
+        input [DB-1:0] value;
+        output [DB-1:0] got;
+        begin
+            @(negedge clk);
+            ext_oe = 1'b1;
+            ext_dq = value;
+            dfi_rden = 1'b1;
+            @(posedge clk); #1;
+            dfi_rden = 1'b0;
+            guard = 0;
+            while (!(dfi_rdvalid === 1'b1) && guard < 20) begin
+                @(posedge clk); #1;
+                guard = guard + 1;
+            end
+            got = dfi_rddata;
+            if (dfi_rdvalid !== 1'b1) begin
+                $display("FAIL read_capture_phase: static rddata_valid missing");
+                errors = errors + 1;
+            end
+            @(posedge clk);
+        end
+    endtask
 
     initial begin
         repeat (3) @(posedge clk);
@@ -120,7 +151,7 @@ module tb_read_capture_phase;
         chk(capture_ready === 1'b1, "phase: capture_ready high");
 
         read_with_split(8'hA5, 8'h5A, got0);
-        chk(got0 === 8'h5A, "phase 0 bypass returns the late value");
+        chk(got0 === 8'h5A, "phase 0 captures the late value");
 
         @(negedge clk); phase_sel = 2'd1;
         @(posedge clk); #1;
@@ -128,6 +159,12 @@ module tb_read_capture_phase;
         read_with_split(8'hA5, 8'h5A, got1);
         chk(got1 === 8'hA5, "phase 1 capture returns the early value");
         chk(got1 !== got0, "phase selection changes captured data");
+
+        @(negedge clk); phase_sel = 2'd2;
+        @(posedge clk); #1;
+        chk(cap_clk === clk_late, "phase 2 selects the late clock");
+        read_static(8'h3C, got2);
+        chk(got2 === 8'h3C, "phase 2 capture returns held data");
 
         #20;
         `ifdef MUTATE

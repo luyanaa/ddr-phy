@@ -32,8 +32,8 @@ vvp sim/obj/tb_refresh
 
 iverilog -g2012 -o sim/obj/tb_phy_top \
     rtl/sdr_phy.sv rtl/clock_forward.sv rtl/read_capture_ctrl.sv \
-    rtl/dq_turnaround.sv rtl/phy_io_adapter.sv sim/pad_cell_generic.sv \
-    rtl/sdram_phy_top.sv tb/tb_phy_top.sv
+    rtl/read_capture_cdc.sv rtl/dq_turnaround.sv rtl/phy_io_adapter.sv \
+    sim/pad_cell_generic.sv rtl/sdram_phy_top.sv tb/tb_phy_top.sv
 vvp sim/obj/tb_phy_top
 
 iverilog -g2012 -o sim/obj/tb_turnaround_ctrl \
@@ -42,8 +42,8 @@ vvp sim/obj/tb_turnaround_ctrl
 
 iverilog -g2012 -o sim/obj/tb_read_capture_phase \
     rtl/sdr_phy.sv rtl/clock_forward.sv rtl/read_capture_ctrl.sv \
-    rtl/dq_turnaround.sv rtl/phy_io_adapter.sv sim/pad_cell_generic.sv \
-    rtl/sdram_phy_top.sv tb/tb_read_capture_phase.sv
+    rtl/read_capture_cdc.sv rtl/dq_turnaround.sv rtl/phy_io_adapter.sv \
+    sim/pad_cell_generic.sv rtl/sdram_phy_top.sv tb/tb_read_capture_phase.sv
 vvp sim/obj/tb_read_capture_phase
 
 echo PHY_DONE

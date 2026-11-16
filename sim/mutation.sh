@@ -30,7 +30,7 @@ expect_fail() {
 expect_fail burst sim/sdram_model.sv tb/tb_burst.sv
 expect_fail refresh rtl/sdr_ctrl.sv rtl/sdr_phy.sv sim/sdram_model.sv tb/tb_refresh.sv
 expect_fail phy_top rtl/sdr_phy.sv rtl/clock_forward.sv rtl/read_capture_ctrl.sv \
-    rtl/dq_turnaround.sv rtl/phy_io_adapter.sv sim/pad_cell_generic.sv \
+    rtl/read_capture_cdc.sv rtl/dq_turnaround.sv rtl/phy_io_adapter.sv sim/pad_cell_generic.sv \
     rtl/sdram_phy_top.sv tb/tb_phy_top.sv
 expect_fail phy_enh rtl/read_capture_ctrl.sv rtl/clock_forward.sv rtl/dq_turnaround.sv \
     sim/sdram_model.sv tb/tb_phy_enh.sv
@@ -38,7 +38,7 @@ expect_fail pad_adapter rtl/phy_io_adapter.sv sim/pad_cell_generic.sv tb/tb_pad_
 expect_fail timing_checks sim/sdram_timing_model.sv sim/read_capture.sv tb/tb_timing_checks.sv
 expect_fail turnaround_ctrl rtl/sdr_ctrl.sv tb/tb_turnaround_ctrl.sv
 expect_fail read_capture_phase rtl/sdr_phy.sv rtl/clock_forward.sv \
-    rtl/read_capture_ctrl.sv rtl/dq_turnaround.sv rtl/phy_io_adapter.sv \
+    rtl/read_capture_ctrl.sv rtl/read_capture_cdc.sv rtl/dq_turnaround.sv rtl/phy_io_adapter.sv \
     sim/pad_cell_generic.sv rtl/sdram_phy_top.sv tb/tb_read_capture_phase.sv
 
 iverilog -g2012 -DMUTATE -Ptb_bist_loop.DATA_BITS=8 -o sim/obj/mut_bist_x8 \

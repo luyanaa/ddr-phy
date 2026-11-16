@@ -91,7 +91,9 @@ module sdram_phy_top #(
     wire                     ras_n, cas_n, we_n, ck_unused;
     wire [RANKS-1:0]         cs_n, cke;
     wire [DM_BITS-1:0]       dm;
-    wire [DATA_BITS-1:0]     dq_o, dq_pad_i, dq_core;
+    wire [DATA_BITS-1:0]     dq_o, dq_pad_i;
+    wire [DATA_BITS-1:0]     rddata_unused;
+    wire                     rdvalid_unused;
     wire                     dq_oe, dq_oe_gated;
     wire                     ck_fwd;
 
@@ -108,10 +110,10 @@ module sdram_phy_top #(
         .dfi_odt(dfi_odt), .dfi_reset_n(dfi_reset_n), .dfi_act_n(dfi_act_n),
         .dfi_wrdata(dfi_wrdata), .dfi_wrdata_en(dfi_wrdata_en),
         .dfi_wrdata_mask(dfi_wrdata_mask), .dfi_rddata_en(dfi_rddata_en),
-        .dfi_rddata(dfi_rddata), .dfi_rddata_valid(dfi_rddata_valid),
+        .dfi_rddata(rddata_unused), .dfi_rddata_valid(rdvalid_unused),
         .a(a), .ba(ba), .ras_n(ras_n), .cas_n(cas_n), .we_n(we_n),
         .cs_n(cs_n), .cke(cke), .dm(dm), .dq_o(dq_o), .dq_oe(dq_oe),
-        .dq_i(dq_core), .ck(ck_unused)
+        .dq_i(dq_pad_i), .ck(ck_unused)
     );
     wire _ck_unused = ck_unused;
 
@@ -136,15 +138,31 @@ module sdram_phy_top #(
         .capture_ready(capture_ready)
     );
 
-    // First-stage static capture: a real FF in the cap_clk domain samples
-    // the pad input before the core edge. Phase 0 is a bypass (cap_clk is
-    // the core clock). This assumes the selected phase LEADS the core edge;
-    // a late phase needs the Read FIFO/CDC and a latency adjustment, which
-    // is still TBD. Phase selection must be locked during traffic.
-    reg [DATA_BITS-1:0] dq_cap;
-    always @(posedge cap_clk) dq_cap <= dq_pad_i;
-    wire use_capture = capture_ready && (cap_phase_status != {SEL_W{1'b0}});
-    assign dq_core = use_capture ? dq_cap : dq_pad_i;
+    // Read-capture CDC: one outstanding read. capture_req is a one-cycle
+    // pulse in the clk domain, generated CAPTURE_REQ_DELAY cycles after
+    // dfi_rddata_en; the CDC captures dq_pad_i in cap_clk and returns data
+    // plus a one-cycle valid in the clk domain. The total read latency is
+    // therefore CL+1 plus the CDC handshake; the controller waits for
+    // dfi_rddata_valid, so it does not assume the old CL+1 timing.
+    // Phase selection must be static during traffic.
+    localparam integer CAPTURE_REQ_DELAY = (CL >= 2) ? (CL - 2) : 0;
+    reg [1:0] req_pipe;
+    wire req_pulse = (CAPTURE_REQ_DELAY == 0) ? dfi_rddata_en :
+                     (CAPTURE_REQ_DELAY == 1) ? req_pipe[0] : req_pipe[1];
+    always @(posedge clk) begin
+        if (rst) req_pipe <= 2'd0;
+        else     req_pipe <= {req_pipe[0], dfi_rddata_en};
+    end
+
+    wire [DATA_BITS-1:0] cdc_rddata;
+    wire                 cdc_rdvalid;
+    read_capture_cdc #(.DATA_BITS(DATA_BITS)) u_cdc (
+        .clk(clk), .rst(rst), .cap_clk(cap_clk),
+        .capture_req(req_pulse), .dq_i(dq_pad_i),
+        .rddata(cdc_rddata), .rddata_valid(cdc_rdvalid)
+    );
+    assign dfi_rddata       = cdc_rddata;
+    assign dfi_rddata_valid = cdc_rdvalid;
 
     // READ->WRITE turnaround guard on the PHY's own output enable.
     dq_turnaround #(
