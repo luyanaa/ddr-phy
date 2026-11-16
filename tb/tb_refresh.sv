@@ -44,7 +44,8 @@ module tb_refresh;
         .dfi_odt(dfi_odt), .dfi_reset_n(dfi_reset), .dfi_act_n(dfi_act),
         .dfi_wrdata(dfi_wrdata), .dfi_wrdata_en(dfi_wren),
         .dfi_wrdata_mask(dfi_wrmask), .dfi_rddata_en(dfi_rden),
-        .dfi_rddata(dfi_rddata), .dfi_rddata_valid(dfi_rdvalid)
+        .dfi_rddata(dfi_rddata), .dfi_rddata_valid(dfi_rdvalid),
+        .phy_turnaround_busy(1'b0)
     );
     sdr_phy #(.DATA_BITS(DB), .ADDR_BITS(AB), .BANK_BITS(BB), .CL(2)) u_phy (
         .clk(clk), .rst(rst),

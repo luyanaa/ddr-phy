@@ -20,6 +20,10 @@
 // T_REFI = 0 (default) disables periodic refresh, preserving the original
 // closed-loop tests. With T_REFI > 0 the controller closes all banks,
 // issues AUTO REFRESH and waits tRFC every T_REFI sys clocks after init.
+//
+// phy_turnaround_busy (from dq_turnaround) blocks WRITE acceptance and
+// WRITE issue; READ may proceed. This prevents the controller from issuing
+// a WRITE whose DQ OE the PHY would then gate during the guard window.
 
 `default_nettype none
 
@@ -61,7 +65,11 @@ module sdr_ctrl #(
     output reg  [DATA_BITS/8-1:0]     dfi_wrdata_mask,
     output reg                      dfi_rddata_en,
     input  wire [DATA_BITS-1:0]     dfi_rddata,
-    input  wire                     dfi_rddata_valid
+    input  wire                     dfi_rddata_valid,
+
+    // From dq_turnaround: a WRITE must not be issued while the PHY is
+    // still guarding a READ->WRITE turnaround. Reads may proceed.
+    input  wire                     phy_turnaround_busy
 );
 
     localparam integer BANKS     = 1 << BANK_BITS;
@@ -199,8 +207,10 @@ module sdr_ctrl #(
             // ready stays high for the whole idle cycle so a request can
             // be presented without a combinational ready/valid loop.
             user_ready <= (state == S_IDLE) && init_done && !have_req &&
-                            !read_busy && !refresh_due;
+                            !read_busy && !refresh_due &&
+                            (!user_we || !phy_turnaround_busy);
             if (init_done && !have_req && !read_busy && !refresh_due &&
+                (!user_we || !phy_turnaround_busy) &&
                 user_valid && state == S_IDLE) begin
                 have_req  <= 1'b1;
                 req_we    <= user_we;
@@ -282,7 +292,8 @@ module sdr_ctrl #(
                     dfi_cke <= 1'b1;
                     if (refresh_due && !have_req && !read_busy) begin
                         state <= S_RFSH_PRE;
-                    end else if (have_req && !read_busy) begin
+                    end else if (have_req && !read_busy &&
+                                 (!req_we || !phy_turnaround_busy)) begin
                         if (!hit && bank_open[req_ba])
                             state <= S_PRE;
                         else if (!hit)

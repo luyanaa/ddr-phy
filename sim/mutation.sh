@@ -36,6 +36,7 @@ expect_fail phy_enh rtl/read_capture_ctrl.sv rtl/clock_forward.sv rtl/dq_turnaro
     sim/sdram_model.sv tb/tb_phy_enh.sv
 expect_fail pad_adapter rtl/phy_io_adapter.sv sim/pad_cell_generic.sv tb/tb_pad_adapter.sv
 expect_fail timing_checks sim/sdram_timing_model.sv sim/read_capture.sv tb/tb_timing_checks.sv
+expect_fail turnaround_ctrl rtl/sdr_ctrl.sv tb/tb_turnaround_ctrl.sv
 
 iverilog -g2012 -DMUTATE -Ptb_bist_loop.DATA_BITS=8 -o sim/obj/mut_bist_x8 \
     rtl/sdr_bist.sv rtl/sdr_ctrl.sv rtl/sdr_phy.sv sim/sdram_model.sv tb/tb_bist_loop.sv

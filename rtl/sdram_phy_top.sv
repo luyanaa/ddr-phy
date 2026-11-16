@@ -13,6 +13,11 @@
 // characterized phase source (capability gate G6, all backends NO_GO).
 // This top makes the interface explicit; it does not claim phase control.
 //
+// turnaround_busy MUST be consumed by the controller as a write-accept
+// condition; rtl/sdr_ctrl.sv does so via phy_turnaround_busy. Without that
+// connection the controller can issue WRITE while the PHY is still guarding
+// a READ->WRITE turnaround.
+//
 // The sdr_phy .ck output is deliberately left unconnected: the pad-side
 // clock comes from clock_forward through the adapter.
 
@@ -26,6 +31,9 @@ module sdram_phy_top #(
     parameter integer NPHASES       = 4,
     parameter integer SEL_W         = 2,
     parameter integer GUARD_CYCLES  = 1,
+    parameter integer READ_TAIL_CYCLES = 0,
+    parameter integer DQM_OFF_CYCLES = 0,
+    parameter integer T_OE_OFF_CYCLES = 0,
     parameter integer BACKEND       = 0,
     parameter integer T_OE_ON_PS    = 0,
     parameter integer T_OE_OFF_PS   = 0,
@@ -126,7 +134,12 @@ module sdram_phy_top #(
     );
 
     // READ->WRITE turnaround guard on the PHY's own output enable.
-    dq_turnaround #(.GUARD_CYCLES(GUARD_CYCLES)) u_turn (
+    dq_turnaround #(
+        .GUARD_CYCLES(GUARD_CYCLES),
+        .READ_TAIL_CYCLES(READ_TAIL_CYCLES),
+        .DQM_OFF_CYCLES(DQM_OFF_CYCLES),
+        .T_OE_OFF_CYCLES(T_OE_OFF_CYCLES)
+    ) u_turn (
         .clk(clk), .rst(rst),
         .wrdata_en(dfi_wrdata_en), .rddata_en(dfi_rddata_en),
         .dq_oe_gated(dq_oe_gated), .turnaround_busy(turnaround_busy)

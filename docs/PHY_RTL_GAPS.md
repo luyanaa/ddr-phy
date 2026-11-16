@@ -69,6 +69,13 @@ PRBS-32 图案经 `sdr_ctrl` 用户接口写入再读回比较，含 `error_coun
 - `sim/mutation.sh` 用 `-DMUTATE` 给每个 TB 注入一个错误，要求模拟器返回非零；这是退出码路径的 mutation test，不是数据通路的 mutation 覆盖。
 - `.github/workflows/ci.yml` 跑生成器/证据检查、生成产物一致性 diff、`run.sh` / `phy.sh` / `pad.sh` / `sweep.sh`，以及 `sim/mutation.sh`。它不依赖本机 PDK，所以不跑 `gate.sh` / `char_pad.sh` / LibreLane。
 
+### 3.3 Turnaround 协商
+
+- `sdr_ctrl` 新增 `phy_turnaround_busy` 输入：忙时 WRITE 不被 `user_ready` 接受，`S_IDLE` 也不发 WRITE 命令；READ 仍可继续。
+- `dq_turnaround` 的 guard 参数拆成 `GUARD_CYCLES + READ_TAIL_CYCLES + DQM_OFF_CYCLES + T_OE_OFF_CYCLES`，总时长仍是设计参数，不是已表征的 tHZ/tOE_off。
+- `tb/tb_turnaround_ctrl.sv` 验证：忙时 WRITE 不被接受/不发命令；释放后 WRITE 发出且数据正确；READ 不被阻塞。
+- 现有 `tb_sdr_loop` / `tb_refresh` / `tb_bist_loop` 把 `phy_turnaround_busy` 接 0，保持原有闭环行为；新测试单独覆盖协商。
+
 ## 4. 与前后阶段的关系
 
 - P0-3 的 `phy_io_adapter` 定义了 pad 边界；P0-4 的四个模块都停在**核心侧**，没有跨过 `dq_o/dq_oe/dq_i` 这条线。

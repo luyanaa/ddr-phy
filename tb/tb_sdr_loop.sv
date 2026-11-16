@@ -109,7 +109,8 @@ module tb_sdr_loop;
         .dfi_wrdata_mask(dfi_wrdata_mask),
         .dfi_rddata_en(dfi_rddata_en),
         .dfi_rddata(dfi_rddata),
-        .dfi_rddata_valid(dfi_rddata_valid)
+        .dfi_rddata_valid(dfi_rddata_valid),
+        .phy_turnaround_busy(1'b0)
     );
 
     sdr_phy #(

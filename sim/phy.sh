@@ -36,4 +36,8 @@ iverilog -g2012 -o sim/obj/tb_phy_top \
     rtl/sdram_phy_top.sv tb/tb_phy_top.sv
 vvp sim/obj/tb_phy_top
 
+iverilog -g2012 -o sim/obj/tb_turnaround_ctrl \
+    rtl/sdr_ctrl.sv tb/tb_turnaround_ctrl.sv
+vvp sim/obj/tb_turnaround_ctrl
+
 echo PHY_DONE
