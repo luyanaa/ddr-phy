@@ -1,0 +1,35 @@
+{
+  "generated_by": "generator/emit_ics55_esd.py",
+  "backend": "ics55",
+  "status": "STUDY_ONLY",
+  "signoff": false,
+  "simulatable": false,
+  "topology": "GGNMOS PAD->VSSIO + GGPMOS PAD->VDDIO + GGNMOS VDDIO->VSSIO",
+  "devices": {
+    "nmos": "nmod3p3_lp",
+    "pmos": "pmod3p3_lp"
+  },
+  "unresolved_params": [
+    "W_N_PAD",
+    "L_N_PAD",
+    "NF_N_PAD",
+    "W_P_PAD",
+    "L_P_PAD",
+    "NF_P_PAD",
+    "W_N_RAIL",
+    "L_N_RAIL",
+    "NF_N_RAIL",
+    "R_GATE_N",
+    "R_GATE_P",
+    "R_GATE_RAIL"
+  ],
+  "source": "docs/ICS55_ESD_3V3.md",
+  "license": "foundry SPICE evaluation-only; not Apache-2.0",
+  "measurements": [
+    "TLP I-V: trigger, holding, It2 (not available from BSIM)",
+    "HBM/CDM target and measurement",
+    "3.3 V / 125 C off-state leakage",
+    "gate-oxide lifetime / HTOL at 3.3 V",
+    "latch-up and guard-ring DRC"
+  ]
+}

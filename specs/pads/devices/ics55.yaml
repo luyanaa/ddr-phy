@@ -27,6 +27,8 @@ custom_esd:
   topology: "GGNMOS PAD->VSSIO + GGPMOS PAD->VDDIO + GGNMOS VDDIO->VSSIO, gate resistors"
   devices: [nmod3p3_lp, pmod3p3_lp]
   note: "See docs/ICS55_ESD_3V3.md. BSIM4 does not model snapback; TLP/HBM/latch-up evidence is required before binding."
+  spec: "specs/pads/ics55_esd_3v3.yaml"
+  prototype: "sch/pads/ics55/esd_ggnmos_3v3.spice"
   evidence_required:
     - "TLP I-V (trigger, holding, It2)"
     - "HBM/CDM target and measurement"

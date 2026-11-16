@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# ics55 3.3 V ESD clamp prototype - TOPOLOGY ONLY, NOT A QUALIFIED ESD CELL.
+#
+# This is a standalone test-structure spec, not part of the ics55 SDR pad
+# (the pad map stays unbound). Every size and gate resistor is null. The
+# BSIM4 models do not describe snapback, so a SPICE run cannot establish
+# trigger/holding/It2; TLP/HBM/latch-up data is required separately.
+meta:
+  version: 1
+  backend: ics55
+  status: STUDY_ONLY
+  note: "Prototype topology; sizes/gate resistors null; not qualified; do not bind into the SDR pad."
+  source: "docs/ICS55_ESD_3V3.md"
+  license: "foundry SPICE evaluation-only; not Apache-2.0"
+  topology: "GGNMOS PAD->VSSIO + GGPMOS PAD->VDDIO + GGNMOS VDDIO->VSSIO"
+devices:
+  nmos: nmod3p3_lp
+  pmos: pmod3p3_lp
+params:
+  - {id: W_N_PAD,  unit: m,    value: null, status: TBD, reason: "TLP/HBM target; layout fingers"}
+  - {id: L_N_PAD,  unit: m,    value: null, status: TBD, reason: "PDK device limits"}
+  - {id: NF_N_PAD, unit: count, value: null, status: TBD, reason: "layout/ballast"}
+  - {id: W_P_PAD,  unit: m,    value: null, status: TBD, reason: "TLP/HBM target; layout fingers"}
+  - {id: L_P_PAD,  unit: m,    value: null, status: TBD, reason: "PDK device limits"}
+  - {id: NF_P_PAD, unit: count, value: null, status: TBD, reason: "layout/ballast"}
+  - {id: W_N_RAIL, unit: m,    value: null, status: TBD, reason: "power-clamp sizing"}
+  - {id: L_N_RAIL, unit: m,    value: null, status: TBD, reason: "PDK device limits"}
+  - {id: NF_N_RAIL, unit: count, value: null, status: TBD, reason: "layout/ballast"}
+  - {id: R_GATE_N, unit: ohm,  value: null, status: TBD, reason: "gate coupling/trigger"}
+  - {id: R_GATE_P, unit: ohm,  value: null, status: TBD, reason: "gate coupling/trigger"}
+  - {id: R_GATE_RAIL, unit: ohm, value: null, status: TBD, reason: "power-clamp trigger"}
+measurements:
+  - "TLP I-V: trigger, holding, It2 (not available from BSIM)"
+  - "HBM/CDM target and measurement"
+  - "3.3 V / 125 C off-state leakage"
+  - "gate-oxide lifetime / HTOL at 3.3 V"
+  - "latch-up and guard-ring DRC"

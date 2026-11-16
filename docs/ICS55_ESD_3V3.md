@@ -39,7 +39,17 @@ VDDIO -- drain  nmod3p3_lp  source/bulk ---- VSSIO
 - 优点：厂商已经做过 3.3 V IO。
 - 缺点：它是完整 GPIO，不是本设计的 pad；CDL 里仍然引用缺失的 `dio_3p3_pp_nw_lp`；架构上也不允许把现成 GPIO 当自研 pad。只能作为结构参考。
 
-## 3. 推荐顺序
+## 3. 已落地的 STUDY_ONLY 原型
+
+- 规格：`specs/pads/ics55_esd_3v3.yaml`（12 个 W/L/NF/R 参数全 `null`）。
+- 模板：`specs/pads/templates/ics55_esd_3v3.spice.tpl`。
+- 生成器/校验：`generator/emit_ics55_esd.py`、`generator/check_ics55_esd.py`。
+- 产物：`sch/pads/ics55/esd_ggnmos_3v3.spice`、`esd_ggnmos_3v3_manifest.json`、`esd_ggnmos_3v3_README.md`、`reports/ics55_esd_3v3.md`。
+- 复现：`sh sim/ics55_esd.sh`。
+
+产物明确标 **STUDY_ONLY / NOT SIMULATABLE / NOT A QUALIFIED ESD CELL**；没有绑定进 `specs/pads/devices/ics55.yaml` 的 ESD 槽位，也不参与 `emit_pads.py`。它只是给版图和 TLP 评审用的拓扑原型。
+
+## 4. 推荐顺序
 
 1. **先做 A 的独立测试结构**：GGNMOS / GGPMOS / 电源钳位各一个，带栅电阻和多种指条/间距；不接 SDR PHY。
 2. 用 TLP（或至少 HBM 枪 + 漏电）测触发/保持/二次击穿；记录 3.3 V、125°C 的关态漏电。
@@ -47,7 +57,7 @@ VDDIO -- drain  nmod3p3_lp  source/bulk ---- VSSIO
 4. 只有通过 TLP/HBM/latch-up 后，才把 `ics55.yaml` 的 ESD 槽位绑定到自定义单元，并把 `custom_esd.status` 从 `STUDY_ONLY` 改成 `CHARACTERIZED`。
 5. 在这之前，ics55 SDR 仍保持 `TBD` / 不生成 SPICE；DDR1 的 2.5 V VREF 只用 `dio_2p5_*`，且仍是 topology only。
 
-## 4. 需要的证据
+## 5. 需要的证据
 
 | 证据 | 为什么 |
 |---|---|
@@ -58,7 +68,7 @@ VDDIO -- drain  nmod3p3_lp  source/bulk ---- VSSIO
 | latch-up / guard ring DRC | 自绘 ESD 的版图规则 |
 | 与 foundry 3.3 V IO 单元的对照 | 证明自绘结构不弱于厂商方案 |
 
-## 5. 不这样做
+## 6. 不这样做
 
 - 不把 `dio_2p5_*` 改名成 3.3 V，不把它的 `bv≈10 V` 当成 3.3 V 额定。
 - 不把 BSIM 的 `.op`/`.dc` 当成 ESD 触发/保持曲线。
