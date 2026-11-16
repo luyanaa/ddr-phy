@@ -1,0 +1,45 @@
+name: regression
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  sim-and-generators:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install simulator and generator tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog yosys
+          python3 -m pip install --upgrade pip pyyaml
+
+      - name: Generator and evidence checks
+        run: |
+          python3 generator/check_pads.py
+          python3 generator/check_char_pad.py
+          python3 generator/check_ics55_esd.py
+          python3 generator/check_layout.py
+          python3 generator/check_capabilities.py
+
+      - name: Generated artifacts are current
+        run: |
+          python3 generator/emit_pads.py
+          python3 generator/emit_ics55_esd.py
+          git diff --exit-code
+
+      - name: RTL and model regressions
+        run: |
+          sh sim/run.sh
+          sh sim/phy.sh
+          sh sim/pad.sh
+          sh sim/sweep.sh
+
+      - name: Exit-code mutation test
+        run: sh sim/mutation.sh

@@ -89,8 +89,12 @@ module tb_pad_adapter;
         ext_oe = 1'b0; core_dq_oe = 1'b0;
         #(T_OE_OFF + 100);
 
+        `ifdef MUTATE
+        errors = errors + 1;
+        $display("MUTATION: injected failure for exit-code test");
+        `endif
         if (errors == 0) $display("PASS pad_adapter");
-        else             $display("FAIL pad_adapter errors=%0d", errors);
+        else             $fatal(1, "FAIL pad_adapter errors=%0d", errors);
         $finish;
     end
 endmodule

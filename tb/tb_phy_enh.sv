@@ -151,8 +151,12 @@ module tb_phy_enh;
         chk(dram_fault === 1'b0, "DQM read: no protocol fault raised");
 
         #20;
+        `ifdef MUTATE
+        errors = errors + 1;
+        $display("MUTATION: injected failure for exit-code test");
+        `endif
         if (errors == 0) $display("PASS phy_enh");
-        else             $display("FAIL phy_enh errors=%0d", errors);
+        else             $fatal(1, "FAIL phy_enh errors=%0d", errors);
         $finish;
     end
 endmodule

@@ -117,8 +117,12 @@ module tb_timing_checks;
         phy_oe = 1'b0;
 
         #(t_ck * 3);
+        `ifdef MUTATE
+        errors = errors + 1;
+        $display("MUTATION: injected failure for exit-code test");
+        `endif
         if (errors == 0) $display("PASS timing_checks");
-        else             $display("FAIL timing_checks errors=%0d", errors);
+        else             $fatal(1, "FAIL timing_checks errors=%0d", errors);
         $finish;
     end
 endmodule

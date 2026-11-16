@@ -63,6 +63,12 @@ PRBS-32 图案经 `sdr_ctrl` 用户接口写入再读回比较，含 `error_coun
 
 三个测试都并入 `sim/phy.sh`。**集成顶层是验证 / 接线用途，不是 LibreLane 硬化目标**——它例化了行为级 pad cell，不能进综合。
 
+### 3.2 回归退出码与 CI
+
+- `tb/tb_burst.sv`、`tb/tb_phy_top.sv`、`tb/tb_refresh.sv`、`tb/tb_bist_loop.sv` 以前只打印 `FAIL` 再 `$finish`，`set -e` 抓不到。现在这些测试以及 `tb_pad_adapter` / `tb_phy_enh` / `tb_timing_checks` 在有 error 时统一 `$fatal(1, ...)`。
+- `sim/mutation.sh` 用 `-DMUTATE` 给每个 TB 注入一个错误，要求模拟器返回非零；这是退出码路径的 mutation test，不是数据通路的 mutation 覆盖。
+- `.github/workflows/ci.yml` 跑生成器/证据检查、生成产物一致性 diff、`run.sh` / `phy.sh` / `pad.sh` / `sweep.sh`，以及 `sim/mutation.sh`。它不依赖本机 PDK，所以不跑 `gate.sh` / `char_pad.sh` / LibreLane。
+
 ## 4. 与前后阶段的关系
 
 - P0-3 的 `phy_io_adapter` 定义了 pad 边界；P0-4 的四个模块都停在**核心侧**，没有跨过 `dq_o/dq_oe/dq_i` 这条线。
@@ -78,3 +84,4 @@ PRBS-32 图案经 `sdr_ctrl` 用户接口写入再读回比较，含 `error_coun
 - 不把 x16 BIST 通过说成 BL>1 或刷新已支持。
 - 不为了"看起来完整"去改 `sdr_phy` 的 `ck` 接法而破坏已通过的门级仿真：改接在集成顶层完成，`sdr_phy.sv` 保持不动。
 - 不把 `sdram_phy_top.sv` 说成可硬化网表，不把 `cap_clk` 暴露说成 `Δ` 已作用到核心。
+- 不把只打印 `FAIL` 的测试当成失败退出；新增 TB 必须走 `$fatal(1, ...)` 路径。

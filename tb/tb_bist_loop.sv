@@ -108,6 +108,12 @@ module tb_bist_loop;
         if (fault === 1'b0)          $display("PASS bist_loop x%0d: model fault clear", DATA_BITS);
         else begin                    $display("FAIL bist_loop x%0d: fault_code=%0d", DATA_BITS, fault_code); errors = errors + 1; end
         #20;
+        `ifdef MUTATE
+        errors = errors + 1;
+        $display("MUTATION: injected failure for exit-code test");
+        `endif
+        if (errors == 0) $display("PASS bist_loop x%0d", DATA_BITS);
+        else             $fatal(1, "FAIL bist_loop x%0d errors=%0d", DATA_BITS, errors);
         $finish;
     end
 endmodule

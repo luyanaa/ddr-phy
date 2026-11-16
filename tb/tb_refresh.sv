@@ -126,8 +126,12 @@ module tb_refresh;
         else begin $display("FAIL refresh: fault_code=%0d", fault_code); errors=errors+1; end
         read_word(10'd0, 8'hA5);
         #20;
+        `ifdef MUTATE
+        errors = errors + 1;
+        $display("MUTATION: injected failure for exit-code test");
+        `endif
         if (errors == 0) $display("PASS tb_refresh");
-        else             $display("FAIL tb_refresh errors=%0d", errors);
+        else             $fatal(1, "FAIL tb_refresh errors=%0d", errors);
         $finish;
     end
 endmodule

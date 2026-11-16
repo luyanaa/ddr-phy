@@ -85,8 +85,12 @@ module tb_phy_top;
         @(negedge clk); dfi_wren = 1'b0;
 
         #20;
+        `ifdef MUTATE
+        errors = errors + 1;
+        $display("MUTATION: injected failure for exit-code test");
+        `endif
         if (errors == 0) $display("PASS phy_top");
-        else             $display("FAIL phy_top errors=%0d", errors);
+        else             $fatal(1, "FAIL phy_top errors=%0d", errors);
         $finish;
     end
 endmodule

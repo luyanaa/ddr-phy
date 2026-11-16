@@ -86,8 +86,12 @@ module tb_burst;
             step(NOP, 0, 0, 0, 0, 0);
         end
         #20;
+        `ifdef MUTATE
+        errors = errors + 1;
+        $display("MUTATION: injected failure for exit-code test");
+        `endif
         if (errors == 0) $display("PASS burst");
-        else             $display("FAIL burst errors=%0d", errors);
+        else             $fatal(1, "FAIL burst errors=%0d", errors);
         $finish;
     end
 endmodule
