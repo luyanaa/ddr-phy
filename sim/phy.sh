@@ -40,4 +40,10 @@ iverilog -g2012 -o sim/obj/tb_turnaround_ctrl \
     rtl/sdr_ctrl.sv tb/tb_turnaround_ctrl.sv
 vvp sim/obj/tb_turnaround_ctrl
 
+iverilog -g2012 -o sim/obj/tb_read_capture_phase \
+    rtl/sdr_phy.sv rtl/clock_forward.sv rtl/read_capture_ctrl.sv \
+    rtl/dq_turnaround.sv rtl/phy_io_adapter.sv sim/pad_cell_generic.sv \
+    rtl/sdram_phy_top.sv tb/tb_read_capture_phase.sv
+vvp sim/obj/tb_read_capture_phase
+
 echo PHY_DONE

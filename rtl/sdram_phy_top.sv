@@ -7,11 +7,12 @@
 // dq_turnaround and phy_io_adapter; the command bus is packed into one
 // flat CMD bus.
 //
-// cap_clk is exposed from read_capture_ctrl as the phase-shifted capture
-// reference. IMPORTANT: sdr_phy still registers dq_i on posedge clk, so
-// delta_capture is NOT yet applied inside the core. Applying it needs a
-// characterized phase source (capability gate G6, all backends NO_GO).
-// This top makes the interface explicit; it does not claim phase control.
+// cap_clk from read_capture_ctrl now clocks a real first-stage capture FF
+// on the pad input; sdr_phy then registers that captured value on clk.
+// This makes phase_sel change the effective sampling point for a phase that
+// LEADS the core edge. A late phase, a Read FIFO/CDC and the resulting
+// latency change are still TBD; phase selection must be static during
+// traffic. The phase source itself is still a backend obligation (G6).
 //
 // turnaround_busy MUST be consumed by the controller as a write-accept
 // condition; rtl/sdr_ctrl.sv does so via phy_turnaround_busy. Without that
@@ -90,7 +91,7 @@ module sdram_phy_top #(
     wire                     ras_n, cas_n, we_n, ck_unused;
     wire [RANKS-1:0]         cs_n, cke;
     wire [DM_BITS-1:0]       dm;
-    wire [DATA_BITS-1:0]     dq_o, dq_i;
+    wire [DATA_BITS-1:0]     dq_o, dq_pad_i, dq_core;
     wire                     dq_oe, dq_oe_gated;
     wire                     ck_fwd;
 
@@ -110,7 +111,7 @@ module sdram_phy_top #(
         .dfi_rddata(dfi_rddata), .dfi_rddata_valid(dfi_rddata_valid),
         .a(a), .ba(ba), .ras_n(ras_n), .cas_n(cas_n), .we_n(we_n),
         .cs_n(cs_n), .cke(cke), .dm(dm), .dq_o(dq_o), .dq_oe(dq_oe),
-        .dq_i(dq_i), .ck(ck_unused)
+        .dq_i(dq_core), .ck(ck_unused)
     );
     wire _ck_unused = ck_unused;
 
@@ -126,12 +127,24 @@ module sdram_phy_top #(
     );
 
     // Phase-adjustable capture reference (interface only; see header).
+    wire [SEL_W-1:0] cap_phase_status;
     read_capture_ctrl #(.NPHASES(NPHASES), .SEL_W(SEL_W)) u_cap (
         .clk(clk), .rst(rst),
         .phase_clks(phase_clks), .phase_clocks_ready(phase_clocks_ready),
         .phase_sel(phase_sel), .phase_sel_valid(phase_sel_valid),
-        .cap_clk(cap_clk), .phase_sel_status(), .capture_ready(capture_ready)
+        .cap_clk(cap_clk), .phase_sel_status(cap_phase_status),
+        .capture_ready(capture_ready)
     );
+
+    // First-stage static capture: a real FF in the cap_clk domain samples
+    // the pad input before the core edge. Phase 0 is a bypass (cap_clk is
+    // the core clock). This assumes the selected phase LEADS the core edge;
+    // a late phase needs the Read FIFO/CDC and a latency adjustment, which
+    // is still TBD. Phase selection must be locked during traffic.
+    reg [DATA_BITS-1:0] dq_cap;
+    always @(posedge cap_clk) dq_cap <= dq_pad_i;
+    wire use_capture = capture_ready && (cap_phase_status != {SEL_W{1'b0}});
+    assign dq_core = use_capture ? dq_cap : dq_pad_i;
 
     // READ->WRITE turnaround guard on the PHY's own output enable.
     dq_turnaround #(
@@ -150,7 +163,7 @@ module sdram_phy_top #(
         .T_OE_ON_PS(T_OE_ON_PS), .T_OE_OFF_PS(T_OE_OFF_PS)
     ) u_pad (
         .core_cmd(core_cmd),
-        .core_dq_o(dq_o), .core_dq_oe(dq_oe_gated), .core_dq_i(dq_i),
+        .core_dq_o(dq_o), .core_dq_oe(dq_oe_gated), .core_dq_i(dq_pad_i),
         .core_ck(ck_fwd),
         .pad_cmd(pad_cmd), .pad_dq(pad_dq), .pad_ck(pad_ck),
         .io_power_ok(io_power_ok), .pad_config(pad_config),

@@ -76,6 +76,11 @@ PRBS-32 图案经 `sdr_ctrl` 用户接口写入再读回比较，含 `error_coun
 - `tb/tb_turnaround_ctrl.sv` 验证：忙时 WRITE 不被接受/不发命令；释放后 WRITE 发出且数据正确；READ 不被阻塞。
 - 现有 `tb_sdr_loop` / `tb_refresh` / `tb_bist_loop` 把 `phy_turnaround_busy` 接 0，保持原有闭环行为；新测试单独覆盖协商。
 
+### 3.4 Read Capture 第一阶段
+
+- `rtl/sdram_phy_top.sv` 在 `cap_clk` 域增加了一个真实 capture FF，采样 pad 输入；`sdr_phy` 仍在 `clk` 域寄存这个捕获值。
+- phase 0（`cap_clk = clk`）走 bypass；phase 1 使用**领先** core edge 的时钟。`tb/tb_read_capture_phase.sv` 在 early edge 与 core edge 之间改变 pad 数据，证明 phase 0 取到 late 值、phase 1 取到 early 值。
+- 仍缺：late phase、Read FIFO/CDC、相位切换后的 pipeline latency 调整、动态训练。相位选择必须在初始化后锁定。
 ## 4. 与前后阶段的关系
 
 - P0-3 的 `phy_io_adapter` 定义了 pad 边界；P0-4 的四个模块都停在**核心侧**，没有跨过 `dq_o/dq_oe/dq_i` 这条线。
