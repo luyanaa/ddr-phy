@@ -1,16 +1,16 @@
 {
   "generated_by": "generator/gf180_pad_layout.py (KLayout pya + GF180 API PCells)",
-  "status": "layout_slice_pad_core",
+  "status": "pad_macro_first_pass",
   "signoff": false,
   "drc_clean": true,
   "lvs": "pass",
   "pex": "magic_first_pass",
   "cell": "gf180_pad_core",
   "bbox_um": [
-    -62.0,
+    -66.5,
     -65.0,
     45.0,
-    51.63
+    73.25
   ],
   "devices": {
     "output_pmos": {
@@ -39,12 +39,47 @@
     "esd_clamp": {
       "area_um2": 100.0,
       "type": "diode_pd2nw_03v3"
+    },
+    "receiver": {
+      "n_w_um": 2.0,
+      "p_w_um": 4.0,
+      "l_um": 0.28
+    },
+    "oe_logic": {
+      "inv": 2,
+      "nand2": 1,
+      "nor2": 2,
+      "w_n_um": 1.0,
+      "w_p_um": 2.0,
+      "l_um": 0.28
+    },
+    "pre_driver": {
+      "inv": 5,
+      "w_n_um": 1.0,
+      "w_p_um": 2.0,
+      "l_um": 0.28
     }
   },
+  "ports": [
+    "OUT",
+    "OE_N",
+    "PU_OK",
+    "PAD",
+    "IN",
+    "VDDIO",
+    "VSSIO"
+  ],
+  "evidence": {
+    "drc": "reports/gf180_pad_core_drc.log (KLayout 0.30.7, flat)",
+    "lvs": "reports/gf180_pad_core_lvs.log (34 devices)",
+    "pex": "reports/gf180_pad_core_pex_sim.spice (3096 R / 11 C)"
+  },
   "not_included": [
-    "OE logic",
-    "pre-driver",
     "guard ring",
-    "pad ring"
+    "pad ring",
+    "ESD stress/latch-up/antenna",
+    "SPEF",
+    "STA",
+    "signoff"
   ]
 }

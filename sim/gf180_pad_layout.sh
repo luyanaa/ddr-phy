@@ -122,13 +122,18 @@ if command -v ngspice >/dev/null 2>&1; then
 .include "$GF/libs.tech/ngspice/design.ngspice"
 .include "/grid/ddr-phy/reports/gf180_pad_core_pex_sim.spice"
 .options rshunt=1e12 gmin=1e-10
-XTOP GP GN PAD VSSIO VDDIO IN gf180_pad_core_flat
+XTOP GP GN PAD VSSIO VDDIO IN OUT OE_N PU_OK gf180_pad_core_flat
 VDDIO VDDIO 0 3.3
 VSSIO VSSIO 0 0
 VPAD PAD 0 1.65
-VGP GP 0 3.3
-VGN GN 0 0
-VIN IN 0 0
+VOUT OUT 0 0
+VOE OE_N 0 3.3
+VPU PU_OK 0 0
+* GP/GN are driven by the on-cell pre-driver and IN is the receiver output:
+* high-value loads keep the nodes defined without overriding the drivers.
+RGP GP 0 1G
+RGN GN 0 1G
+RIN IN 0 1G
 .op
 .end
 EOF

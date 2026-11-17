@@ -31,6 +31,32 @@ internal:     10 x 10      (     0,  0    ), (    10,  10   )  100
 Warning: Calma reading is not undoable!  I hope that's OK.
 Library written using GDS-II Release 6.0
 Library name: LIB
+Reading "nfet$14".
+Reading "pmos$14".
+Reading "nfet$13".
+Reading "pmos$13".
+Reading "nfet$12".
+Reading "nfet$11".
+Reading "pmos$12".
+Reading "pmos$11".
+Reading "nfet$10".
+Reading "pmos$10".
+Reading "nfet$9".
+Reading "pmos$9".
+Reading "nfet$8".
+Reading "pmos$8".
+Reading "nfet$7".
+Reading "nfet$6".
+Reading "pmos$7".
+Reading "pmos$6".
+Reading "nfet$5".
+Reading "nfet$4".
+Reading "pmos$5".
+Reading "pmos$4".
+Reading "nfet$3".
+Reading "pmos$3".
+Reading "nfet$2".
+Reading "pmos$2".
 Reading "pmos$1".
 Reading "nfet$1".
 Reading "diode_pn$1".
@@ -45,14 +71,28 @@ Processing gf180_pad_core_flat
 Device pdiodec does not have a compatible substrate node!
 Device pdiodec does not have a compatible substrate node!
 Processing cell gf180_pad_core_flat for resistance extraction.
+Extracting a_n5372_11080#
+Extracting a_n4948_11920#
+Extracting a_n6172_11080#
+Extracting a_n3172_11920#
+Extracting a_n1772_11080#
+Extracting a_n972_11080#
+Extracting a_628_11920#
+Extracting a_2028_11080#
+Extracting a_n4804_11920#
+Extracting a_n3172_11080#
+Extracting a_628_11080#
 Extracting a_n7856_9000#
 Extracting VSSIO
 Extracting VDDIO
+Extracting OUT
+Extracting OE_N
+Extracting PU_OK
 Extracting GP
 Extracting GN
 Extracting PAD
 Extracting IN
-Total Nets: 8
-Nets extracted: 7 (0.875000)
-Nets output: 7 (0.875000)
+Total Nets: 22
+Nets extracted: 21 (0.954545)
+Nets output: 21 (0.954545)
 exttospice finished.
