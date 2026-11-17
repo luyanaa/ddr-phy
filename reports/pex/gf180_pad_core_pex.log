@@ -31,7 +31,9 @@ internal:     10 x 10      (     0,  0    ), (    10,  10   )  100
 Warning: Calma reading is not undoable!  I hope that's OK.
 Library written using GDS-II Release 6.0
 Library name: LIB
+Reading "nfet$16".
 Reading "nfet$15".
+Reading "esd_clamp2".
 Reading "esd_clamp".
 Reading "nfet$14".
 Reading "pmos$14".

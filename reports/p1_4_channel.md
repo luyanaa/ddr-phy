@@ -134,9 +134,31 @@ adds an explicit Metal1 strap plus a Via1 to the source bus, and the pad
 cell instances that cell with its source bus landing directly on the
 VSSIO frame's bottom bar.
 
-Still open: the clamp is 40 um (a qualified pad needs a much larger
-device or a gate-coupled clamp with an RC trigger), and the 80 um attempt
-merged the drain with VDDIO. The exit condition stays NO_GO.
+A second 40 um clamp was added (extraction merges the pair into one
+`W=80U` device) and the peak drops to **37.9 V**. The 80 um attempt that
+previously merged its drain with VDDIO was fixed by finding the real
+cause: an existing Metal3 bar at x -57900..-57500 sits in that channel,
+so the second clamp's drain now runs at x -55 um instead.
+
+### Why more clamp width does not help (model limit)
+
+Two experiments on the extracted netlist:
+
+| experiment | result |
+|---|---|
+| gate grounded / floating / 10k / 100k to VSSIO | 37.85 V in all four |
+| clamp width 80 / 160 / 320 / 640 um | 37.85 / 37.39 / 36.82 / 35.85 V |
+
+Gate bias has **no** effect and 8x the width buys 2 V. That means the
+ngspice BSIM model is not reproducing the clamp's intended mechanism
+(parasitic npn / snapback); the improvement from 51.2 V to 37.9 V tracks
+the added junction area, not the NMOS channel.
+
+Conclusion: **the 37.9 V number cannot be used as an ESD qualification.**
+Verifying a ggNMOS clamp needs TLP characterization or an ESD-specific
+compact model; a DC/transient BSIM simulation has a floor around 35 V no
+matter how large the device is. The exit condition stays NO_GO, and this
+is a model-capability limit, not a layout problem.
 
 ## 7. ESD stress check (not a qualification)
 

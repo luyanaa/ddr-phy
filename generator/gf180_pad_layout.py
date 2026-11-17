@@ -595,6 +595,8 @@ class PadLayout:
         self.rect("Poly2_dummy", 38900, -64500, 44500, -31000)
         self.rect("Poly2_dummy", 38900, 33500, 44500, 46000)
         self.rect("Comp_dummy", 38900, 33500, 44500, 46000)
+        self.rect("Comp_dummy", 38900, 47900, 44500, 51200)
+        self.rect("Poly2_dummy", 38900, 47900, 44500, 51200)
 
         self.rect("Metal4_dummy", 39000, -46000, 44000, -31000)
         self.rect("Metal5_dummy", 39000, -64000, 44000, -31000)
@@ -827,6 +829,18 @@ def main():
     lay.rect("Metal3", -40350, -51700, -39650, -32000)
     lay.rect("Metal3", -40350, -32350, -31500, -32000)
 
+    # Second clamp: same cell, placed left of the first. Its drain runs on
+    # Metal3 at x -55 um because an existing Metal3 bar sits at
+    # x -57900..-57500 (that is what shorted the earlier nf=40 attempt to
+    # VDDIO).
+    _cl2 = lay.ly.create_cell("esd_clamp2")
+    _ecl.draw_clamp(lay.ly, _cl2, nf=20, w=2.0)
+    lay.top.insert(pya.CellInstArray(_cl2.cell_index(),
+                                     pya.Trans(pya.Point(-60900, -49550))))
+    lay.rect("Via2", -55130, -51530, -54870, -51270)
+    lay.rect("Metal3", -55350, -51700, -54650, -32000)
+    lay.rect("Metal3", -55350, -32350, -31500, -32000)
+
     lay.dummy_fill()
     lay.dummy_density_fill()
 
@@ -883,6 +897,7 @@ def main():
         "MPOB OUTB_I OUT VDDIO VDDIO pfet_03v3 W=2u L=0.28u\n"
         "MNOB OUTB_I OUT VSSIO VSSIO nfet_03v3 W=1u L=0.28u\n"
         "MCLAMP PAD VSSIO VSSIO VSSIO nfet_03v3 W=40u L=0.28u\n"
+        "MCLAMP2 PAD VSSIO VSSIO VSSIO nfet_03v3 W=40u L=0.28u\n"
         "MPOE OENB OE_N VDDIO VDDIO pfet_03v3 W=2u L=0.28u\n"
         "MNOE OENB OE_N VSSIO VSSIO nfet_03v3 W=1u L=0.28u\n"
                                                                                                         "MPNGP N_GP NGPB VDDIO VDDIO pfet_03v3 W=2u L=0.28u\n"
