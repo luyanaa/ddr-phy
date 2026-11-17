@@ -1,0 +1,224 @@
+OpenSTA 2.7.0 GITDIR-NOT Copyright (c) 2025, Parallax Software, Inc.
+License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
+
+This is free software, and you are free to change and redistribute it
+under certain conditions; type `show_copying' for details. 
+This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'.
+== ck_max
+Startpoint: clk (clock source 'clk')
+Endpoint: pad_ck (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   5.000000    5.000000   clock clk (fall edge)
+   0.907463    5.907463   clock network delay
+               5.907463 v pad_ck (out)
+               5.907463   data arrival time
+
+  10.000000   10.000000   clock clk (rise edge)
+   0.000000   10.000000   clock network delay (ideal)
+   0.000000   10.000000   clock reconvergence pessimism
+   0.000000   10.000000   output external delay
+              10.000000   data required time
+-----------------------------------------------------------------
+              10.000000   data required time
+              -5.907463   data arrival time
+-----------------------------------------------------------------
+               4.092537   slack (MET)
+
+
+== ck_min
+Startpoint: clk (clock source 'clk')
+Endpoint: pad_ck (output port clocked by clk)
+Path Group: clk
+Path Type: min
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock clk (rise edge)
+   0.616490    0.616490   clock network delay
+               0.616490 ^ pad_ck (out)
+               0.616490   data arrival time
+
+   0.000000    0.000000   clock clk (rise edge)
+   0.000000    0.000000   clock network delay (ideal)
+   0.000000    0.000000   clock reconvergence pessimism
+   0.000000    0.000000   output external delay
+               0.000000   data required time
+-----------------------------------------------------------------
+               0.000000   data required time
+              -0.616490   data arrival time
+-----------------------------------------------------------------
+               0.616490   slack (MET)
+
+
+== cmd_max
+Startpoint: _731_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: pad_cmd[0] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock clk (rise edge)
+   0.000000    0.000000   clock network delay (ideal)
+   0.000000    0.000000 ^ _731_/CLK (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+   1.963233    1.963233 ^ _731_/Q (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+   0.000000    1.963233 ^ pad_cmd[0] (out)
+               1.963233   data arrival time
+
+  10.000000   10.000000   clock clk (rise edge)
+   0.000000   10.000000   clock network delay (ideal)
+   0.000000   10.000000   clock reconvergence pessimism
+   0.000000   10.000000   output external delay
+              10.000000   data required time
+-----------------------------------------------------------------
+              10.000000   data required time
+              -1.963233   data arrival time
+-----------------------------------------------------------------
+               8.036767   slack (MET)
+
+
+== cmd_min
+Startpoint: _731_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: pad_cmd[0] (output port clocked by clk)
+Path Group: clk
+Path Type: min
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock clk (rise edge)
+   0.000000    0.000000   clock network delay (ideal)
+   0.000000    0.000000 ^ _731_/CLK (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+   1.692796    1.692796 v _731_/Q (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+   0.000000    1.692796 v pad_cmd[0] (out)
+               1.692796   data arrival time
+
+   0.000000    0.000000   clock clk (rise edge)
+   0.000000    0.000000   clock network delay (ideal)
+   0.000000    0.000000   clock reconvergence pessimism
+   0.000000    0.000000   output external delay
+               0.000000   data required time
+-----------------------------------------------------------------
+               0.000000   data required time
+              -1.692796   data arrival time
+-----------------------------------------------------------------
+               1.692796   slack (MET)
+
+
+== dqo_max
+Startpoint: _732_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: pad_dq[0] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock clk (rise edge)
+   0.000000    0.000000   clock network delay (ideal)
+   0.000000    0.000000 ^ _732_/CLK (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+   2.218872    2.218872 ^ _732_/Q (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+   0.000000    2.218872 ^ pad_dq[0] (inout)
+               2.218872   data arrival time
+
+  10.000000   10.000000   clock clk (rise edge)
+   0.000000   10.000000   clock network delay (ideal)
+   0.000000   10.000000   clock reconvergence pessimism
+   0.000000   10.000000   output external delay
+              10.000000   data required time
+-----------------------------------------------------------------
+              10.000000   data required time
+              -2.218872   data arrival time
+-----------------------------------------------------------------
+               7.781128   slack (MET)
+
+
+== dqo_min
+Startpoint: _732_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: pad_dq[0] (output port clocked by clk)
+Path Group: clk
+Path Type: min
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock clk (rise edge)
+   0.000000    0.000000   clock network delay (ideal)
+   0.000000    0.000000 ^ _732_/CLK (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+   1.878427    1.878427 v _732_/Q (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+   0.000000    1.878427 v pad_dq[0] (inout)
+               1.878427   data arrival time
+
+   0.000000    0.000000   clock clk (rise edge)
+   0.000000    0.000000   clock network delay (ideal)
+   0.000000    0.000000   clock reconvergence pessimism
+   0.000000    0.000000   output external delay
+               0.000000   data required time
+-----------------------------------------------------------------
+               0.000000   data required time
+              -1.878427   data arrival time
+-----------------------------------------------------------------
+               1.878427   slack (MET)
+
+
+== dqi_max
+Startpoint: pad_dq[0] (input port clocked by clk)
+Endpoint: _668_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock clk (rise edge)
+   0.000000    0.000000   clock network delay (ideal)
+   0.000000    0.000000 ^ input external delay
+   0.000000    0.000000 ^ pad_dq[0] (inout)
+   0.325983    0.325983 v _495_/ZN (gf180mcu_fd_sc_mcu7t5v0__clkinv_1)
+   0.956573    1.282556 ^ _527_/ZN (gf180mcu_fd_sc_mcu7t5v0__oai22_1)
+   0.000000    1.282556 ^ _668_/D (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+               1.282556   data arrival time
+
+  10.000000   10.000000   clock clk (rise edge)
+   0.000000   10.000000   clock network delay (ideal)
+   0.000000   10.000000   clock reconvergence pessimism
+              10.000000 ^ _668_/CLK (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+  -1.037256    8.962744   library setup time
+               8.962744   data required time
+-----------------------------------------------------------------
+               8.962744   data required time
+              -1.282556   data arrival time
+-----------------------------------------------------------------
+               7.680187   slack (MET)
+
+
+== dqi_min
+Startpoint: pad_dq[0] (input port clocked by clk)
+Endpoint: _668_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: min
+
+      Delay        Time   Description
+-----------------------------------------------------------------
+   0.000000    0.000000   clock clk (rise edge)
+   0.000000    0.000000   clock network delay (ideal)
+   0.000000    0.000000 v input external delay
+   0.000000    0.000000 v pad_dq[0] (inout)
+   0.325289    0.325289 ^ _495_/ZN (gf180mcu_fd_sc_mcu7t5v0__clkinv_1)
+   0.365361    0.690651 v _527_/ZN (gf180mcu_fd_sc_mcu7t5v0__oai22_1)
+   0.000000    0.690651 v _668_/D (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+               0.690651   data arrival time
+
+   0.000000    0.000000   clock clk (rise edge)
+   0.000000    0.000000   clock network delay (ideal)
+   0.000000    0.000000   clock reconvergence pessimism
+               0.000000 ^ _668_/CLK (gf180mcu_fd_sc_mcu7t5v0__dffq_1)
+   0.050150    0.050150   library hold time
+               0.050150   data required time
+-----------------------------------------------------------------
+               0.050150   data required time
+              -0.690651   data arrival time
+-----------------------------------------------------------------
+               0.640500   slack (MET)
+
+

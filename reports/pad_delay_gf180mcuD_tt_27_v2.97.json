@@ -1,0 +1,26 @@
+{
+  "generated_by": "generator/emit_char_delay.py",
+  "backend": "gf180mcuD",
+  "status": "design_assumption - no signoff",
+  "sizing_fixture": "/grid/ddr-phy/specs/pads/sizing/gf180mcuD.first_pass.yaml",
+  "pdk_root": "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD",
+  "ngspice": "ngspice-44.2 : Circuit level simulation program",
+  "corner": "tt",
+  "temp_c": 27.0,
+  "vdd_v": 2.97,
+  "vddio_v": 2.97,
+  "load": "1 kohm to VDDIO/2 + 1 pF",
+  "series_r_ohm": 22.0,
+  "receiver_inverting": true,
+  "excluded": [
+    "package/PCB RLC",
+    "PVT signoff",
+    "ESD qualification"
+  ],
+  "measures": {
+    "tpd_out_f": 2.907665e-10,
+    "tpd_out_r": 3.441847e-10,
+    "tpd_in_f": 9.375902e-12,
+    "tpd_in_r": 9.21558e-11
+  }
+}

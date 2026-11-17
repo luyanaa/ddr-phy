@@ -104,3 +104,36 @@ SDC 顶部有 12 个命名 Tcl 变量，全部 `= 0.000` 且标注 `TBD`：`boar
 - 不把 "LibreLane 跑通" 说成 PHY 端到端时序闭合。
 - 不把 `reports/timing_margin.json` 里的 `ideal_*_ceiling` 说成可用余量。
 - 不声称做过 SDF、PEX、SPICE、IBIS、SI/PI 或 DRC/LVS。
+
+## 8. P1-3：CK 输出与端到端 min/max 余量
+
+本次把 SDC 里 4 个 pad 占位换成了 **SPICE 特征化值**，并新增了转发 CK 的路径组：
+
+| 项 | 来源 | 值 |
+|---|---|---|
+| `pad_out_min` / `pad_out_max` | `reports/pad_delay_gf180mcuD_*.json`（5 个 PVT 点） | 0.208 / 0.441 ns |
+| `pad_in_min` / `pad_in_max` | 同上 | −0.002 / 0.096 ns |
+| `toe_on` / `toe_off` | `reports/pad_char_gf180mcuD_*.json`（5 个 PVT 点最大值） | 0.608 / 3.299 ns |
+
+新增 `group_path -name CK_OUT`：`ck` 是转发时钟，`set_output_delay` 用 `pad_out_*` 加板级项（板级仍是 TBD）。
+
+数字部分用 **yosys + OpenSTA** 跑了 `sdram_phy_top`（GF180 `mcu7t5v0`，tt/ss/ff 三个 liberty 角）：
+
+- 网表未布局、无 wire load，延迟是**布局前估计**，不是签核值。
+- `sim/p1_3_timing.sh` 依次跑：pad 延迟特征化（5 点）→ yosys 综合 → 三个角的 OpenSTA → `generator/p1_3_margins.py`。
+- 结果：`reports/p1_3_margins.json`、`reports/p1_3_timing.md`。
+
+| 检查（最差角，ns） | 余量 |
+|---|---|
+| 写 setup | **−3.168（ss）** |
+| 写 hold | +9.453 |
+| 读 setup | +2.621（ss） |
+| 读 hold | +3.204 |
+| OE 开启 | +3.408 |
+| OE 关断 | +5.737 |
+
+**结论：写 setup 是负的，`reports/p1_3_margins.json` 标 `NO_GO`。** 原因是结构性的：CK 从 `clk` 端口经 2 级门（mux + 电源门）直接出片，DQ 要经输出寄存器 + turnaround mux + adapter。ss 角 CK 到片边约 1.0 ns，DQ 约 2.66 ns，DRAM 要求 DQ 比 CK 早 1.5 ns（tDS），于是 −3.17 ns。
+
+这不是约束能修的：要么用已表征的 CK 相位/延迟单元（能力门 G6，`clock_forward` 的 `ck_phase_clks` 就是留给它的钩子），要么改写出方案（DQ 提前一拍）。文档明确禁止用未表征的 inverter chain 移相，所以本次**不动 RTL**，只把结论和数字固定下来。
+
+`generator/emit_sdc.py --check` 仍然失败（板级、uncertainty、pll_dll、pad_slew 仍是 TBD），所以 SDC 继续保持草稿状态，不接进 PnR。

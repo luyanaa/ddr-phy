@@ -1,0 +1,153 @@
+{
+  "generated_by": "generator/p1_3_margins.py",
+  "status": "NO_GO",
+  "claim": "design_assumption - unplaced STA netlist, first-pass pad fixture",
+  "operating_point": "baseline_100_cl2",
+  "tCK_ns": 10.0,
+  "device": "MT48LC16M16A2",
+  "device_terms_ns": {
+    "tDS": 1.5,
+    "tDH": 0.8,
+    "tAC_max": 6.0,
+    "tOH_min": 3.0,
+    "tHZ_max": 6.0,
+    "tLZ_min": 1.0
+  },
+  "notes": [
+    "STA netlist is synthesised but not placed and has no wire load.",
+    "Pad delays are SPICE from the first-pass sizing fixture.",
+    "Board/package terms are not included (P1-4).",
+    "OE margins use the P1-1 t_oe_on/t_oe_off and one guard cycle;",
+    "  the board delay that sets the DRAM-side reference is P1-4."
+  ],
+  "corners": [
+    {
+      "corner": "tt",
+      "pad_tag": "tt_27",
+      "tco_ck_ns": [
+        0.306753,
+        0.4531099999999997
+      ],
+      "tco_dq_ns": [
+        0.940291,
+        1.08854
+      ],
+      "pad_out_ns": [
+        0.27145339999999996,
+        0.317014
+      ],
+      "pad_in_ns": [
+        0.007850692,
+        0.08519655
+      ],
+      "tCLK_fwd_ns": [
+        0.5782064,
+        0.7701239999999997
+      ],
+      "tDQ_tx_ns": [
+        1.2117444,
+        1.405554
+      ],
+      "tDQ_rx_ns": [
+        0.358874692,
+        0.71952255
+      ],
+      "write_setup_ns": -2.3273476,
+      "write_hold_ns": 9.6416204,
+      "read_setup_ns": 3.2804774500000002,
+      "read_hold_ns": 3.358874692,
+      "t_oe_on_ns": 0.42273679999999997,
+      "t_oe_off_ns": 3.12344,
+      "oe_off_ns": 5.87656,
+      "oe_on_ns": 3.5772632
+    },
+    {
+      "corner": "ss",
+      "pad_tag": "ss_125",
+      "tco_ck_ns": [
+        0.61649,
+        0.9074629999999999
+      ],
+      "tco_dq_ns": [
+        1.878427,
+        2.218872
+      ],
+      "pad_out_ns": [
+        0.3754696,
+        0.44134999999999996
+      ],
+      "pad_in_ns": [
+        0.02852325,
+        0.09595432999999999
+      ],
+      "tCLK_fwd_ns": [
+        0.9919595999999999,
+        1.3488129999999998
+      ],
+      "tDQ_tx_ns": [
+        2.2538966,
+        2.660222
+      ],
+      "tDQ_rx_ns": [
+        0.71917425,
+        1.3785103300000001
+      ],
+      "write_setup_ns": -3.1682624,
+      "write_hold_ns": 10.1050836,
+      "read_setup_ns": 2.62148967,
+      "read_hold_ns": 3.71917425,
+      "t_oe_on_ns": 0.5920089,
+      "t_oe_off_ns": 3.263252,
+      "oe_off_ns": 5.736748,
+      "oe_on_ns": 3.4079911000000003
+    },
+    {
+      "corner": "ff",
+      "pad_tag": "ff_-40",
+      "tco_ck_ns": [
+        0.176195,
+        0.2605500000000003
+      ],
+      "tco_dq_ns": [
+        0.543599,
+        0.612797
+      ],
+      "pad_out_ns": [
+        0.20830100000000001,
+        0.2386233
+      ],
+      "pad_in_ns": [
+        -0.002301688,
+        0.07348414
+      ],
+      "tCLK_fwd_ns": [
+        0.384496,
+        0.49917330000000026
+      ],
+      "tDQ_tx_ns": [
+        0.7519,
+        0.8514203
+      ],
+      "tDQ_rx_ns": [
+        0.203940312,
+        0.43191614
+      ],
+      "write_setup_ns": -1.9669243,
+      "write_hold_ns": 9.452726699999998,
+      "read_setup_ns": 3.5680838599999998,
+      "read_hold_ns": 3.203940312,
+      "t_oe_on_ns": 0.3199337,
+      "t_oe_off_ns": 3.026754,
+      "oe_off_ns": 5.973246,
+      "oe_on_ns": 3.6800663
+    }
+  ],
+  "worst": {
+    "write_setup_ns": -3.1682624,
+    "write_hold_ns": 9.452726699999998,
+    "read_setup_ns": 2.62148967,
+    "read_hold_ns": 3.203940312,
+    "oe_off_ns": 5.736748,
+    "oe_on_ns": 3.4079911000000003
+  }
+}

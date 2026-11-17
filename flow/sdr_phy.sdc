@@ -34,13 +34,13 @@ set board_dq_max   0.000  ; # TBD tDQ_return/tDQ_tx max
 set board_dq_min   0.000  ; # TBD tDQ_return/tDQ_tx min
 set board_ck_max   0.000  ; # TBD tCLK,fwd max
 set board_ck_min   0.000  ; # TBD tCLK,fwd min
-set pad_out_max    0.000  ; # TBD output pad delay max
-set pad_out_min    0.000  ; # TBD output pad delay min
-set pad_in_max     0.000  ; # TBD input pad delay max
-set pad_in_min     0.000  ; # TBD input pad delay min
+set pad_out_max    0.441  ; # P1-3 pad_delay_*.json (SPICE, first-pass fixture)
+set pad_out_min    0.208  ; # P1-3 pad_delay_*.json
+set pad_in_max     0.096  ; # P1-3 pad_delay_*.json
+set pad_in_min     -0.002  ; # P1-3 pad_delay_*.json
 set t_uncertainty  0.000  ; # TBD jitter + DCD + OCV + skew + SSN
-set toe_on         0.000  ; # TBD tOE_on
-set toe_off        0.000  ; # TBD tOE_off
+set toe_on         0.608  ; # P1-1 pad_char_*.json (max over PVT)
+set toe_off        3.299  ; # P1-1 pad_char_*.json (max over PVT)
 
 # ---- clocks ----
 create_clock -name sys_clk -period $tCK [get_ports clk]
@@ -50,6 +50,13 @@ create_clock -name sys_clk -period $tCK [get_ports clk]
 create_generated_clock -name sdram_ck -source [get_ports clk]     -divide_by 1 [get_ports ck]
 set_clock_uncertainty $t_uncertainty [get_clocks sys_clk]
 set_clock_uncertainty $t_uncertainty [get_clocks sdram_ck]
+
+# ---- path group 0: forwarded CK (clk -> ck pin) ----
+# P1-3. ck is the forwarded clock; its pad delay is characterized, the
+# board term is still TBD (P1-4).
+set_output_delay -clock sdram_ck -max     [expr {$pad_out_max - $board_ck_min}] [get_ports ck]
+set_output_delay -clock sdram_ck -min     [expr {$pad_out_min - $board_ck_max}] [get_ports ck]
+group_path -name CK_OUT -to [get_ports ck]
 
 # ---- path group 1: Command/Address TX (ASIC FF -> SDRAM CK) ----
 set cmd_ports {a[*] ba[*] ras_n cas_n we_n cs_n* cke* dm*}
@@ -92,5 +99,5 @@ group_path -name OE_TURNAROUND -to [get_ports dq_oe]
 # conditions (checklist section 6.1). The placeholder variables must be
 # filled per corner, not collapsed into one number.
 #
-# Still absent: SDF annotation, PEX/SPICE, IBIS/PCB SI, power integrity,
+# Still absent: SDF annotation, IBIS/PCB SI, power integrity,
 # multi-corner PVT, DRC/LVS on the pad ring. See docs/STA_PLAN.md.
