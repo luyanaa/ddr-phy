@@ -117,6 +117,24 @@ def main():
 
     seal_ring(ly, top, args.die_um[0], args.die_um[1], args.seal_um, ly.dbu)
 
+    # Guard ring in every pad slot: the ring generator is DRC-clean
+    # (sim/gf180_guard_ring.sh) and the pad ring has the free area the pad
+    # cell itself lacks.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import emit_guard_ring as gr
+    import emit_esd_clamp as ecl
+    for side, x, y, rot in placed:
+        t = pya.Trans(getattr(pya.Trans, "R%d" % rot), x, y)
+        # ring drawn in the pad cell's local frame, then transformed
+        sub = ly.create_cell("gr_%s_%d_%d" % (side, x, y))
+        gr.draw_ring(ly, sub, -60000, -62000, 40000, -20000, 1000,
+                     fill=True, label="VSSIO")
+        top.insert(pya.CellInstArray(sub.cell_index(), t))
+        # ESD clamp next to each pad, in the same local frame.
+        cl = ly.create_cell("cl_%s_%d_%d" % (side, x, y))
+        ecl.draw_clamp(ly, cl)
+        top.insert(pya.CellInstArray(cl.cell_index(), t))
+
     # overlap check on transformed bounding boxes
     boxes = []
     for side, x, y, rot in placed:

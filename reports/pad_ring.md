@@ -35,19 +35,60 @@ Rotation: bottom pads R0, top R180, left R270, right R90, so the pad stack
 sits on the die edge and the core side faces inward. The die interior is
 1.5 x 1.5 mm with a 20 um seal ring.
 
-## 3. What is and is not covered
+## 3. Guard ring and ESD clamp cells
+
+Both are delivered as **standalone, DRC/LVS-verified cells** and instanced in
+every pad slot (108 instances total: 36 pads + 36 guard rings + 36 clamps).
+
+### Guard ring (`generator/emit_guard_ring.py`)
+
+| layer | geometry |
+|---|---|
+| Comp | 1.0 um band |
+| Pplus | Comp + 0.16 um each side |
+| Contact | 0.22 um squares at 0.5 um pitch (CO.2a = 0.25) |
+| Metal1 | Comp + 0.07 um each side |
+| Via1 | 0.26 um squares at 0.6 um pitch (V1.2a = 0.26) |
+| Metal2 | Comp + 0.07 um each side |
+
+`sh sim/gf180_guard_ring.sh` -> **PASS full DRC (0 violations)**.
+
+### ESD clamp (`generator/emit_esd_clamp.py`)
+
+Grounded-gate NMOS, 40 fingers x 2 um = 80 um channel, gate/source/bulk on
+VSSIO, drain on PAD, with its own Metal2 channel so it cannot cross the
+output stage's buses.
+
+`sh sim/gf180_esd_clamp.sh`:
+```text
+PASS gf180_esd_clamp DRC (geometry clean; 5 die-level density only)
+PASS gf180_esd_clamp LVS (Netlists match)
+```
+
+The extracted device is `M$1 PAD VSSIO VSSIO VSSIO nfet_03v3 W=80U` - the
+gate, source and bulk are one net, which is what the earlier in-cell
+attempts failed to achieve.
+
+The five density violations are die-level (DCF.1b, PL.8, M1.4/M3.4/M4.4/
+M5.4/MT.3): a clamp cell is instanced inside a die that carries the fill,
+so they do not apply to the cell.
+
+## 4. What is and is not covered
 
 Covered:
 - pad tile-out on four sides with a non-overlapping placement check,
 - a seal ring frame (Comp / Nwell / Pplus / Contact, Metal1..MetalTop,
-  Via1..Via5).
+  Via1..Via5),
+- a DRC-verified guard ring in every pad slot,
+- a DRC/LVS-verified ggNMOS ESD clamp in every pad slot.
 
 Not covered:
-- **guard ring per pad**: the pad cell still has no Nwell/Pplus guard ring
-  around its devices. This is the remaining half of the "guard ring" item.
+- the clamp is **not wired to the pad's PAD net in the assembled ring**:
+  the cells are placed but the pad-to-clamp connection is a pad-ring
+  routing task (the pad cell exposes PAD on Metal2 at its edge),
 - DRC/LVS on the assembled ring, pad-to-pad spacing rules, the die core
-  power grid, bond pads / package.
-- ESD qualification (see `reports/p1_4_channel.md` section 6: the clamp is
-  still inadequate).
+  power grid, bond pads / package,
+- ESD qualification: the clamp's effect is measured on the pad macro
+  (`reports/p1_4_channel.md` section 6), not on the ring.
 
 `reports/capability_report.md` stays `NO_GO`.

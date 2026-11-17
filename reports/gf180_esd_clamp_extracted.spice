@@ -1,0 +1,8 @@
+* Extracted by KLayout with GF180MCU LVS runset on : 18/11/2026 00:09
+
+* cell gf180_esd_clamp
+.SUBCKT gf180_esd_clamp
+* device instance $1 r0 *1 0.58,1 nfet_03v3
+M$1 PAD VSSIO VSSIO VSSIO nfet_03v3 L=0.28U W=80U AS=21.16P AD=21.16P
++ PS=103.16U PD=103.16U
+.ENDS gf180_esd_clamp

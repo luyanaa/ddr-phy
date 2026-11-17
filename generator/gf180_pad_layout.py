@@ -503,6 +503,40 @@ class PadLayout:
         self._ring("Metal2", x0 - 70, y0 - 70, x1 + 70, y1 + 70, w + 140)
         self.label("Metal2_label", "VSSIO", x0 + w // 2, y0 + w // 2)
 
+    def local_guard_ring(self, x0, y0, x1, y1, net, w=800, size=220, pitch=500):
+        """Guard ring around one device block (latch-up protection).
+
+        A local ring does not touch the die edge, so it does not remove the
+        dummy-fill rows that the die-level density rules depend on.
+        """
+        def frame(layer, xa, ya, xb, yb, wd):
+            self.rect(layer, xa, ya, xb, ya + wd)
+            self.rect(layer, xa, yb - wd, xb, yb)
+            self.rect(layer, xa, ya, xa + wd, yb)
+            self.rect(layer, xb - wd, ya, xb, yb)
+        def contacts(layer, xa, ya, xb, yb, wd, size=220, pitch=500):
+            def row(yy):
+                x = xa + wd
+                while x + size <= xb - wd:
+                    self.rect(layer, x, yy, x + size, yy + size)
+                    x += pitch
+            def col(xx):
+                y = ya + wd
+                while y + size <= yb - wd:
+                    self.rect(layer, xx, y, xx + size, y + size)
+                    y += pitch
+            row(ya + (wd - size) // 2)
+            row(yb - (wd + size) // 2)
+            col(xa + (wd - size) // 2)
+            col(xb - (wd + size) // 2)
+        frame("Comp", x0, y0, x1, y1, w)
+        frame("Pplus", x0 - 160, y0 - 160, x1 + 160, y1 + 160, w + 320)
+        contacts("Contact", x0, y0, x1, y1, w)
+        frame("Metal1", x0 - 70, y0 - 70, x1 + 70, y1 + 70, w + 140)
+        contacts("Via1", x0, y0, x1, y1, w, size=260, pitch=600)
+        frame("Metal2", x0 - 70, y0 - 70, x1 + 70, y1 + 70, w + 140)
+        self.label("Metal2_label", net, x0 + w // 2, y0 + w // 2)
+
     def dummy_fill(self):
         """Fill the empty area with COMP/Poly2 dummy tiles.
 
