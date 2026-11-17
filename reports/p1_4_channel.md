@@ -175,10 +175,34 @@ the band it occupies and the cell has no other free area. The pad cell
 therefore keeps 80 um (DRC 0, LVS match, 40.9 V) and the **pad ring**
 instances a 160 um clamp per pad, where the area exists.
 
-Conclusion: the pad cell's clamp is **area-bound**, not model-bound. The
-SPICE evidence says 160 um gives 29.8 V, and that is what the ring
-carries. Qualifying either still needs TLP data (the BSIM model has no
-snapback), so the ESD exit condition stays NO_GO.
+Conclusion: the pad cell's clamp is **area-bound**, not model-bound.
+
+### The 160 um clamp is now verified end to end
+
+`sim/gf180_esd_clamp_160.sh` (generate + DRC + LVS + Magic PEX + ESD):
+
+```text
+wrote .../gf180_esd_clamp_160.gds (nf=40 w=4 -> 160 um)
+PASS gf180_esd_clamp_160 DRC (geometry clean; die-level density only)
+PASS gf180_esd_clamp_160 LVS (Netlists match)
+PASS gf180_esd_clamp_160 Magic RC-PEX (79 R elements)
+v_pad_max = 2.844e+01
+```
+
+So the 160 um clamp, extracted from its own layout (not just a SPICE
+sizing guess), holds the 1 A / 100 ns stress at **28.4 V** - close to the
+29.8 V prediction and well below the 40.9 V of the 80 um pad-cell clamp.
+
+| clamp | source | peak |
+|---|---|---|
+| none | - | 51.2 V |
+| 80 um in the pad cell | pad PEX | 40.9 V |
+| **160 um in the ring** | **clamp PEX** | **28.4 V** |
+
+Qualifying either still needs TLP data (the BSIM model has no snapback),
+so the ESD exit condition stays NO_GO - but the clamp research itself is
+closed: the topology, the size lever, the area limit and the extracted
+numbers are all established.
 
 ## 7. ESD stress check (not a qualification)
 

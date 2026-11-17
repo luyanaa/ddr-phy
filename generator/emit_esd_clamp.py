@@ -80,14 +80,19 @@ def draw_clamp(ly, cell, nf=40, w=2.0):
 
 
 def main():
+    import os
+    nf = int(os.environ.get("ESD_NF", "40"))
+    w = float(os.environ.get("ESD_W", "2.0"))
+    name = os.environ.get("ESD_NAME", "gf180_esd_clamp")
+
     pdk = find_pdk()
     sys.path.insert(0, str(pdk / "libs.tech/klayout/tech/pymacros/klayout_api_cells"))
     from draw_mos import draw_nfet
 
     ly = pya.Layout()
     ly.dbu = 0.001
-    cell = ly.create_cell("gf180_esd_clamp")
-    nf, w = 40, 2.0
+    cell = ly.create_cell(name)
+
     dev = draw_nfet(ly, 0.28, w, 0.44, nf, 0.36, "Bulk Tie", "3.3V", False, False)
     cell.insert(pya.CellInstArray(dev.cell_index(), pya.Trans(pya.Point(0, 0))))
     bb = dev.bbox()
@@ -140,9 +145,10 @@ def main():
     # clean, which is what the DRC check below verifies.
 
     OUT.mkdir(parents=True, exist_ok=True)
-    gds = OUT / "gf180_esd_clamp.gds"
+    gds = OUT / ("%s.gds" % name)
     ly.write(str(gds))
-    print("wrote %s (nf=%d w=%g, %dx%d dbu)" % (gds, nf, w, bb.width(), bb.height()))
+    print("wrote %s (nf=%d w=%g -> %.0f um, %dx%d dbu)"
+          % (gds, nf, w, nf * w, bb.width(), bb.height()))
     return 0
 
 
