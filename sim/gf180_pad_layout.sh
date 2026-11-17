@@ -112,6 +112,15 @@ for line in open(src):
             continue
         if any(c in t for c in './#') and node_rx.match(t):
             toks[i] = re.sub(r'[./#]', '_', t)
+    # Magic writes diode area/pj in layout units (scale = 5 nm); ngspice does
+    # not apply .option scale to these two instance parameters, so convert
+    # them to SI here (800000 * 25e-18 = 20p, 3600 * 5e-9 = 18u).
+    if len(toks) >= 4 and toks[3].startswith('diode'):
+        for i, t in enumerate(toks):
+            if t.startswith('area='):
+                toks[i] = 'area=%g' % (float(t[5:]) * 25e-18)
+            elif t.startswith('pj='):
+                toks[i] = 'pj=%g' % (float(t[3:]) * 5e-9)
     out.append(' '.join(toks) + '\n')
 open(dst, 'w').writelines(out)
 PY

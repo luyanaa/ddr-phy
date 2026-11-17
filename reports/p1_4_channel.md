@@ -55,15 +55,30 @@ setup +2.621 ns): the channel is common-mode for CK and DQ, so it does not
 move the relative skew. The board contribution becomes visible only when
 the traces are not matched (then each millimetre is 5.5 ps).
 
-## 4. Limitation found in the P1-2 PEX netlist
+## 4. PEX units fixed; the PEX now drives the channel
 
-The Magic flat PEX writes device geometry in layout units (`w=1000 l=56
-ad=52n`) while the PDK ngspice models are subcircuits expecting SI units.
-The extracted output stage therefore does not drive in transient: with the
-gates forced low the pad stays at the rail it is leaking to, and only the
-receiver (a comparator) behaves. The PEX remains valid for DRC/LVS and the
-`.op` check (which drives PAD externally), but it is not used for the
-channel transient. Fixing the PEX units is an open item.
+The P1-2 PEX writes `.option scale=5n`, so `w=1000 l=56` is a 5 µm /
+0.28 µm device (correct). The bug was the ESD diode instance parameters:
+Magic writes `area`/`pj` in scale units (800000 x 25e-18 = 20 µm²,
+3600 x 5 nm = 18 µm) and ngspice does **not** apply `.option scale` to
+those two, so the diodes were 800000x too large and clamped PAD.
+`sim/gf180_pad_layout.sh` now converts them to SI during sanitization.
+
+With that fix the extracted pad drives to 3.3 V in `.op`, and the channel
+transient runs on the real PEX:
+
+| measure | schematic slice | PEX |
+|---|---|---|
+| DRAM 10-90 % slew | 424 / 417 ps | **1.64 / 1.53 ns** |
+| DRAM overshoot | 3.397 V | **3.313 V** |
+| 50 % channel delay | 335-337 ps | ~0 (see note) |
+
+The PEX pad edge is much slower (1.6 ns vs 0.42 ns) because the extracted
+RC mesh and the pad plate capacitance load the driver. With such a slow
+edge the 50 % crossing at the far end *leads* the near-end 50 % crossing
+(the line sees a doubled wavefront), so the 50 %-to-50 % number is not a
+delay; the physical time of flight is still TD = 275 ps. The budget uses
+`board = t_chan +/- skew`, which the PEX run keeps inside +/-6 ps.
 
 ## 5. Not done
 

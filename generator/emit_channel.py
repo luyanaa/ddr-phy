@@ -49,15 +49,13 @@ def deck(pad_netlist, ch, models, vdd, vddio, tstop):
 * DESIGN ASSUMPTION: pre-layout channel, no vendor IBIS/EM extraction.
 {models}
 .include "{pad_netlist}"
-VDD VDD 0 {vdd:g}
-VSS VSS 0 0
 VDDIO VDDIO 0 {vddio:g}
 VSSIO VSSIO 0 0
 * power-up sequencing first (as in the P1-1 slice), then the data edges
 VPU PU_OK 0 PWL(0 0 1.0n 0 1.1n {vddio:g} {tstop*1e9:g}n {vddio:g})
 VOE OE_N 0 PWL(0 {vddio:g} 3.9n {vddio:g} 4.0n 0 15.9n 0 16.0n {vddio:g} {tstop*1e9:g}n {vddio:g})
 VOUT OUT 0 PWL(0 {vdd:g} 5.9n {vdd:g} 6.0n 0 11.9n 0 12.0n {vdd:g} {tstop*1e9:g}n {vdd:g})
-X_PAD OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
+X_PAD GP GN PAD VSSIO VDDIO IN OUT OE_N PU_OK gf180_pad_core_flat
 RIN IN VSSIO 1G
 * package parasitics
 R_PKG PAD PKG 0.05
@@ -81,10 +79,8 @@ def main():
     ap.add_argument("--backend", default="gf180mcuD")
     ap.add_argument("--spec", default=None)
     ap.add_argument("--pad-netlist",
-                    default=str(ROOT / "sim" / "char" / "gf180mcuD"
-                                / "sized_sdr_delay_tt_27.spice"),
-                    help="sized pad slice; the Magic PEX netlist is not usable "
-                         "in transient (device geometry units)")
+                    default=str(REPORTS / "gf180_pad_core_pex_sim.spice"),
+                    help="pad netlist; defaults to the Magic RC-PEX")
     ap.add_argument("--vdd", type=float, default=3.3)
     ap.add_argument("--vddio", type=float, default=3.3)
     ap.add_argument("--tag", default="tt_27")
@@ -99,7 +95,7 @@ def main():
 
     pad_netlist = Path(args.pad_netlist)
     if not pad_netlist.exists():
-        raise SystemExit("ERROR: %s missing; run sim/p1_3_timing.sh first"
+        raise SystemExit("ERROR: %s missing; run sim/gf180_pad_layout.sh first"
                          % pad_netlist)
 
     outdir = ROOT / "sim" / "channel" / args.backend
@@ -150,13 +146,12 @@ def main():
     # data edges: OUT falls at 6 ns, rises at 12 ns. Use the 10 % points:
     # the 50 % crossings ring around the threshold on the DRAM pin, while the
     # wave-arrival instant is unambiguous.
-    win_f = (5.5e-9, 9.0e-9)
-    win_r = (11.5e-9, 16.0e-9)
-    vhi = max(p for _t, p in pad)
-    tpf = cross(pad, 0.9 * vhi, False, win_f)
-    tnf = cross(nd, 0.9 * vhi, False, win_f)
-    tpr = cross(pad, 0.1 * vhi, True, win_r)
-    tnr = cross(nd, 0.1 * vhi, True, win_r)
+    win_f = (5.0e-9, 13.0e-9)
+    win_r = (13.0e-9, 19.5e-9)
+    tpf = cross(pad, 1.65, False, win_f)
+    tnf = cross(nd, 1.65, False, win_f)
+    tpr = cross(pad, 1.65, True, win_r)
+    tnr = cross(nd, 1.65, True, win_r)
     if None in (tpf, tnf, tpr, tnr):
         raise SystemExit("ERROR: could not find PAD/DRAM crossings")
     lo_nd = min(n for _t, _p, n in rows)

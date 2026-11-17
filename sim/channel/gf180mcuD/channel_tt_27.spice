@@ -5,16 +5,14 @@
 .lib "$PDK_ROOT/libs.tech/ngspice/sm141064.ngspice" diode_typical
 .include "$PDK_ROOT/libs.tech/ngspice/design.ngspice"
 
-.include "/grid/ddr-phy/sim/char/gf180mcuD/sized_sdr_delay_tt_27.spice"
-VDD VDD 0 3.3
-VSS VSS 0 0
+.include "/grid/ddr-phy/reports/gf180_pad_core_pex_sim.spice"
 VDDIO VDDIO 0 3.3
 VSSIO VSSIO 0 0
 * power-up sequencing first (as in the P1-1 slice), then the data edges
 VPU PU_OK 0 PWL(0 0 1.0n 0 1.1n 3.3 20n 3.3)
 VOE OE_N 0 PWL(0 3.3 3.9n 3.3 4.0n 0 15.9n 0 16.0n 3.3 20n 3.3)
 VOUT OUT 0 PWL(0 3.3 5.9n 3.3 6.0n 0 11.9n 0 12.0n 3.3 20n 3.3)
-X_PAD OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
+X_PAD GP GN PAD VSSIO VDDIO IN OUT OE_N PU_OK gf180_pad_core_flat
 RIN IN VSSIO 1G
 * package parasitics
 R_PKG PAD PKG 0.05

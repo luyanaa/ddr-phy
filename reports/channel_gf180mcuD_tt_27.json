@@ -4,7 +4,7 @@
   "backend": "gf180mcuD",
   "tag": "tt_27",
   "spec": "/grid/ddr-phy/specs/pads/channel/gf180mcuD.yaml",
-  "pad_netlist": "/grid/ddr-phy/sim/char/gf180mcuD/sized_sdr_delay_tt_27.spice",
+  "pad_netlist": "/grid/ddr-phy/reports/gf180_pad_core_pex_sim.spice",
   "channel": {
     "pcb_length_mm": 50.0,
     "z0_ohm": 50.0,
@@ -24,12 +24,12 @@
     "source": "typical wire-bond IBIS [Package] RLC range"
   },
   "measures": {
-    "t_chan_f": 3.352088772376925e-10,
-    "t_chan_r": 3.3745256258983564e-10,
-    "slew_r": 4.244700421946703e-10,
-    "slew_f": 4.168278148146189e-10,
-    "ov_dram": 3.397433,
-    "uv_dram": -0.0447564
+    "t_chan_f": -1.5721522089852143e-11,
+    "t_chan_r": -2.3561271578825098e-11,
+    "slew_r": 1.6434438466884505e-09,
+    "slew_f": 1.5253268959317367e-09,
+    "ov_dram": 3.312497,
+    "uv_dram": -0.00537986
   },
   "trace_skew_s": 5.4999999999999996e-12,
   "notes": [
