@@ -92,7 +92,37 @@ delay; the physical time of flight is still TD = 275 ps. The budget uses
 
 `reports/capability_report.md` stays `NO_GO`.
 
-## 6. ESD stress check (not a qualification)
+## 6. ESD clamp: implemented, but the peak is capacitive
+
+The clamp was enlarged and duplicated in the layout: the PAD->VDDIO and
+VSSIO->PAD diodes are now 8 x 8 um (64 um2 each) and a second VSSIO->PAD
+diode was added, so the PAD-referenced clamp has 128 um2 of junction area.
+Full DRC is 0 violations and LVS matches with the updated schematic
+(DUP/DDN/DDN2 = 64p, DCLAMP = 100p).
+
+Measured effect on the 1 A / 10 ns stress: **51.2 V -> 51.7 V, i.e. none.**
+That confirms the earlier diagnosis: the peak is the pad capacitance being
+charged (1 A / 0.17 pF = 5.9e12 V/s), and junction area does not change a
+capacitive peak. Only an active clamp that turns on inside the 10 ns edge
+helps. SPICE sizing for that path:
+
+| clamp | peak |
+|---|---|
+| none | 51.2 V |
+| ggNMOS 20 um | 34.3 V |
+| ggNMOS 100 um | 29.8 V |
+| gate-coupled NMOS 100 um, 10k / 5 pF | **11.0 V** |
+
+The ggNMOS layout integration was attempted four times (Metal2 straight
+run, Metal3 drain route, source re-routed left and below) and each time
+either shorted PAD to VSSIO or left the clamp source as an isolated
+`VSSIO$1` net; those attempts were reverted rather than committed broken.
+A 5 pF MOM coupling capacitor does not fit the pad cell.
+
+So: **the clamp cell exists and is DRC/LVS clean, but it does not reduce
+the ESD peak.** The exit condition stays NO_GO.
+
+## 7. ESD stress check (not a qualification)
 
 `sh sim/gf180_esd_stress.sh` drives a 1 A / 10 ns-rise / 100 ns pulse into
 PAD on the extracted pad with the output disabled.

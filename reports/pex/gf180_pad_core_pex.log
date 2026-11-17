@@ -60,6 +60,7 @@ Reading "pmos$2".
 Reading "pmos$1".
 Reading "nfet$1".
 Reading "diode_pn$1".
+Reading "diode_np$1".
 Reading "diode_np".
 Reading "diode_pn".
 Reading "ppolyf_u_resistor".
@@ -68,6 +69,8 @@ Reading "pmos".
 Reading "gf180_pad_core".
 Extracting gf180_pad_core_flat into gf180_pad_core_flat.ext:
 Processing gf180_pad_core_flat
+Device pdiodec does not have a compatible substrate node!
+Device pdiodec does not have a compatible substrate node!
 Device pdiodec does not have a compatible substrate node!
 Device pdiodec does not have a compatible substrate node!
 Processing cell gf180_pad_core_flat for resistance extraction.
@@ -92,7 +95,7 @@ Extracting GP
 Extracting GN
 Extracting PAD
 Extracting IN
-Total Nets: 22
-Nets extracted: 21 (0.954545)
-Nets output: 21 (0.954545)
+Total Nets: 30
+Nets extracted: 21 (0.700000)
+Nets output: 21 (0.700000)
 exttospice finished.

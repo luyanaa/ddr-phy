@@ -459,6 +459,50 @@ class PadLayout:
             self._gate_to_pad(tr[net], gx_pad, y_pad)
         return tr
 
+    def _ring(self, layer, x0, y0, x1, y1, w):
+        self.rect(layer, x0, y0, x1, y0 + w)
+        self.rect(layer, x0, y1 - w, x1, y1)
+        self.rect(layer, x0, y0, x0 + w, y1)
+        self.rect(layer, x1 - w, y0, x1, y1)
+
+    def _ring_contacts(self, layer, x0, y0, x1, y1, w, size=220, pitch=400):
+        """Tile square contacts along a ring band."""
+        # rows/columns stop at the band edges so corners do not produce
+        # merged (oversized) contacts
+        def row(ya, yb):
+            x = x0 + w
+            while x + size <= x1 - w:
+                self.rect(layer, x, ya, x + size, yb)
+                x += pitch
+        def col(xa, xb):
+            y = y0 + w
+            while y + size <= y1 - w:
+                self.rect(layer, xa, y, xb, y + size)
+                y += pitch
+        row(y0 + (w - size) // 2, y0 + (w - size) // 2 + size)
+        row(y1 - (w + size) // 2, y1 - (w + size) // 2 + size)
+        col(x0 + (w - size) // 2, x0 + (w - size) // 2 + size)
+        col(x1 - (w + size) // 2, x1 - (w + size) // 2 + size)
+
+    def guard_ring(self):
+        """Psub guard ring around the pad core, tied to VSSIO.
+
+        Comp 1.0 um, Pplus = Comp + 0.16 um, a tiled contact row (0.22 um at
+        0.4 um pitch), Metal1 and a Via1 row, then Metal2.
+        """
+        bb = self.top.bbox()
+        m = 200
+        x0, y0 = bb.left + m, bb.bottom + m
+        x1, y1 = bb.right - m, bb.top - m
+        w = 1000
+        self._ring("Comp", x0, y0, x1, y1, w)
+        self._ring("Pplus", x0 - 160, y0 - 160, x1 + 160, y1 + 160, w + 320)
+        self._ring_contacts("Contact", x0, y0, x1, y1, w, size=220, pitch=500)
+        self._ring("Metal1", x0 - 70, y0 - 70, x1 + 70, y1 + 70, w + 140)
+        self._ring_contacts("Via1", x0, y0, x1, y1, w, size=260, pitch=600)
+        self._ring("Metal2", x0 - 70, y0 - 70, x1 + 70, y1 + 70, w + 140)
+        self.label("Metal2_label", "VSSIO", x0 + w // 2, y0 + w // 2)
+
     def dummy_fill(self):
         """Fill the empty area with COMP/Poly2 dummy tiles.
 
@@ -511,6 +555,7 @@ class PadLayout:
         # (the pad is a DCF.1a keepout) but is legal dummy COMP and is needed
         # to reach the 25% global COMP density on this stand-alone cell.
         self.rect("Comp_dummy", -10000, -10000, 10000, 10000)
+
         print("dummy fill tiles: %d" % count)
 
     def dummy_density_fill(self):
@@ -534,15 +579,18 @@ class PadLayout:
         total = float(extent.area())
         b = extent.bbox()
 
-        def fill(real, dummy, target, base, tile, pitch):
+        def fill(real, dummy, target, base, tile, pitch, fine=True):
             need = target / 100.0 * total - float(reg(real).area() + reg(dummy).area())
             if need <= 0:
                 return 0
             allowed = pya.Region()
             allowed.insert(base)
             placed = 0
-            # Coarse pass, then a fine pass to use the leftover slivers.
-            for t, p_ in ((tile, pitch), (1500, 2600)):
+            # Coarse pass, then fine passes for the leftover slivers. COMP
+            # dummy must keep its 1.9 um spacing, so it only gets the coarse
+            # pass.
+            passes = ((tile, pitch), (1500, 2600)) if fine else ((tile, pitch),)
+            for t, p_ in passes:
                 if need <= 0:
                     break
                 for poly in allowed.merged().each():
@@ -577,7 +625,7 @@ class PadLayout:
                      reg("RES_MK", 4000) + reg("Pad", 2000) +
                      reg("Comp_dummy", 2000))
         base = extent - keep_comp
-        fill("Comp", "Comp_dummy", 25.5, base, 5000, 7100)
+        fill("Comp", "Comp_dummy", 25.5, base, 5000, 7100, fine=False)
 
         # Metal dummy: DM.3 2um to circuit metal, DM.2b 0.98um dummy-dummy.
         keep_m = pya.Region()
@@ -586,14 +634,14 @@ class PadLayout:
                      "Metal4", "Metal5", "MetalTop", "Pad",
                      "Comp_dummy", "Poly2_dummy"):
             keep_m += reg(name)
-        base = extent - keep_m.sized(2100)
+        base = extent - keep_m.sized(2050)
 
         # With metal_level=5LM the deck aliases MetalTop to Metal5, so the
         # MT.3 ratio is the Metal5 ratio.
         for real, dummy in (("Metal1", "Metal1_dummy"), ("Metal2", "Metal2_dummy"),
                             ("Metal3", "Metal3_dummy"), ("Metal4", "Metal4_dummy"),
                             ("Metal5", "Metal5_dummy")):
-            fill(real, dummy, 30.6, base, 2800, 3900)
+            fill(real, dummy, 31.8, base, 2800, 3900)
 
 
 def main():
@@ -634,27 +682,37 @@ def main():
 
     # ESD diodes on the left. PAD-side pads are wired straight to the pad
     # Metal1; supply-side pads go to explicit VDDIO/VSSIO rails.
-    dup = lay.diode("pd2nw", -55000, 10000, 5.0, 4.0, "PAD", "VDDIO")
-    ddn = lay.diode("nd2ps", -55000, -10000, 5.0, 4.0, "VSSIO", "PAD")
-    dcl = lay.diode("pd2nw", -55000, -30000, 10.0, 10.0, "VSSIO", "VDDIO")
+    # PAD-referenced ESD diodes at 8 x 8 um (64 um2 each); the down diode is
+    # duplicated so the PAD -> VSSIO clamp has 128 um2 of junction area.
+    dup = lay.diode("pd2nw", -55000, 10000, 8.0, 8.0, "PAD", "VDDIO")
+    ddn = lay.diode("nd2ps", -55000, -10000, 8.0, 8.0, "VSSIO", "PAD")
+    ddn2 = lay.diode("nd2ps", -55000, -24000, 8.0, 8.0, "VSSIO", "PAD")
+    dcl = lay.diode("pd2nw", -55000, -38000, 10.0, 10.0, "VSSIO", "VDDIO")
+    # V1.4a: the diode cells place Via1 on their Metal1 pads, so each pad
+    # needs Metal2 coverage.
+    for d in (dup, ddn, ddn2, dcl):
+        for px, py in d["pads"]:
+            lay.rect("Metal2", px - 350, py - 350, px + 350, py + 350)
 
     # PAD-side connections to the pad Metal1.
     lay.rect("Metal1", dup["pads"][1][0] - 400, dup["pads"][1][1] - 500,
              -31000, dup["pads"][1][1] + 500)
     lay.rect("Metal1", ddn["pads"][1][0] - 400, ddn["pads"][1][1] - 500,
              -31000, ddn["pads"][1][1] + 500)
+    lay.rect("Metal1", ddn2["pads"][1][0] - 400, ddn2["pads"][1][1] - 500,
+             -31000, ddn2["pads"][1][1] + 500)
 
     # VDDIO rail (left) and VSSIO rail (left + bottom + right).
     lay.rect("Metal2", -58000, -40000, -57500, 51600)
     lay.rect("Metal2", -58000, 51200, -39000, 51600)
-    lay.rect("Metal2", -62000, -42000, -61500, -6000)
+    lay.rect("Metal2", -62000, -42000, -61500, -5600)
     lay.rect("Metal2", -62000, -41800, 45000, -41400)
     lay.rect("Metal2", 44600, -42000, 45000, 48400)
     lay.rect("Metal2", 32000, 48000, 45000, 48400)
 
     # ESD supply stubs: Metal1 pad -> via1 -> Metal2 rail.
     for d, which, xend in ((dup, 0, -58000), (dcl, 0, -58000),
-                           (ddn, 0, -62000)):
+                           (ddn, 0, -62000), (ddn2, 0, -62000)):
         x, y = d["pads"][which]
         lay.rect("Metal1", xend, y - 300, x + 400, y + 300)
         if xend == -58000:
@@ -664,9 +722,9 @@ def main():
 
     # Clamp anode below the cell, around the cathode pad, to the VSSIO rail.
     ax, ay = dcl["pads"][1]
-    lay.rect("Metal1", ax - 200, -32000, ax + 200, ay + 300)
-    lay.rect("Metal1", -61800, -32000, ax + 200, -31600)
-    lay.rect("Metal1", -62000, -32000, -61600, -24600)
+    lay.rect("Metal1", ax - 200, -40000, ax + 200, ay + 300)
+    lay.rect("Metal1", -61800, -40000, ax + 200, -39600)
+    lay.rect("Metal1", -62000, -40000, -61600, -32600)
     lay.rect("Via1", -61870, ay - 130, -61610, ay + 130)
 
     # Resistor bulk to VSSIO, routed below the resistor.
@@ -755,8 +813,9 @@ def main():
         "MP NPRE GP VDDIO VDDIO pfet_03v3 W=200u L=0.28u\n"
         "MN NPRE GN VSSIO VSSIO nfet_03v3 W=80u L=0.28u\n"
         "R1 NPRE PAD VSSIO ppolyf_u L=1.4u W=22u\n"
-        "DUP PAD VDDIO diode_pd2nw_03v3 A=20p P=18u\n"
-        "DDN VSSIO PAD diode_nd2ps_03v3 A=20p P=18u\n"
+        "DUP PAD VDDIO diode_pd2nw_03v3 A=64p P=32u\n"
+        "DDN VSSIO PAD diode_nd2ps_03v3 A=64p P=32u\n"
+        "DDN2 VSSIO PAD diode_nd2ps_03v3 A=64p P=32u\n"
         "DCLAMP VSSIO VDDIO diode_pd2nw_03v3 A=100p P=40u\n"
         "MRN IN PAD VSSIO VSSIO nfet_03v3 W=2u L=0.28u\n"
         "MRP IN PAD VDDIO VDDIO pfet_03v3 W=4u L=0.28u\n"
