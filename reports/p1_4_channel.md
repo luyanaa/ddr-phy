@@ -107,11 +107,17 @@ extracted metal network cannot sink 1 A without ~50 V: the current path
 through the ESD diodes and the VDDIO/VSSIO mesh is far too resistive. The
 100 µm² VSSIO->VDDIO clamp does not help a PAD-referenced stress.
 
-This is a real finding, not a model artifact: it means the pad cannot be
-called ESD-protected and needs a dedicated clamp (bigger diodes, a
-grounded-gate NMOS/RC clamp, and wide, short metal). `reports/
-capability_report.md` stays NO_GO, and the P1-4 exit condition "ESD stress
-verification" is **not** met.
+This is a real finding, not a model artifact. A DC check on the same
+netlist shows the diode path does conduct (5 V -> 11.4 mA, -5 V -> 46.3 mA,
+i.e. ~440 ohm / ~110 ohm), so the 51 V peak is the pad capacitance being
+charged by a 1 A edge (1 A / 0.17 pF = 5.9e12 V/s), not an open circuit.
+
+Closing it needs a **dedicated clamp cell**, not a diode resize:
+a gate-coupled NMOS (or RC-triggered NMOS) from PAD to VSSIO with wide,
+short metal. That cell has to be designed and sized as an ESD device
+(ballast, trigger, second breakdown), which is outside what the pad
+generator can produce today. `reports/capability_report.md` stays NO_GO
+and the P1-4 exit condition "ESD stress verification" is **not** met.
 
 This is a circuit-level sanity check only: no HBM/TLP/CDM model, no
 package, no tester impedance, no pass/fail spec.
