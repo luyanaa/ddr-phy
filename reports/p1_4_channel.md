@@ -92,7 +92,7 @@ delay; the physical time of flight is still TD = 275 ps. The budget uses
 
 `reports/capability_report.md` stays `NO_GO`.
 
-## 6. ESD clamp: implemented, but the peak is capacitive
+## 6. ESD clamp: wired into the pad, peak drops 51.2 V -> 40.9 V
 
 The clamp was enlarged and duplicated in the layout: the PAD->VDDIO and
 VSSIO->PAD diodes are now 8 x 8 um (64 um2 each) and a second VSSIO->PAD
@@ -100,11 +100,25 @@ diode was added, so the PAD-referenced clamp has 128 um2 of junction area.
 Full DRC is 0 violations and LVS matches with the updated schematic
 (DUP/DDN/DDN2 = 64p, DCLAMP = 100p).
 
-Measured effect on the 1 A / 10 ns stress: **51.2 V -> 51.7 V, i.e. none.**
-That confirms the earlier diagnosis: the peak is the pad capacitance being
-charged (1 A / 0.17 pF = 5.9e12 V/s), and junction area does not change a
-capacitive peak. Only an active clamp that turns on inside the 10 ns edge
-helps. SPICE sizing for that path:
+The ggNMOS clamp is now **instanced inside the pad cell** and wired to the
+PAD net, so it is part of the extracted netlist:
+
+```text
+M$56 PAD VSSIO VSSIO VSSIO nfet_03v3 L=0.28U W=40U   (nf=20 x 2 um = 40 um)
+```
+
+Measured effect on the 1 A / 10 ns stress:
+
+| configuration | peak |
+|---|---|
+| no clamp (baseline) | 51.2 V |
+| diode clamp only (128 um2) | 51.7 V |
+| **ggNMOS 40 um + diodes** | **40.9 V** |
+
+So the active clamp does work: -20 % on the peak. It is not enough for a
+qualified pad (a 40 um ggNMOS is small), and the wider 80 um version could
+not be placed without colliding with the VDDIO net. SPICE sizing for the
+larger options:
 
 | clamp | peak |
 |---|---|
@@ -113,14 +127,16 @@ helps. SPICE sizing for that path:
 | ggNMOS 100 um | 29.8 V |
 | gate-coupled NMOS 100 um, 10k / 5 pF | **11.0 V** |
 
-The ggNMOS layout integration was attempted four times (Metal2 straight
-run, Metal3 drain route, source re-routed left and below) and each time
-either shorted PAD to VSSIO or left the clamp source as an isolated
-`VSSIO$1` net; those attempts were reverted rather than committed broken.
-A 5 pF MOM coupling capacitor does not fit the pad cell.
+The fix for the earlier integration failures was the source tie: the
+`draw_mos` bulk-tie Metal1 island is not connected to the source bus, so
+the extractor produced an isolated `VSSIO$1`. The standalone clamp cell
+adds an explicit Metal1 strap plus a Via1 to the source bus, and the pad
+cell instances that cell with its source bus landing directly on the
+VSSIO frame's bottom bar.
 
-So: **the clamp cell exists and is DRC/LVS clean, but it does not reduce
-the ESD peak.** The exit condition stays NO_GO.
+Still open: the clamp is 40 um (a qualified pad needs a much larger
+device or a gate-coupled clamp with an RC trigger), and the 80 um attempt
+merged the drain with VDDIO. The exit condition stays NO_GO.
 
 ## 7. ESD stress check (not a qualification)
 

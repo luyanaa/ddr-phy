@@ -1,4 +1,4 @@
-* Extracted by KLayout with GF180MCU LVS runset on : 18/11/2026 00:13
+* Extracted by KLayout with GF180MCU LVS runset on : 18/11/2026 00:56
 
 * cell gf180_pad_core
 .SUBCKT gf180_pad_core
@@ -6,98 +6,101 @@
 M$1 IN PAD VDDIO VDDIO pfet_03v3 L=0.28U W=4U AS=1.76P AD=1.76P PS=8.88U
 + PD=8.88U
 * device instance $2 r0 *1 -39.42,47.5 pfet_03v3
-M$2 \$85 GP VDDIO VDDIO pfet_03v3 L=0.28U W=200U AS=52.9P AD=52.9P PS=226.16U
+M$2 \$126 GP VDDIO VDDIO pfet_03v3 L=0.28U W=200U AS=52.9P AD=52.9P PS=226.16U
 + PD=226.16U
 * device instance $42 r0 *1 -31,56.4 pfet_03v3
-M$42 \$419 OUT VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
+M$42 \$327 OUT VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
 * device instance $43 r0 *1 -27,56.4 pfet_03v3
-M$43 \$420 OE_N VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
+M$43 \$328 OE_N VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
 * device instance $44 r0 *1 -23,56.4 pfet_03v3
-M$44 \$454 PU_OK VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
+M$44 \$329 PU_OK VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
 * device instance $45 r0 *1 -19.9,56.4 pfet_03v3
-M$45 \$454 \$420 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
+M$45 \$329 \$328 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
 * device instance $46 r0 *1 -16,56.4 pfet_03v3
-M$46 \$421 \$454 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
+M$46 \$330 \$329 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
 * device instance $47 r0 *1 -12.9,56.4 pfet_03v3
-M$47 \$456 \$419 \$421 VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
+M$47 \$362 \$327 \$330 VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
 * device instance $48 r0 *1 -9,56.4 pfet_03v3
-M$48 \$422 \$456 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
+M$48 \$331 \$362 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
 * device instance $49 r0 *1 -5,56.4 pfet_03v3
-M$49 \$423 \$422 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
+M$49 \$332 \$331 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
 * device instance $50 r0 *1 -1,56.4 pfet_03v3
-M$50 GP \$423 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
+M$50 GP \$332 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
 * device instance $51 r0 *1 3,56.4 pfet_03v3
-M$51 \$424 \$454 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
+M$51 \$333 \$329 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
 * device instance $52 r0 *1 6.1,56.4 pfet_03v3
-M$52 \$457 OUT \$424 VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
+M$52 \$363 OUT \$333 VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
 * device instance $53 r0 *1 10,56.4 pfet_03v3
-M$53 \$425 \$457 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
+M$53 \$334 \$363 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
 * device instance $54 r0 *1 14,56.4 pfet_03v3
-M$54 GN \$425 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
+M$54 GN \$334 VDDIO VDDIO pfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
 * device instance $55 r0 *1 -9.42,-49 nfet_03v3
 M$55 IN PAD VSSIO VSSIO nfet_03v3 L=0.28U W=2U AS=0.88P AD=0.88P PS=4.88U
 + PD=4.88U
-* device instance $56 r0 *1 0.58,46 nfet_03v3
-M$56 \$85 GN VSSIO VSSIO nfet_03v3 L=0.28U W=80U AS=21.16P AD=21.16P PS=103.16U
-+ PD=103.16U
-* device instance $96 r0 *1 -31,60.1 nfet_03v3
-M$96 \$419 OUT VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
+* device instance $56 r0 *1 -41.42,-48.55 nfet_03v3
+M$56 PAD VSSIO VSSIO VSSIO nfet_03v3 L=0.28U W=40U AS=10.76P AD=10.76P
++ PS=52.76U PD=52.76U
+* device instance $76 r0 *1 0.58,46 nfet_03v3
+M$76 \$126 GN VSSIO VSSIO nfet_03v3 L=0.28U W=80U AS=21.16P AD=21.16P
++ PS=103.16U PD=103.16U
+* device instance $116 r0 *1 -31,60.1 nfet_03v3
+M$116 \$327 OUT VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
 + PD=2.88U
-* device instance $97 r0 *1 -27,60.1 nfet_03v3
-M$97 \$420 OE_N VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
+* device instance $117 r0 *1 -27,60.1 nfet_03v3
+M$117 \$328 OE_N VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
 + PD=2.88U
-* device instance $98 r0 *1 -24.16,60.1 nfet_03v3
-M$98 \$455 PU_OK \$454 VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
+* device instance $118 r0 *1 -24.16,60.1 nfet_03v3
+M$118 \$361 PU_OK \$329 VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
 + PD=2.88U
-* device instance $99 r0 *1 -21.06,60.1 nfet_03v3
-M$99 VSSIO \$420 \$455 VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
+* device instance $119 r0 *1 -21.06,60.1 nfet_03v3
+M$119 VSSIO \$328 \$361 VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
 + PD=2.88U
-* device instance $100 r0 *1 -16,60.1 nfet_03v3
-M$100 \$456 \$454 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
+* device instance $120 r0 *1 -16,60.1 nfet_03v3
+M$120 \$362 \$329 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
 + PD=2.88U
-* device instance $101 r0 *1 -12.9,60.1 nfet_03v3
-M$101 \$456 \$419 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
+* device instance $121 r0 *1 -12.9,60.1 nfet_03v3
+M$121 \$362 \$327 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
 + PD=2.88U
-* device instance $102 r0 *1 -9,60.1 nfet_03v3
-M$102 \$422 \$456 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
+* device instance $122 r0 *1 -9,60.1 nfet_03v3
+M$122 \$331 \$362 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
 + PD=2.88U
-* device instance $103 r0 *1 -5,60.1 nfet_03v3
-M$103 \$423 \$422 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
+* device instance $123 r0 *1 -5,60.1 nfet_03v3
+M$123 \$332 \$331 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
 + PD=2.88U
-* device instance $104 r0 *1 -1,60.1 nfet_03v3
-M$104 GP \$423 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
+* device instance $124 r0 *1 -1,60.1 nfet_03v3
+M$124 GP \$332 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
 + PD=2.88U
-* device instance $105 r0 *1 3,60.1 nfet_03v3
-M$105 \$457 \$454 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
+* device instance $125 r0 *1 3,60.1 nfet_03v3
+M$125 \$363 \$329 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
 + PD=2.88U
-* device instance $106 r0 *1 6.1,60.1 nfet_03v3
-M$106 \$457 OUT VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
+* device instance $126 r0 *1 6.1,60.1 nfet_03v3
+M$126 \$363 OUT VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
 + PD=2.88U
-* device instance $107 r0 *1 10,60.1 nfet_03v3
-M$107 \$425 \$457 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
+* device instance $127 r0 *1 10,60.1 nfet_03v3
+M$127 \$334 \$363 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
 + PD=2.88U
-* device instance $108 r0 *1 14,60.1 nfet_03v3
-M$108 GN \$425 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
+* device instance $128 r0 *1 14,60.1 nfet_03v3
+M$128 GN \$334 VSSIO VSSIO nfet_03v3 L=0.28U W=1U AS=0.44P AD=0.44P PS=2.88U
 + PD=2.88U
-* device instance $109 r0 *1 -50.16,-6 diode_nd2ps_03v3
-D$109 VSSIO PAD diode_nd2ps_03v3 A=128P P=64U
-* device instance $111 r0 *1 -49.16,-33 diode_pd2nw_03v3
-D$111 VSSIO VDDIO diode_pd2nw_03v3 A=100P P=40U
-* device instance $112 r0 *1 -50.16,14 diode_pd2nw_03v3
-D$112 PAD VDDIO diode_pd2nw_03v3 A=64P P=32U
-* device instance $113 r0 *1 36.7,0 ppolyf_u
-R$113 \$85 PAD VSSIO 22.2727272727 ppolyf_u L=1.4U W=22U
+* device instance $129 r0 *1 -50.16,-6 diode_nd2ps_03v3
+D$129 VSSIO PAD diode_nd2ps_03v3 A=128P P=64U
+* device instance $131 r0 *1 -49.16,-33 diode_pd2nw_03v3
+D$131 VSSIO VDDIO diode_pd2nw_03v3 A=100P P=40U
+* device instance $132 r0 *1 -50.16,14 diode_pd2nw_03v3
+D$132 PAD VDDIO diode_pd2nw_03v3 A=64P P=32U
+* device instance $133 r0 *1 36.7,0 ppolyf_u
+R$133 \$126 PAD VSSIO 22.2727272727 ppolyf_u L=1.4U W=22U
 .ENDS gf180_pad_core

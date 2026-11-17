@@ -589,6 +589,17 @@ class PadLayout:
         # (the pad is a DCF.1a keepout) but is legal dummy COMP and is needed
         # to reach the 25% global COMP density on this stand-alone cell.
         self.rect("Comp_dummy", -10000, -10000, 10000, 10000)
+        # Density top-up in the free strip right of the pad (DPF.9 needs
+        # 6.7 um to the Pad layer, so it starts at x 39000).
+        self.rect("Comp_dummy", 38900, -64500, 44500, -31000)
+        self.rect("Poly2_dummy", 38900, -64500, 44500, -31000)
+        self.rect("Poly2_dummy", 38900, 33500, 44500, 46000)
+        self.rect("Comp_dummy", 38900, 33500, 44500, 46000)
+
+        self.rect("Metal4_dummy", 39000, -46000, 44000, -31000)
+        self.rect("Metal5_dummy", 39000, -64000, 44000, -31000)
+        self.rect("Metal4_dummy", 39000, 14000, 44000, 30000)
+        self.rect("Metal5_dummy", 39000, 14000, 44000, 30000)
 
         print("dummy fill tiles: %d" % count)
 
@@ -800,6 +811,22 @@ def main():
     lay.rect("Via2", -57830, -39930, -57570, -39670)
 
     lay.oe_logic()
+    # ESD clamp: instance the verified standalone ggNMOS cell. Its source
+    # bus lands on the VSSIO frame's bottom bar (y -48750..-48250) and its
+    # drain bus is at y -51180..-51580, so the drain reaches PAD on Metal3
+    # without crossing the output stage's Metal2 buses.
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import emit_esd_clamp as _ecl
+    _cl = lay.ly.create_cell("esd_clamp")
+    _ecl.draw_clamp(lay.ly, _cl, nf=20, w=2.0)
+    lay.top.insert(pya.CellInstArray(_cl.cell_index(),
+                                     pya.Trans(pya.Point(-42000, -49550))))
+    # drain -> PAD on Metal3
+    lay.rect("Via2", -40130, -51530, -39870, -51270)
+    lay.rect("Metal3", -40350, -51700, -39650, -32000)
+    lay.rect("Metal3", -40350, -32350, -31500, -32000)
+
     lay.dummy_fill()
     lay.dummy_density_fill()
 
@@ -855,6 +882,7 @@ def main():
         "MRP IN PAD VDDIO VDDIO pfet_03v3 W=4u L=0.28u\n"
         "MPOB OUTB_I OUT VDDIO VDDIO pfet_03v3 W=2u L=0.28u\n"
         "MNOB OUTB_I OUT VSSIO VSSIO nfet_03v3 W=1u L=0.28u\n"
+        "MCLAMP PAD VSSIO VSSIO VSSIO nfet_03v3 W=40u L=0.28u\n"
         "MPOE OENB OE_N VDDIO VDDIO pfet_03v3 W=2u L=0.28u\n"
         "MNOE OENB OE_N VSSIO VSSIO nfet_03v3 W=1u L=0.28u\n"
                                                                                                         "MPNGP N_GP NGPB VDDIO VDDIO pfet_03v3 W=2u L=0.28u\n"
