@@ -91,3 +91,27 @@ delay; the physical time of flight is still TD = 275 ps. The budget uses
   that is covered by the pad PVT numbers.
 
 `reports/capability_report.md` stays `NO_GO`.
+
+## 6. ESD stress check (not a qualification)
+
+`sh sim/gf180_esd_stress.sh` drives a 1 A / 10 ns-rise / 100 ns pulse into
+PAD on the extracted pad with the output disabled.
+
+| measure | value |
+|---|---|
+| peak PAD voltage | **51.2 V** |
+| minimum PAD voltage | 1.09 V |
+
+**The clamp is not adequate for this pulse.** A 20 µm² PAD diode plus the
+extracted metal network cannot sink 1 A without ~50 V: the current path
+through the ESD diodes and the VDDIO/VSSIO mesh is far too resistive. The
+100 µm² VSSIO->VDDIO clamp does not help a PAD-referenced stress.
+
+This is a real finding, not a model artifact: it means the pad cannot be
+called ESD-protected and needs a dedicated clamp (bigger diodes, a
+grounded-gate NMOS/RC clamp, and wide, short metal). `reports/
+capability_report.md` stays NO_GO, and the P1-4 exit condition "ESD stress
+verification" is **not** met.
+
+This is a circuit-level sanity check only: no HBM/TLP/CDM model, no
+package, no tester impedance, no pass/fail spec.

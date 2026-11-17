@@ -1,0 +1,1114 @@
+Error opening osdi lib "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD//home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/osdi/psp103.osdi": No such file or directory!
+Error: Library /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD//home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/osdi/psp103.osdi couldn't be loaded!
+Error opening osdi lib "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD//home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/osdi/psp103_nqs.osdi": No such file or directory!
+Error: Library /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD//home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/osdi/psp103_nqs.osdi couldn't be loaded!
+Error opening osdi lib "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD//home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/osdi/r3_cmc.osdi": No such file or directory!
+Error: Library /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD//home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/osdi/r3_cmc.osdi couldn't be loaded!
+Error opening osdi lib "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD//home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/osdi/mosvar.osdi": No such file or directory!
+Error: Library /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD//home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/osdi/mosvar.osdi couldn't be loaded!
+Error opening osdi lib "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD//home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/osdi/cap_cmomi.osdi": No such file or directory!
+Error: Library /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD//home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/osdi/cap_cmomi.osdi couldn't be loaded!
+Error opening osdi lib "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD//home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/osdi/cap_cmomf.osdi": No such file or directory!
+Error: Library /home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD//home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/osdi/cap_cmomf.osdi couldn't be loaded!
+
+Note: No compatibility mode selected!
+
+
+Circuit: * esd stress: 1 a / 100 ns pulse into pad, output disabled. not a qualification.
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+x_pad.vssio_t91                    1.67908e-06
+x_pad.gn_t2                        6.48211e-05
+x_pad.a_n7856_9000_t39                 1.09222
+x_pad.vssio_t90                    0.000317116
+x_pad.a_n7856_9000_t56                 1.09223
+x_pad.gp_t25                           3.29921
+x_pad.vddio_t65                            3.3
+x_pad.vddio_t64                        3.29806
+x_pad.a_n7856_9000_t16                 1.09222
+x_pad.gn_t25                       6.48215e-05
+x_pad.vssio_t49                     1.5735e-06
+x_pad.vssio_t48                    0.000284845
+x_pad.vddio_t107                           3.3
+x_pad.gp_t2                            3.29919
+x_pad.a_n7856_9000_t79                 1.09223
+x_pad.vddio_t106                        3.2971
+x_pad.vssio_t110                   4.05615e-10
+x_pad.vddio_t13                        3.29998
+x_pad.vddio_t53                            3.3
+x_pad.gp_t32                           3.29923
+x_pad.a_n7856_9000_t49                 1.09223
+x_pad.vddio_t52                        3.29871
+x_pad.a_n4804_11920_t0             4.34265e-05
+x_pad.pu_ok_t1                               0
+x_pad.a_n4948_11920_t2                 3.29991
+x_pad.vssio_t96                    2.04423e-05
+x_pad.a_n3172_11920_t1             4.00709e-05
+x_pad.a_n6172_11080_t2                 3.29987
+x_pad.a_n3172_11080_t1                 2.99998
+x_pad.vddio_t8                         3.29997
+x_pad.vssio_t63                    1.88889e-06
+x_pad.gn_t18                       6.48213e-05
+x_pad.a_n7856_9000_t23                 1.09222
+x_pad.vssio_t62                    0.000271148
+x_pad.a_n7856_9000_t72                 1.09223
+x_pad.gp_t9                            3.29919
+x_pad.vddio_t95                            3.3
+x_pad.vddio_t94                         3.2972
+x_pad.a_n7856_9000_t50                 1.09223
+x_pad.gp_t31                           3.29922
+x_pad.vddio_t51                            3.3
+x_pad.vddio_t50                        3.29861
+x_pad.vssio_t106                   1.38304e-05
+x_pad.a_n5372_11080_t3             6.63854e-05
+x_pad.a_n4804_11920_t1             4.34265e-05
+x_pad.vssio_t105                   1.39913e-05
+x_pad.vssio_t67                    1.86233e-06
+x_pad.gn_t16                       6.48212e-05
+x_pad.a_n7856_9000_t25                 1.09222
+x_pad.vssio_t66                    0.000308554
+x_pad.a_n3172_11920_t2              3.9892e-05
+x_pad.a_n6172_11080_t3                 3.29987
+x_pad.vssio_t93                    1.37625e-05
+x_pad.vssio_t92                    1.36699e-05
+x_pad.a_n7856_9000_t42                 1.09223
+x_pad.gp_t39                           3.29924
+x_pad.vddio_t35                            3.3
+x_pad.vddio_t34                        3.29953
+x_pad.a_n7856_9000_t22                 1.09222
+x_pad.gn_t19                       6.48213e-05
+x_pad.vssio_t59                    1.91546e-06
+x_pad.vssio_t58                    0.000278246
+x_pad.vddio_t101                           3.3
+x_pad.gp_t8                            3.29919
+x_pad.a_n7856_9000_t73                 1.09223
+x_pad.vddio_t100                       3.29717
+x_pad.a_n7856_9000_t30                 1.09222
+x_pad.gn_t11                       6.48211e-05
+x_pad.vssio_t75                    1.80919e-06
+x_pad.vssio_t74                    0.000354313
+x_pad.a_n972_11080_t1              6.58768e-05
+x_pad.a_n1772_11080_t2                 3.29987
+x_pad.vddio_t25                        3.29998
+x_pad.vddio_t24                        3.29997
+x_pad.vddio_t33                            3.3
+x_pad.gp_t38                           3.29924
+x_pad.a_n7856_9000_t43                 1.09223
+x_pad.vddio_t32                         3.2994
+x_pad.a_n972_11080_t0               6.5618e-05
+x_pad.a_n1772_11080_t3                 3.29987
+x_pad.vssio_t95                    1.36022e-05
+x_pad.vssio_t94                    1.33661e-05
+x_pad.vssio_t19                    1.80919e-06
+x_pad.gn_t12                       6.48212e-05
+x_pad.a_n7856_9000_t29                 1.09222
+x_pad.vssio_t18                    0.000350619
+x_pad.a_n7856_9000_t66                 1.09223
+x_pad.gp_t15                            3.2992
+x_pad.vddio_t83                            3.3
+x_pad.vddio_t82                        3.29742
+x_pad.vssio_t77                    1.78262e-06
+x_pad.gn_t10                       6.48211e-05
+x_pad.a_n7856_9000_t31                 1.09222
+x_pad.vssio_t76                    0.000355278
+x_pad.a_n7856_9000_t64                 1.09223
+x_pad.gp_t17                            3.2992
+x_pad.vddio_t79                            3.3
+x_pad.vddio_t78                        3.29752
+x_pad.vssio_t27                    3.92473e-07
+x_pad.gn_t38                       6.48221e-05
+x_pad.a_n7856_9000_t3                  1.09223
+x_pad.vssio_t26                    0.000122979
+x_pad.vssio_t4                      0.00038663
+x_pad.pad_t3                           1.09221
+x_pad.a_n7856_9000_t8                  1.09222
+x_pad.gn_t33                       6.48218e-05
+x_pad.vssio_t13                    7.86158e-07
+x_pad.vssio_t12                    0.000208947
+x_pad.a_n7856_9000_t2                  1.09223
+x_pad.gn_t39                       6.48221e-05
+x_pad.vssio_t25                    1.95627e-07
+x_pad.vssio_t24                    9.91974e-05
+x_pad.a_n7856_9000_t36                 1.09222
+x_pad.gn_t5                        6.48211e-05
+x_pad.vssio_t17                    1.72945e-06
+x_pad.vssio_t16                    0.000319175
+x_pad.vddio_t71                            3.3
+x_pad.gp_t22                           3.29921
+x_pad.a_n7856_9000_t59                 1.09223
+x_pad.vddio_t70                        3.29783
+x_pad.a_n7856_9000_t38                 1.09222
+x_pad.gn_t3                        6.48211e-05
+x_pad.vssio_t89                    1.70287e-06
+x_pad.vssio_t88                    0.000314387
+x_pad.vssio_t35                    7.86158e-07
+x_pad.gn_t34                       6.48219e-05
+x_pad.a_n7856_9000_t7                  1.09223
+x_pad.vssio_t34                    0.000196401
+x_pad.vddio_t67                            3.3
+x_pad.gp_t24                           3.29921
+x_pad.a_n7856_9000_t57                 1.09223
+x_pad.vddio_t66                        3.29798
+x_pad.a_n7856_9000_t60                 1.09223
+x_pad.gp_t21                           3.29921
+x_pad.vddio_t73                            3.3
+x_pad.vddio_t72                        3.29776
+x_pad.vssio_t87                    1.70287e-06
+x_pad.gn_t4                        6.48211e-05
+x_pad.a_n7856_9000_t37                 1.09222
+x_pad.vssio_t86                     0.00030893
+x_pad.vssio_t21                     1.5735e-06
+x_pad.gn_t26                       6.48215e-05
+x_pad.a_n7856_9000_t15                 1.09222
+x_pad.vssio_t20                    0.000276394
+x_pad.in_t1                            3.09717
+x_pad.pad_t2                           1.09221
+x_pad.vssio_t7                     0.000883623
+x_pad.vssio_t6                       0.0006672
+x_pad.a_n7856_9000_t58                 1.09223
+x_pad.gp_t23                           3.29921
+x_pad.vddio_t69                            3.3
+x_pad.vddio_t68                         3.2979
+x_pad.a_n7856_9000_t52                 1.09223
+x_pad.gp_t29                           3.29922
+x_pad.vddio_t47                            3.3
+x_pad.vddio_t46                        3.29841
+x_pad.a_n7856_9000_t14                 1.09222
+x_pad.gn_t27                       6.48216e-05
+x_pad.vssio_t47                    1.37667e-06
+x_pad.vssio_t46                    0.000265213
+x_pad.vddio_t55                            3.3
+x_pad.gp_t28                           3.29922
+x_pad.a_n7856_9000_t53                 1.09223
+x_pad.vddio_t54                        3.29832
+x_pad.vddio_t49                            3.3
+x_pad.gp_t30                           3.29922
+x_pad.a_n7856_9000_t51                 1.09223
+x_pad.vddio_t48                        3.29851
+x_pad.vssio_t55                    1.91546e-06
+x_pad.gn_t20                       6.48213e-05
+x_pad.a_n7856_9000_t21                 1.09222
+x_pad.vssio_t54                    0.000286168
+x_pad.a_n7856_9000_t74                 1.09223
+x_pad.gp_t7                            3.29919
+x_pad.vddio_t99                            3.3
+x_pad.vddio_t98                        3.29715
+x_pad.a_n1772_11080_t0                 3.29987
+x_pad.a_n3172_11920_t3             3.98896e-05
+x_pad.vddio_t7                         3.29998
+x_pad.vddio_t6                         3.29998
+x_pad.a_n7856_9000_t46                 1.09223
+x_pad.gp_t35                           3.29923
+x_pad.vddio_t41                            3.3
+x_pad.vddio_t40                        3.29904
+x_pad.a_n7856_9000_t44                 1.09223
+x_pad.gp_t37                           3.29924
+x_pad.vddio_t39                            3.3
+x_pad.vddio_t38                        3.29928
+x_pad.vddio_t97                        3.29999
+x_pad.gp_t6                            3.29919
+x_pad.a_n7856_9000_t75                 1.09223
+x_pad.vddio_t96                        3.29714
+x_pad.a_2028_11080_t1                  3.29987
+x_pad.a_628_11920_t3                0.00013399
+x_pad.vddio_t27                        3.29998
+x_pad.vddio_t26                        3.29998
+x_pad.a_n1772_11080_t1                 3.29987
+x_pad.a_n3172_11920_t4             3.98896e-05
+x_pad.vssio_t108                   1.35665e-05
+x_pad.vssio_t107                   1.91515e-05
+x_pad.a_n7856_9000_t28                 1.09222
+x_pad.gn_t13                       6.48212e-05
+x_pad.vssio_t73                    1.83576e-06
+x_pad.vssio_t72                    0.000344196
+x_pad.vddio_t89                            3.3
+x_pad.gp_t14                            3.2992
+x_pad.a_n7856_9000_t67                 1.09223
+x_pad.vddio_t88                        3.29737
+x_pad.vddio_t37                            3.3
+x_pad.gp_t36                           3.29924
+x_pad.a_n7856_9000_t45                 1.09223
+x_pad.vddio_t36                        3.29916
+x_pad.a_2028_11080_t0                  3.29987
+x_pad.a_628_11920_t4                0.00013399
+x_pad.vssio_t11                    1.27059e-05
+x_pad.vssio_t10                    2.12698e-05
+x_pad.a_n7856_9000_t0                  1.09223
+x_pad.gn_t41                       6.48222e-05
+x_pad.vssio_t15                     6.2704e-07
+x_pad.vssio_t14                    4.37879e-05
+x_pad.vssio_t69                    1.83576e-06
+x_pad.gn_t14                       6.48212e-05
+x_pad.a_n7856_9000_t27                 1.09222
+x_pad.vssio_t68                    0.000335044
+x_pad.a_n7856_9000_t68                 1.09223
+x_pad.gp_t13                            3.2992
+x_pad.vddio_t85                            3.3
+x_pad.vddio_t84                        3.29733
+x_pad.a_n4948_11920_t1                 3.29991
+x_pad.pu_ok_t0                               0
+x_pad.vddio_t18                        3.29998
+x_pad.vddio_t17                        3.29998
+x_pad.vssio_t23                    1.95627e-07
+x_pad.gn_t40                       6.48222e-05
+x_pad.a_n7856_9000_t1                  1.09223
+x_pad.vssio_t22                    7.26862e-05
+x_pad.a_n7856_9000_t40                 1.09223
+x_pad.gp_t41                           3.29925
+x_pad.vddio_t29                        3.29999
+x_pad.vddio_t28                         3.2998
+x_pad.vssio_t81                    1.72945e-06
+x_pad.gn_t6                        6.48211e-05
+x_pad.a_n7856_9000_t35                 1.09222
+x_pad.vssio_t80                    0.000331854
+x_pad.a_n7856_9000_t80                 1.09222
+x_pad.pad_t0                           1.09221
+x_pad.a_n7856_9000_t6                  1.09223
+x_pad.gn_t35                       6.48219e-05
+x_pad.vssio_t33                    5.89317e-07
+x_pad.vssio_t32                    0.000181126
+x_pad.a_n4948_11920_t0                 3.29991
+x_pad.a_n5372_11080_t2             6.63854e-05
+x_pad.vddio_t16                        3.29998
+x_pad.vddio_t15                        3.29998
+x_pad.a_n7856_9000_t34                 1.09222
+x_pad.gn_t7                        6.48211e-05
+x_pad.vssio_t83                    1.75604e-06
+x_pad.vssio_t82                    0.000341803
+x_pad.vddio_t75                            3.3
+x_pad.gp_t20                            3.2992
+x_pad.a_n7856_9000_t61                 1.09223
+x_pad.vddio_t74                        3.29769
+x_pad.gn_t1                        6.49115e-05
+x_pad.a_2028_11080_t2                  3.29987
+x_pad.vddio_t109                       3.29998
+x_pad.vddio_t108                       3.29997
+x_pad.vssio_t41                    1.17983e-06
+x_pad.gn_t30                       6.48217e-05
+x_pad.a_n7856_9000_t11                 1.09222
+x_pad.vssio_t40                    0.000245245
+x_pad.vssio_t45                    1.37667e-06
+x_pad.gn_t28                       6.48216e-05
+x_pad.a_n7856_9000_t13                 1.09222
+x_pad.vssio_t44                    0.000261244
+x_pad.gn_t0                        6.46526e-05
+x_pad.a_2028_11080_t3                  3.29987
+x_pad.vssio_t1                     1.26447e-05
+x_pad.vssio_t0                     3.54494e-05
+x_pad.a_n7856_9000_t54                 1.09223
+x_pad.gp_t27                           3.29922
+x_pad.vddio_t57                            3.3
+x_pad.vddio_t56                        3.29823
+x_pad.a_n7856_9000_t12                 1.09222
+x_pad.gn_t29                       6.48216e-05
+x_pad.vssio_t43                    1.17983e-06
+x_pad.vssio_t42                    0.000254609
+x_pad.a_n7856_9000_t18                 1.09222
+x_pad.gn_t23                       6.48214e-05
+x_pad.vssio_t53                    1.77033e-06
+x_pad.vssio_t52                    0.000293562
+x_pad.a_n5372_11080_t1             6.64742e-05
+x_pad.oe_n_t0                              3.3
+x_pad.vddio_t20                        3.29998
+x_pad.vddio_t19                        3.29997
+x_pad.vddio_t103                       3.29999
+x_pad.gp_t4                            3.29919
+x_pad.a_n7856_9000_t77                 1.09223
+x_pad.vddio_t102                       3.29711
+x_pad.vddio_t59                            3.3
+x_pad.gp_t26                           3.29921
+x_pad.a_n7856_9000_t55                 1.09223
+x_pad.vddio_t58                        3.29814
+x_pad.a_628_11920_t2                 0.0001346
+x_pad.out_t0                                 0
+x_pad.a_628_11080_t1                   1.04632
+x_pad.vddio_t23                        3.29996
+x_pad.a_n7856_9000_t20                 1.09222
+x_pad.gn_t21                       6.48214e-05
+x_pad.vssio_t57                    1.94202e-06
+x_pad.vssio_t56                    0.000291362
+x_pad.vssio_t51                    1.77033e-06
+x_pad.gn_t24                       6.48214e-05
+x_pad.a_n7856_9000_t17                 1.09222
+x_pad.vssio_t50                    0.000290568
+x_pad.vddio_t43                            3.3
+x_pad.gp_t34                           3.29923
+x_pad.a_n7856_9000_t47                 1.09223
+x_pad.vddio_t42                        3.29893
+x_pad.a_n5372_11080_t0             6.62154e-05
+x_pad.oe_n_t1                              3.3
+x_pad.vssio_t98                    1.42005e-05
+x_pad.vssio_t97                    1.60662e-05
+x_pad.a_628_11920_t1               0.000134374
+x_pad.out_t2                                 0
+x_pad.vssio_t102                   1.29191e-05
+x_pad.vssio_t101                   1.49805e-05
+x_pad.a_n7856_9000_t78                 1.09223
+x_pad.gp_t3                            3.29919
+x_pad.vddio_t105                       3.29999
+x_pad.vddio_t104                       3.29711
+x_pad.vssio_t61                    1.94202e-06
+x_pad.gn_t22                       6.48214e-05
+x_pad.a_n7856_9000_t19                 1.09222
+x_pad.vssio_t60                    0.000293826
+x_pad.a_n7856_9000_t76                 1.09223
+x_pad.gp_t5                            3.29919
+x_pad.vddio_t63                        3.29999
+x_pad.vddio_t62                        3.29712
+x_pad.a_n7856_9000_t48                 1.09223
+x_pad.gp_t33                           3.29923
+x_pad.vddio_t45                            3.3
+x_pad.vddio_t44                        3.29882
+x_pad.a_n7856_9000_t24                 1.09222
+x_pad.gn_t17                       6.48212e-05
+x_pad.vssio_t65                    1.88889e-06
+x_pad.vssio_t64                    0.000291216
+x_pad.vddio_t93                            3.3
+x_pad.gp_t10                           3.29919
+x_pad.a_n7856_9000_t71                 1.09223
+x_pad.vddio_t92                        3.29723
+x_pad.a_n7856_9000_t26                 1.09222
+x_pad.gn_t15                       6.48212e-05
+x_pad.vssio_t71                    1.86233e-06
+x_pad.vssio_t70                    0.000323163
+x_pad.vddio_t87                            3.3
+x_pad.gp_t12                            3.2992
+x_pad.a_n7856_9000_t69                 1.09223
+x_pad.vddio_t86                        3.29729
+x_pad.vddio_t31                            3.3
+x_pad.gp_t40                           3.29925
+x_pad.a_n7856_9000_t41                 1.09223
+x_pad.vddio_t30                        3.29966
+x_pad.in_t0                            3.09921
+x_pad.pad_t1                           1.09221
+x_pad.vddio_t5                          3.2992
+x_pad.vddio_t4                         3.29934
+x_pad.a_n7856_9000_t70                 1.09223
+x_pad.gp_t11                            3.2992
+x_pad.vddio_t91                            3.3
+x_pad.vddio_t90                        3.29726
+x_pad.a_n6172_11080_t1                 3.29987
+x_pad.out_t1                                 0
+x_pad.vddio_t22                        3.29998
+x_pad.vddio_t21                        3.29998
+x_pad.vssio_t85                    1.75604e-06
+x_pad.gn_t8                        6.48211e-05
+x_pad.a_n7856_9000_t33                 1.09222
+x_pad.vssio_t84                    0.000349023
+x_pad.a_n7856_9000_t62                 1.09223
+x_pad.gp_t19                            3.2992
+x_pad.vddio_t61                            3.3
+x_pad.vddio_t60                        3.29763
+x_pad.vssio_t31                    5.89317e-07
+x_pad.gn_t36                        6.4822e-05
+x_pad.a_n7856_9000_t5                  1.09223
+x_pad.vssio_t30                    0.000163121
+x_pad.a_n6172_11080_t0                 3.29987
+x_pad.out_t3                                 0
+x_pad.vssio_t100                   1.41039e-05
+x_pad.vssio_t99                    2.03604e-05
+x_pad.pad_t4                           1.09221
+x_pad.vddio_t2                         3.29999
+x_pad.gp_t0                            3.29927
+x_pad.a_n972_11080_t2               6.5788e-05
+x_pad.vddio_t12                        3.29998
+x_pad.vddio_t11                        3.29998
+x_pad.vddio_t81                            3.3
+x_pad.gp_t16                            3.2992
+x_pad.a_n7856_9000_t65                 1.09223
+x_pad.vddio_t80                        3.29746
+x_pad.a_n7856_9000_t32                 1.09222
+x_pad.gn_t9                        6.48211e-05
+x_pad.vssio_t79                    1.78262e-06
+x_pad.vssio_t78                    0.000353515
+x_pad.a_n7856_9000_t10                 1.09222
+x_pad.gn_t31                       6.48217e-05
+x_pad.vssio_t39                    9.82997e-07
+x_pad.vssio_t38                    0.000233151
+x_pad.vddio_t77                            3.3
+x_pad.gp_t18                            3.2992
+x_pad.a_n7856_9000_t63                 1.09223
+x_pad.vddio_t76                        3.29757
+x_pad.a_628_11080_t0                   1.04632
+x_pad.a_n4948_11920_t3                 3.29991
+x_pad.vddio_t10                        3.29998
+x_pad.vddio_t9                         3.29997
+x_pad.a_n7856_9000_t4                  1.09223
+x_pad.gn_t37                        6.4822e-05
+x_pad.vssio_t29                    3.92473e-07
+x_pad.vssio_t28                     0.00014403
+x_pad.a_n3172_11080_t0                 2.99998
+x_pad.a_n4948_11920_t4                 3.29991
+x_pad.vddio_t1                         3.29998
+x_pad.vddio_t0                         3.29998
+x_pad.gp_t1                            3.29927
+x_pad.a_n972_11080_t3               6.5788e-05
+x_pad.vssio_t104                   1.32734e-05
+x_pad.vssio_t103                   1.93208e-05
+x_pad.a_628_11920_t0               0.000133267
+x_pad.a_n4948_11920_t5                 3.29991
+x_pad.vssio_t9                     1.35032e-05
+x_pad.vssio_t8                     1.36173e-05
+x_pad.vssio_t37                    9.82997e-07
+x_pad.gn_t32                       6.48218e-05
+x_pad.a_n7856_9000_t9                  1.09222
+x_pad.vssio_t36                    0.000218763
+x_pad.a_n3172_11920_t0             3.97335e-05
+x_pad.a_n4948_11920_t6                 3.29991
+x_pad.vssio_t3                     1.38475e-05
+x_pad.vssio_t2                     1.37443e-05
+in                                     3.09825
+x_pad.pad_n78                          1.09221
+x_pad.pad_n247                         1.09221
+x_pad.pad_n245                         1.09221
+pad                                    1.09221
+x_pad.pad_n246                         1.09221
+x_pad.pad_n248                         1.09221
+x_pad.pad_n201                         1.09221
+x_pad.pad_n33                          1.09221
+x_pad.pad_n199                         1.09221
+x_pad.pad_n34                          1.09221
+x_pad.pad_n197                         1.09221
+x_pad.pad_n35                          1.09221
+x_pad.pad_n195                         1.09221
+x_pad.pad_n36                          1.09221
+x_pad.pad_n193                         1.09221
+x_pad.pad_n37                          1.09221
+x_pad.pad_n191                         1.09221
+x_pad.pad_n38                          1.09221
+x_pad.pad_n188                         1.09221
+x_pad.pad_n39                          1.09221
+x_pad.pad_n186                         1.09221
+x_pad.pad_n40                          1.09221
+x_pad.pad_n184                         1.09221
+x_pad.pad_n41                          1.09221
+x_pad.pad_n181                         1.09221
+x_pad.pad_n42                          1.09221
+x_pad.pad_n179                         1.09221
+x_pad.pad_n43                          1.09221
+x_pad.pad_n177                         1.09221
+x_pad.pad_n44                          1.09221
+x_pad.pad_n175                         1.09221
+x_pad.pad_n45                          1.09221
+x_pad.pad_n172                         1.09221
+x_pad.pad_n46                          1.09221
+x_pad.pad_n170                         1.09221
+x_pad.pad_n47                          1.09221
+x_pad.pad_n2                           1.09221
+x_pad.pad_n31                          1.09221
+x_pad.pad_n3                           1.09221
+x_pad.pad_n30                          1.09221
+x_pad.pad_n4                           1.09221
+x_pad.pad_n29                          1.09221
+x_pad.pad_n5                           1.09221
+x_pad.pad_n28                          1.09221
+x_pad.pad_n6                           1.09221
+x_pad.pad_n27                          1.09221
+x_pad.pad_n7                           1.09221
+x_pad.pad_n26                          1.09221
+x_pad.pad_n8                           1.09221
+x_pad.pad_n25                          1.09221
+x_pad.pad_n9                           1.09221
+x_pad.pad_n24                          1.09221
+x_pad.pad_n10                          1.09221
+x_pad.pad_n23                          1.09221
+x_pad.pad_n11                          1.09221
+x_pad.pad_n22                          1.09221
+x_pad.pad_n12                          1.09221
+x_pad.pad_n21                          1.09221
+x_pad.pad_n13                          1.09221
+x_pad.pad_n20                          1.09221
+x_pad.pad_n14                          1.09221
+x_pad.pad_n19                          1.09221
+x_pad.pad_n15                          1.09221
+x_pad.pad_n18                          1.09221
+x_pad.pad_n16                          1.09221
+x_pad.pad_n17                          1.09221
+x_pad.pad_n214                         1.09221
+x_pad.pad_n196                         1.09221
+x_pad.pad_n32                          1.09221
+x_pad.pad_n168                         1.09221
+x_pad.pad_n49                          1.09221
+x_pad.pad_n124                         1.09221
+x_pad.pad_n50                          1.09221
+x_pad.pad_n122                         1.09221
+x_pad.pad_n51                          1.09221
+x_pad.pad_n119                         1.09221
+x_pad.pad_n52                          1.09221
+x_pad.pad_n116                         1.09221
+x_pad.pad_n53                          1.09221
+x_pad.pad_n113                         1.09221
+x_pad.pad_n54                          1.09221
+x_pad.pad_n110                         1.09221
+x_pad.pad_n55                          1.09221
+x_pad.pad_n107                         1.09221
+x_pad.pad_n56                          1.09221
+x_pad.pad_n104                         1.09221
+x_pad.pad_n57                          1.09221
+x_pad.pad_n101                         1.09221
+x_pad.pad_n58                          1.09221
+x_pad.pad_n98                          1.09221
+x_pad.pad_n59                          1.09221
+x_pad.pad_n95                          1.09221
+x_pad.pad_n60                          1.09221
+x_pad.pad_n92                          1.09221
+x_pad.pad_n61                          1.09221
+x_pad.pad_n89                          1.09221
+x_pad.pad_n62                          1.09221
+x_pad.pad_n86                          1.09221
+x_pad.pad_n63                          1.09221
+x_pad.pad_n83                          1.09221
+x_pad.pad_n77                          1.09221
+x_pad.pad_n194                         1.09221
+x_pad.pad_n189                         1.09221
+x_pad.pad_n187                         1.09221
+x_pad.pad_n182                         1.09221
+x_pad.pad_n178                         1.09221
+x_pad.pad_n173                         1.09221
+x_pad.pad_n200                         1.09221
+x_pad.pad_n198                         1.09221
+x_pad.pad_n192                         1.09221
+x_pad.pad_n190                         1.09221
+x_pad.pad_n185                         1.09221
+x_pad.pad_n183                         1.09221
+x_pad.pad_n180                         1.09221
+x_pad.pad_n176                         1.09221
+x_pad.pad_n174                         1.09221
+x_pad.pad_n171                         1.09221
+x_pad.pad_n169                         1.09221
+x_pad.pad_n1                           1.09221
+x_pad.pad_n213                         1.09221
+x_pad.pad_n203                         1.09221
+x_pad.pad_n212                         1.09221
+x_pad.pad_n204                         1.09221
+x_pad.pad_n211                         1.09221
+x_pad.pad_n205                         1.09221
+x_pad.pad_n210                         1.09221
+x_pad.pad_n209                         1.09221
+x_pad.pad_n206                         1.09221
+x_pad.pad_n208                         1.09221
+x_pad.pad_n207                         1.09221
+x_pad.pad_n215                         1.09221
+x_pad.pad_n64                          1.09221
+x_pad.pad_n65                          1.09221
+x_pad.pad_n125                         1.09221
+x_pad.pad_n66                          1.09221
+x_pad.pad_n126                         1.09221
+x_pad.pad_n67                          1.09221
+x_pad.pad_n127                         1.09221
+x_pad.pad_n82                          1.09221
+x_pad.pad_n128                         1.09221
+x_pad.pad_n68                          1.09221
+x_pad.pad_n48                          1.09221
+x_pad.pad_n123                         1.09221
+x_pad.pad_n120                         1.09221
+x_pad.pad_n117                         1.09221
+x_pad.pad_n114                         1.09221
+x_pad.pad_n111                         1.09221
+x_pad.pad_n108                         1.09221
+x_pad.pad_n105                         1.09221
+x_pad.pad_n102                         1.09221
+x_pad.pad_n99                          1.09221
+x_pad.pad_n96                          1.09221
+x_pad.pad_n93                          1.09221
+x_pad.pad_n90                          1.09221
+x_pad.pad_n87                          1.09221
+x_pad.pad_n84                          1.09221
+x_pad.pad_n79                          1.09221
+x_pad.pad_n129                         1.09221
+x_pad.pad_n81                          1.09221
+x_pad.pad_n130                         1.09221
+x_pad.pad_n76                          1.09221
+x_pad.pad_n69                          1.09221
+x_pad.pad_n131                         1.09221
+x_pad.pad_n70                          1.09221
+x_pad.pad_n132                         1.09221
+x_pad.pad_n121                         1.09221
+x_pad.pad_n118                         1.09221
+x_pad.pad_n115                         1.09221
+x_pad.pad_n112                         1.09221
+x_pad.pad_n109                         1.09221
+x_pad.pad_n106                         1.09221
+x_pad.pad_n103                         1.09221
+x_pad.pad_n100                         1.09221
+x_pad.pad_n97                          1.09221
+x_pad.pad_n94                          1.09221
+x_pad.pad_n91                          1.09221
+x_pad.pad_n88                          1.09221
+x_pad.pad_n85                          1.09221
+x_pad.pad_n80                          1.09221
+x_pad.pad_n71                          1.09221
+x_pad.pad_n133                         1.09221
+x_pad.pad_n134                         1.09221
+x_pad.pad_n75                          1.09221
+x_pad.pad_n72                          1.09221
+x_pad.pad_n135                         1.09221
+x_pad.pad_n73                          1.09221
+x_pad.pad_n136                         1.09221
+x_pad.pad_n74                          1.09221
+x_pad.pad_n137                         1.09221
+x_pad.pad_n202                         1.09221
+x_pad.pad_n250                         1.09221
+x_pad.pad_n244                         1.09221
+x_pad.pad_n243                         1.09221
+x_pad.pad_n242                         1.09221
+x_pad.pad_n241                         1.09221
+x_pad.pad_n240                         1.09221
+x_pad.pad_n239                         1.09221
+x_pad.pad_n238                         1.09221
+x_pad.pad_n237                         1.09221
+x_pad.pad_n236                         1.09221
+x_pad.pad_n235                         1.09221
+x_pad.pad_n234                         1.09221
+x_pad.pad_n233                         1.09221
+x_pad.pad_n232                         1.09221
+x_pad.pad_n231                         1.09221
+x_pad.pad_n230                         1.09221
+x_pad.pad_n229                         1.09221
+x_pad.pad_n228                         1.09221
+x_pad.pad_n227                         1.09221
+x_pad.pad_n226                         1.09221
+x_pad.pad_n225                         1.09221
+x_pad.pad_n224                         1.09221
+x_pad.pad_n223                         1.09221
+x_pad.pad_n222                         1.09221
+x_pad.pad_n221                         1.09221
+x_pad.pad_n220                         1.09221
+x_pad.pad_n219                         1.09221
+x_pad.pad_n218                         1.09221
+x_pad.pad_n217                         1.09221
+x_pad.pad_n216                         1.09221
+x_pad.pad_n0                           1.09221
+x_pad.pad_n249                         1.09221
+x_pad.pad_n139                         1.09221
+x_pad.pad_n140                         1.09221
+x_pad.pad_n141                         1.09221
+x_pad.pad_n142                         1.09221
+x_pad.pad_n143                         1.09221
+x_pad.pad_n144                         1.09221
+x_pad.pad_n145                         1.09221
+x_pad.pad_n146                         1.09221
+x_pad.pad_n147                         1.09221
+x_pad.pad_n148                         1.09221
+x_pad.pad_n149                         1.09221
+x_pad.pad_n150                         1.09221
+x_pad.pad_n151                         1.09221
+x_pad.pad_n152                         1.09221
+x_pad.pad_n153                         1.09221
+x_pad.pad_n154                         1.09221
+x_pad.pad_n155                         1.09221
+x_pad.pad_n156                         1.09221
+x_pad.pad_n157                         1.09221
+x_pad.pad_n158                         1.09221
+x_pad.pad_n159                         1.09221
+x_pad.pad_n160                         1.09221
+x_pad.pad_n161                         1.09221
+x_pad.pad_n162                         1.09221
+x_pad.pad_n163                         1.09221
+x_pad.pad_n164                         1.09221
+x_pad.pad_n165                         1.09221
+x_pad.pad_n166                         1.09221
+x_pad.pad_n138                         1.09221
+x_pad.pad_n167                         1.09221
+x_pad.gn_n0                        6.48211e-05
+x_pad.gn_n40                       6.48224e-05
+x_pad.gn_n39                       6.48226e-05
+x_pad.gn_n38                       6.48222e-05
+x_pad.gn_n1                        6.48211e-05
+x_pad.gn_n2                        6.48211e-05
+x_pad.gn_n3                        6.48211e-05
+x_pad.gn_n4                        6.48211e-05
+x_pad.gn_n5                        6.48211e-05
+x_pad.gn_n6                        6.48211e-05
+x_pad.gn_n7                        6.48211e-05
+x_pad.gn_n8                        6.48211e-05
+x_pad.gn_n9                        6.48212e-05
+x_pad.gn_n10                       6.48212e-05
+x_pad.gn_n11                       6.48212e-05
+x_pad.gn_n12                       6.48212e-05
+x_pad.gn_n13                       6.48212e-05
+x_pad.gn_n14                       6.48212e-05
+x_pad.gn_n15                       6.48213e-05
+x_pad.gn_n16                       6.48213e-05
+x_pad.gn_n17                       6.48213e-05
+x_pad.gn_n18                       6.48214e-05
+x_pad.gn_n19                       6.48214e-05
+x_pad.gn_n20                       6.48214e-05
+x_pad.gn_n21                       6.48214e-05
+x_pad.gn_n22                       6.48215e-05
+x_pad.gn_n23                       6.48215e-05
+x_pad.gn_n24                       6.48216e-05
+x_pad.gn_n25                       6.48216e-05
+x_pad.gn_n26                       6.48216e-05
+x_pad.gn_n27                       6.48217e-05
+x_pad.gn_n28                       6.48217e-05
+x_pad.gn_n29                       6.48218e-05
+x_pad.gn_n30                       6.48218e-05
+x_pad.gn_n31                       6.48219e-05
+x_pad.gn_n32                       6.48219e-05
+x_pad.gn_n33                        6.4822e-05
+x_pad.gn_n34                        6.4822e-05
+x_pad.gn_n35                       6.48221e-05
+x_pad.gn_n36                       6.48221e-05
+x_pad.gn_n37                       6.48222e-05
+gn                                 6.48224e-05
+x_pad.gp_n0                            3.29919
+x_pad.gp_n1                            3.29919
+x_pad.gp_n2                            3.29919
+x_pad.gp_n3                            3.29919
+x_pad.gp_n4                            3.29919
+x_pad.gp_n5                            3.29919
+x_pad.gp_n6                            3.29919
+x_pad.gp_n7                            3.29919
+x_pad.gp_n8                             3.2992
+x_pad.gp_n9                             3.2992
+x_pad.gp_n10                            3.2992
+x_pad.gp_n11                            3.2992
+x_pad.gp_n12                            3.2992
+x_pad.gp_n13                            3.2992
+x_pad.gp_n14                            3.2992
+x_pad.gp_n15                            3.2992
+x_pad.gp_n16                            3.2992
+x_pad.gp_n17                            3.2992
+x_pad.gp_n18                           3.29921
+x_pad.gp_n19                           3.29921
+x_pad.gp_n20                           3.29921
+x_pad.gp_n21                           3.29921
+x_pad.gp_n22                           3.29921
+x_pad.gp_n23                           3.29921
+x_pad.gp_n24                           3.29922
+x_pad.gp_n25                           3.29922
+x_pad.gp_n26                           3.29922
+x_pad.gp_n27                           3.29922
+x_pad.gp_n28                           3.29922
+x_pad.gp_n29                           3.29923
+x_pad.gp_n30                           3.29923
+x_pad.gp_n31                           3.29923
+x_pad.gp_n32                           3.29923
+x_pad.gp_n33                           3.29924
+x_pad.gp_n34                           3.29924
+x_pad.gp_n35                           3.29924
+x_pad.gp_n36                           3.29924
+x_pad.gp_n37                           3.29925
+x_pad.gp_n38                           3.29925
+x_pad.gp_n40                           3.29926
+x_pad.gp_n39                           3.29927
+gp                                     3.29926
+pu_ok                                        0
+oe_n                                       3.3
+x_pad.out_n0                                 0
+out                                          0
+vddio                                      3.3
+x_pad.vddio_n42                        3.29998
+x_pad.vddio_n43                        3.29998
+x_pad.vddio_n45                        3.29998
+x_pad.vddio_n47                        3.29998
+x_pad.vddio_n41                        3.29998
+x_pad.vddio_n39                        3.29998
+x_pad.vddio_n38                        3.29998
+x_pad.vddio_n36                        3.29998
+x_pad.vddio_n34                        3.29998
+x_pad.vddio_n32                        3.29998
+x_pad.vddio_n30                        3.29998
+x_pad.vddio_n29                        3.29998
+x_pad.vddio_n27                        3.29998
+x_pad.vddio_n66                        3.29934
+x_pad.vddio_n0                         3.29999
+x_pad.vddio_n50                            3.3
+x_pad.vddio_n49                        3.29998
+x_pad.vddio_n64                            3.3
+x_pad.vddio_n63                            3.3
+x_pad.vddio_n20                            3.3
+x_pad.vddio_n65                            3.3
+x_pad.vddio_n19                        3.29999
+x_pad.vddio_n21                            3.3
+x_pad.vddio_n18                        3.29999
+x_pad.vddio_n22                            3.3
+x_pad.vddio_n17                            3.3
+x_pad.vddio_n23                            3.3
+x_pad.vddio_n16                            3.3
+x_pad.vddio_n24                            3.3
+x_pad.vddio_n15                            3.3
+x_pad.vddio_n25                            3.3
+x_pad.vddio_n14                            3.3
+x_pad.vddio_n26                            3.3
+x_pad.vddio_n13                            3.3
+x_pad.vddio_n51                            3.3
+x_pad.vddio_n12                            3.3
+x_pad.vddio_n52                            3.3
+x_pad.vddio_n11                            3.3
+x_pad.vddio_n53                            3.3
+x_pad.vddio_n10                            3.3
+x_pad.vddio_n54                            3.3
+x_pad.vddio_n9                             3.3
+x_pad.vddio_n55                            3.3
+x_pad.vddio_n8                             3.3
+x_pad.vddio_n56                            3.3
+x_pad.vddio_n7                             3.3
+x_pad.vddio_n57                            3.3
+x_pad.vddio_n6                             3.3
+x_pad.vddio_n58                            3.3
+x_pad.vddio_n5                             3.3
+x_pad.vddio_n59                            3.3
+x_pad.vddio_n4                             3.3
+x_pad.vddio_n60                            3.3
+x_pad.vddio_n3                             3.3
+x_pad.vddio_n61                            3.3
+x_pad.vddio_n2                             3.3
+x_pad.vddio_n62                            3.3
+x_pad.vddio_n1                             3.3
+x_pad.vddio_n44                        3.29998
+x_pad.vddio_n46                        3.29998
+x_pad.vddio_n48                        3.29998
+x_pad.vddio_n40                        3.29998
+x_pad.vddio_n37                        3.29998
+x_pad.vddio_n35                        3.29998
+x_pad.vddio_n33                        3.29998
+x_pad.vddio_n31                        3.29998
+x_pad.vddio_n28                        3.29998
+x_pad.vssio_n111                   0.000460304
+x_pad.vssio_n108                   0.000568943
+x_pad.vssio_n47                    0.000156511
+x_pad.vssio_n45                    1.40985e-05
+x_pad.vssio_n101                   1.55451e-05
+x_pad.vssio_n8                     1.37142e-05
+x_pad.vssio_n103                   2.46917e-05
+x_pad.vssio_n6                     1.40772e-05
+x_pad.vssio_n79                    1.80244e-05
+x_pad.vssio_n44                    0.000219162
+x_pad.vssio_n100                   1.22867e-05
+x_pad.vssio_n9                      1.3651e-05
+x_pad.vssio_n102                   1.91144e-05
+x_pad.vssio_n7                     1.39056e-05
+x_pad.vssio_n105                   4.67732e-05
+x_pad.vssio_n4                     1.72307e-05
+x_pad.vssio_n98                    4.50146e-06
+x_pad.vssio_n11                    1.31813e-05
+x_pad.vssio_n82                    2.20225e-05
+x_pad.vssio_n43                    0.000265126
+x_pad.vssio_n50                     1.6363e-05
+x_pad.vssio_n48                    5.05724e-05
+x_pad.vssio_n104                   3.21769e-05
+x_pad.vssio_n5                     1.91032e-05
+x_pad.vssio_n99                    8.13717e-06
+x_pad.vssio_n10                    1.54785e-05
+x_pad.vssio_n106                   0.000104979
+x_pad.vssio_n107                   0.000367438
+x_pad.vssio_n42                    0.000307139
+x_pad.vssio_n3                     1.45456e-05
+x_pad.vssio_n110                   0.000605956
+x_pad.vssio_n112                   0.000268726
+x_pad.vssio_n97                    9.98273e-07
+x_pad.vssio_n113                   7.55927e-08
+x_pad.vssio_n61                    1.38348e-05
+x_pad.vssio_n63                    1.40609e-05
+x_pad.vssio_n64                    1.41498e-05
+x_pad.vssio_n59                    1.37696e-05
+x_pad.vssio_n57                    1.36822e-05
+x_pad.vssio_n55                    1.36861e-05
+x_pad.vssio_n53                    1.34826e-05
+x_pad.vssio_n51                     1.3399e-05
+x_pad.vssio_n49                    1.32102e-05
+x_pad.vssio_n78                    1.30039e-05
+x_pad.vssio_n81                    1.30054e-05
+x_pad.vssio_n83                    1.31714e-05
+x_pad.vssio_t109                   7.55927e-08
+x_pad.vssio_n115                   2.89007e-08
+x_pad.vssio_n114                   6.76436e-07
+x_pad.vssio_n86                      1.945e-06
+x_pad.vssio_n85                    1.24065e-05
+x_pad.vssio_n2                     1.67906e-06
+x_pad.vssio_n1                     3.18481e-06
+vssio                                        0
+x_pad.vssio_n0                               0
+x_pad.vssio_n31                    1.70282e-06
+x_pad.vssio_n30                    1.70287e-06
+x_pad.vssio_n32                    1.72941e-06
+x_pad.vssio_n29                    1.72945e-06
+x_pad.vssio_n33                    1.75599e-06
+x_pad.vssio_n28                    1.75603e-06
+x_pad.vssio_n34                    1.78256e-06
+x_pad.vssio_n27                    1.78261e-06
+x_pad.vssio_n35                    1.80914e-06
+x_pad.vssio_n26                    1.80919e-06
+x_pad.vssio_n36                    1.83571e-06
+x_pad.vssio_n25                    1.83576e-06
+x_pad.vssio_n37                    1.86228e-06
+x_pad.vssio_n24                    1.86233e-06
+x_pad.vssio_n38                    1.88885e-06
+x_pad.vssio_n23                    1.88889e-06
+x_pad.vssio_n39                    1.91542e-06
+x_pad.vssio_n22                    1.91545e-06
+x_pad.vssio_n40                    1.94198e-06
+x_pad.vssio_n21                    1.94202e-06
+x_pad.vssio_n87                    1.77029e-06
+x_pad.vssio_n20                    1.77033e-06
+x_pad.vssio_n88                    1.57346e-06
+x_pad.vssio_n19                     1.5735e-06
+x_pad.vssio_n89                    1.37663e-06
+x_pad.vssio_n18                    1.37667e-06
+x_pad.vssio_n90                     1.1798e-06
+x_pad.vssio_n17                    1.17983e-06
+x_pad.vssio_n91                    9.82963e-07
+x_pad.vssio_n16                    9.82995e-07
+x_pad.vssio_n92                    7.86127e-07
+x_pad.vssio_n15                    7.86156e-07
+x_pad.vssio_n93                     5.8929e-07
+x_pad.vssio_n14                    5.89315e-07
+x_pad.vssio_n94                    3.92452e-07
+x_pad.vssio_n13                    3.92472e-07
+x_pad.vssio_n95                    1.95612e-07
+x_pad.vssio_n12                    1.95626e-07
+x_pad.vssio_n68                    1.39075e-05
+x_pad.vssio_n66                    1.41039e-05
+x_pad.vssio_n65                    1.40388e-05
+x_pad.vssio_n62                    1.38304e-05
+x_pad.vssio_n60                     1.3767e-05
+x_pad.vssio_n58                    1.36812e-05
+x_pad.vssio_n56                    1.35665e-05
+x_pad.vssio_n54                    1.34404e-05
+x_pad.vssio_n52                    1.32734e-05
+x_pad.vssio_n46                    1.31308e-05
+x_pad.vssio_n77                    1.29191e-05
+x_pad.vssio_n80                    1.27059e-05
+x_pad.vssio_n84                     1.2483e-05
+x_pad.vssio_n109                   0.000604154
+x_pad.vssio_n96                    6.27039e-07
+x_pad.vssio_n67                    1.40137e-05
+x_pad.vssio_n73                    1.34214e-05
+x_pad.vssio_n72                    1.35559e-05
+x_pad.vssio_n74                    1.32623e-05
+x_pad.vssio_n75                    1.30886e-05
+x_pad.vssio_n41                    1.26793e-05
+x_pad.vssio_n71                    1.36735e-05
+x_pad.vssio_n76                    1.29115e-05
+x_pad.vssio_n69                      1.383e-05
+x_pad.vssio_n70                    1.37592e-05
+x_pad.a_n7856_9000_n20                 1.09222
+x_pad.a_n7856_9000_n39                 1.09223
+x_pad.a_n7856_9000_n0                  1.09223
+x_pad.a_n7856_9000_n38                 1.09223
+x_pad.a_n7856_9000_n1                  1.09223
+x_pad.a_n7856_9000_n37                 1.09223
+x_pad.a_n7856_9000_n2                  1.09223
+x_pad.a_n7856_9000_n36                 1.09223
+x_pad.a_n7856_9000_n3                  1.09223
+x_pad.a_n7856_9000_n35                 1.09223
+x_pad.a_n7856_9000_n4                  1.09222
+x_pad.a_n7856_9000_n34                 1.09222
+x_pad.a_n7856_9000_n5                  1.09222
+x_pad.a_n7856_9000_n33                 1.09222
+x_pad.a_n7856_9000_n6                  1.09222
+x_pad.a_n7856_9000_n32                 1.09222
+x_pad.a_n7856_9000_n7                  1.09222
+x_pad.a_n7856_9000_n31                 1.09222
+x_pad.a_n7856_9000_n8                  1.09222
+x_pad.a_n7856_9000_n30                 1.09222
+x_pad.a_n7856_9000_n9                  1.09222
+x_pad.a_n7856_9000_n29                 1.09222
+x_pad.a_n7856_9000_n10                 1.09222
+x_pad.a_n7856_9000_n28                 1.09222
+x_pad.a_n7856_9000_n11                 1.09222
+x_pad.a_n7856_9000_n27                 1.09222
+x_pad.a_n7856_9000_n12                 1.09222
+x_pad.a_n7856_9000_n26                 1.09222
+x_pad.a_n7856_9000_n13                 1.09222
+x_pad.a_n7856_9000_n25                 1.09222
+x_pad.a_n7856_9000_n14                 1.09222
+x_pad.a_n7856_9000_n24                 1.09222
+x_pad.a_n7856_9000_n15                 1.09222
+x_pad.a_n7856_9000_n23                 1.09222
+x_pad.a_n7856_9000_n16                 1.09222
+x_pad.a_n7856_9000_n22                 1.09222
+x_pad.a_n7856_9000_n17                 1.09222
+x_pad.a_n7856_9000_n21                 1.09222
+x_pad.a_n7856_9000_n18                 1.09222
+x_pad.a_n7856_9000_n19                 1.09222
+x_pad.a_n7856_9000_n59                 1.09223
+x_pad.a_n7856_9000_n58                 1.09223
+x_pad.a_n7856_9000_n78                 1.09223
+x_pad.a_n7856_9000_n77                 1.09223
+x_pad.a_n7856_9000_n57                 1.09223
+x_pad.a_n7856_9000_n60                 1.09223
+x_pad.a_n7856_9000_n56                 1.09223
+x_pad.a_n7856_9000_n61                 1.09223
+x_pad.a_n7856_9000_n55                 1.09223
+x_pad.a_n7856_9000_n62                 1.09223
+x_pad.a_n7856_9000_n54                 1.09223
+x_pad.a_n7856_9000_n63                 1.09223
+x_pad.a_n7856_9000_n53                 1.09223
+x_pad.a_n7856_9000_n64                 1.09223
+x_pad.a_n7856_9000_n52                 1.09223
+x_pad.a_n7856_9000_n65                 1.09223
+x_pad.a_n7856_9000_n51                 1.09223
+x_pad.a_n7856_9000_n66                 1.09223
+x_pad.a_n7856_9000_n50                 1.09223
+x_pad.a_n7856_9000_n67                 1.09223
+x_pad.a_n7856_9000_n49                 1.09223
+x_pad.a_n7856_9000_n68                 1.09223
+x_pad.a_n7856_9000_n48                 1.09223
+x_pad.a_n7856_9000_n69                 1.09223
+x_pad.a_n7856_9000_n47                 1.09223
+x_pad.a_n7856_9000_n70                 1.09223
+x_pad.a_n7856_9000_n46                 1.09223
+x_pad.a_n7856_9000_n71                 1.09223
+x_pad.a_n7856_9000_n45                 1.09223
+x_pad.a_n7856_9000_n72                 1.09223
+x_pad.a_n7856_9000_n44                 1.09223
+x_pad.a_n7856_9000_n73                 1.09223
+x_pad.a_n7856_9000_n43                 1.09223
+x_pad.a_n7856_9000_n74                 1.09223
+x_pad.a_n7856_9000_n42                 1.09223
+x_pad.a_n7856_9000_n75                 1.09223
+x_pad.a_n7856_9000_n41                 1.09223
+x_pad.a_n7856_9000_n76                 1.09223
+x_pad.a_n7856_9000_n40                 1.09223
+x_pad.a_2028_11080_n0                  3.29987
+x_pad.a_628_11920_n0                0.00013399
+x_pad.a_628_11920_n1               0.000134374
+x_pad.a_n972_11080_n0               6.5788e-05
+x_pad.a_n1772_11080_n0                 3.29987
+x_pad.a_n3172_11920_n0             3.98896e-05
+x_pad.a_n3172_11920_n1             3.99728e-05
+x_pad.a_n6172_11080_n0                 3.29987
+x_pad.a_n4948_11920_n0                 3.29991
+x_pad.a_n4948_11920_n1                 3.29991
+x_pad.a_n4948_11920_n2                 3.29991
+x_pad.a_n5372_11080_n0             6.63854e-05
+vout#branch                                  0
+voe#branch                            -9.9e-09
+vpu#branch                                   0
+vssio#branch                       0.000118453
+vddio#branch                      -0.000119867
+
+ Reference value :  0.00000e+00 Reference value :  8.00000e-11 Reference value :  1.28000e-09 Reference value :  5.28000e-09 Reference value :  9.28000e-09 Reference value :  1.03000e-08 Reference value :  1.07000e-08 Reference value :  1.11044e-08 Reference value :  1.17558e-08 Reference value :  1.18802e-08 Reference value :  1.21911e-08 Reference value :  1.22067e-08 Reference value :  1.22455e-08 Reference value :  1.22999e-08 Reference value :  1.23466e-08 Reference value :  1.24088e-08 Reference value :  1.25331e-08 Reference value :  1.27431e-08 Reference value :  1.31582e-08 Reference value :  1.37218e-08 Reference value :  1.47218e-08 Reference value :  1.57218e-08 Reference value :  1.67218e-08 Reference value :  1.77218e-08 Reference value :  1.87218e-08 Reference value :  1.97218e-08 Reference value :  2.00000e-08 Reference value :  2.01000e-08 Reference value :  2.03000e-08 Reference value :  2.07000e-08 Reference value :  2.15000e-08 Reference value :  2.25000e-08 Reference value :  2.35000e-08 Reference value :  2.45000e-08 Reference value :  2.65000e-08 Reference value :  3.05000e-08 Reference value :  3.45000e-08 Reference value :  3.85000e-08 Reference value :  4.35000e-08 Reference value :  4.75000e-08 Reference value :  5.15000e-08 Reference value :  5.55000e-08 Reference value :  5.95000e-08 Reference value :  6.35000e-08 Reference value :  6.75000e-08 Reference value :  7.15000e-08 Reference value :  7.55000e-08 Reference value :  7.95000e-08 Reference value :  8.35000e-08 Reference value :  8.75000e-08 Reference value :  9.15000e-08 Reference value :  9.55000e-08 Reference value :  9.95000e-08 Reference value :  1.03500e-07 Reference value :  1.07500e-07 Reference value :  1.11500e-07 Reference value :  1.15500e-07 Reference value :  1.19500e-07 Reference value :  1.20100e-07 Reference value :  1.20300e-07 Reference value :  1.20350e-07 Reference value :  1.20450e-07 Reference value :  1.20650e-07 Reference value :  1.20694e-07 Reference value :  1.20781e-07 Reference value :  1.20956e-07 Reference value :  1.21000e-07 Reference value :  1.21011e-07 Reference value :  1.21033e-07 Reference value :  1.21076e-07 Reference value :  1.21140e-07 Reference value :  1.21209e-07 Reference value :  1.21459e-07 Reference value :  1.21878e-07 Reference value :  1.23436e-07 Reference value :  1.26436e-07 Reference value :  1.29436e-07 Reference value :  1.32436e-07 Reference value :  1.35436e-07 Reference value :  1.38436e-07 Reference value :  1.41436e-07 Reference value :  1.44436e-07 Reference value :  1.47436e-07 Reference value :  1.50436e-07 Reference value :  1.53436e-07 Reference value :  1.56436e-07 Reference value :  1.59436e-07 Reference value :  1.62436e-07 Reference value :  1.65436e-07 Reference value :  1.68436e-07 Reference value :  1.71436e-07 Reference value :  1.74436e-07 Reference value :  1.77436e-07 Reference value :  1.80436e-07 Reference value :  1.83436e-07 Reference value :  1.86436e-07 Reference value :  1.89436e-07 Reference value :  1.92436e-07 Reference value :  1.95436e-07 Reference value :  1.98436e-07 Reference value :  2.01436e-07 Reference value :  2.04436e-07 Reference value :  2.07436e-07 Reference value :  2.10436e-07 Reference value :  2.13436e-07 Reference value :  2.16436e-07 Reference value :  2.19436e-07 Reference value :  2.22436e-07 Reference value :  2.25436e-07 Reference value :  2.28436e-07 Reference value :  2.31436e-07 Reference value :  2.34436e-07 Reference value :  2.37436e-07 Reference value :  2.40436e-07 Reference value :  2.43436e-07 Reference value :  2.46436e-07 Reference value :  2.49436e-07 Reference value :  2.52436e-07 Reference value :  2.55436e-07 Reference value :  2.58436e-07 Reference value :  2.61436e-07 Reference value :  2.64436e-07 Reference value :  2.67436e-07 Reference value :  2.70436e-07 Reference value :  2.73436e-07 Reference value :  2.76436e-07 Reference value :  2.79436e-07 Reference value :  2.82436e-07 Reference value :  2.85436e-07 Reference value :  2.88436e-07 Reference value :  2.91436e-07 Reference value :  2.94436e-07 Reference value :  2.97436e-07 Reference value :  3.00436e-07 Reference value :  3.03436e-07 Reference value :  3.06436e-07 Reference value :  3.09436e-07 Reference value :  3.12436e-07 Reference value :  3.15436e-07 Reference value :  3.18436e-07 Reference value :  3.21436e-07 Reference value :  3.24436e-07 Reference value :  3.27436e-07 Reference value :  3.30436e-07 Reference value :  3.33436e-07 Reference value :  3.36436e-07 Reference value :  3.39436e-07 Reference value :  3.42436e-07 Reference value :  3.45436e-07 Reference value :  3.48436e-07 Reference value :  3.51436e-07 Reference value :  3.54436e-07 Reference value :  3.57436e-07 Reference value :  3.60436e-07 Reference value :  3.63436e-07 Reference value :  3.66436e-07 Reference value :  3.69436e-07 Reference value :  3.72436e-07 Reference value :  3.75436e-07 Reference value :  3.78436e-07 Reference value :  3.81436e-07 Reference value :  3.84436e-07 Reference value :  3.87436e-07 Reference value :  3.90436e-07 Reference value :  3.93436e-07 Reference value :  3.96436e-07 Reference value :  3.99436e-07
+No. of Data Rows : 446
+
+  Measurements for Transient Analysis
+
+v_pad_max           =  5.120242e+01 at=  2.000000e-08
+v_pad_min           =  1.092213e+00 at=  1.000000e-08
+
+
+Total analysis time (seconds) = 60.9124
+
+Total elapsed time (seconds) = 61.796 
+
+Total DRAM available = 15755.301 MB.
+DRAM currently available = 4216.566 MB.
+Maximum ngspice program size =   84.297 MB.
+Current ngspice program size =   19.266 MB.
+
+Shared ngspice pages =   10.797 MB.
+Text (code) pages =    6.543 MB.
+Stack = 0 bytes.
+Library pages =   64.590 MB.
+
