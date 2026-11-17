@@ -43,7 +43,8 @@ Operating point `baseline_100_cl2`, tCK = 10.0 ns, device MT48LC16M16A2.
 
 ## Not included
 
-- Board/package RLC and connector (P1-4).
+- Board/package: included as the P1-4 channel (matched traces).
+- The channel is a pre-layout RLC/T-line model, not an EM extraction.
 - Clock jitter/DCD/OCV: the SDC uncertainty term is still TBD.
 - Placement, routing, CTS, wire load, SDF back-annotation.
 - OE turn-on: needs the DRAM release reference through the board.

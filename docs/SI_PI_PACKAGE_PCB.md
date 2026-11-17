@@ -144,3 +144,25 @@ Micron FAQ 给出的 DIMM 完整 IBIS 环境组成：DRAM 器件 IBIS、寄存�
 - 不把 ngspice + Touchstone 说成已验证的宽带瞬态流程，不把 IBIS 与 S 参数当成同一类模型。
 - 不凭 DIMM 照片猜走线，不把"可申请 EBD"说成"已有 EBD"。
 - 不因为写了这份方法记录就把 `reports/capability_report.md` 的 `NO_GO` 改掉；`tOE_on/off` 仍是 `null`。
+
+## 5. P1-4：通道联合仿真（第一版）
+
+`generator/emit_channel.py` 把 P1-2 的 pad 切片接上封装 RLC + 50Ω PCB 传输线 + DRAM 引脚电容，用 ngspice 跑瞬态：
+
+```text
+pad PAD --[0.05Ω, 1.5nH, 0.4pF]-- 50Ω line (50mm, 275ps) -- ND -- 3pF || 1MΩ
+```
+
+| 量 | 结果 |
+|---|---|
+| PAD→DRAM 延迟 | **337 / 335 ps**（上升/下降） |
+| DRAM 引脚 10–90% 斜率 | **424 / 417 ps** |
+| 过冲 / 下冲 | **3.397 V / −0.045 V**（驱动 3.3 V） |
+| ±1 mm 等长容差对应的偏斜 | **5.5 ps** |
+
+结论：CK 与 DQ 走同一类通道，绝对延迟是共模的，只有等长偏斜进入时序预算（`reports/p1_3_margins.json` 的 board 项 = 0.329–0.342 ns）。最差余量仍是写 setup **−3.168 ns**，即 §8 的 CK 相位问题没有因为封装/PCB 而改变。
+
+两个必须保留的限制：
+
+1. 这是 **pre-layout RLC/T-line 模型**，不是 EM 提取：没有 IBIS 的 `[Package]`/V-I/V-T、没有 openEMS/Touchstone、没有眼图模板。
+2. Magic 的 flat PEX 用 layout 单位写器件几何（`w=1000 l=56 ad=52n`），而 PDK 的 ngspice 模型是期望 SI 单位的 subckt。PEX 的输出级在瞬态里不导通（只有比较器行为的接收器正常），所以通道瞬态用的是 sized schematic slice。PEX 仍用于 DRC/LVS 和 `.op`（`.op` 由外部源驱动 PAD，没有暴露这个问题）。修 PEX 单位是待办项。

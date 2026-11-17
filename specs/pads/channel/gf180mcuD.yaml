@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+# P1-4 channel assumptions: package + PCB for the SDR PHY.
+#
+# HONESTY: this is a PRE-LAYOUT design fixture. The package RLC is the
+# typical wire-bond range shown in IBIS `[Package]` sections; the PCB is a
+# 50 ohm FR-4 microstrip with standard propagation delay. No vendor IBIS
+# or EM extraction has been used. Every number is a design assumption.
+meta:
+  status: design_assumption
+  purpose: "P1-4 pre-layout channel co-simulation with the pad PEX"
+  not_for: ["signoff", "vendor-correlated SI", "eye-mask compliance"]
+  references:
+    - "docs/SI_PI_PACKAGE_PCB.md section 1-2 (IBIS [Package] RLC, microstrip)"
+    - "FR-4 microstrip 5-7 ps/mm, 50 ohm target"
+
+backend: gf180mcuD
+pdk_root: "~/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD"
+models: |
+  .lib "$PDK_ROOT/libs.tech/ngspice/sm141064.ngspice" typical
+  .lib "$PDK_ROOT/libs.tech/ngspice/sm141064.ngspice" diode_typical
+  .include "$PDK_ROOT/libs.tech/ngspice/design.ngspice"
+
+channel:
+  # PCB
+  pcb_length_mm: 50.0
+  z0_ohm: 50.0
+  # 5.5 ps/mm is the middle of the FR-4 microstrip 5-7 ps/mm range
+  t_pd_ps_per_mm: 5.5
+  # matched-length routing tolerance for CK vs DQ
+  length_tolerance_mm: 1.0
+  # distributed ladder: 10 sections of 5 mm each
+  pcb_sections: 10
+  l_per_section_nh: 1.375      # Z0 * t_pd = 50 ohm * 5.5 ps/mm * 5 mm
+  c_per_section_pf: 0.55       # t_pd / Z0 = 5.5 ps/mm * 5 mm / 50 ohm
+  r_per_section_ohm: 0.15      # ~0.3 ohm/cm of 0.15 mm trace
+  # DRAM side: SDR SDRAM inputs are high-impedance CMOS, not SSTL-3
+  # terminated. A 1 Mohm bleed keeps the node defined without loading it.
+  term_ohm: 1000000.0
+  dram_cin_pf: 3.0             # SDR SDRAM input capacitance (datasheet class)

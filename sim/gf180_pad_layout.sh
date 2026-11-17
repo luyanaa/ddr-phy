@@ -100,7 +100,12 @@ for line in open(src):
         continue
     toks = line.rstrip('\n').split()
     if len(toks) >= 5 and toks[4] == 'ppolyf_u':
-        out.append('R_SERIES %s %s 22.272727\n' % (toks[1], toks[2]))
+        # the resistor terminals need the same '.'/'/'/'#' sanitizing as
+        # every other node, otherwise R_SERIES lands on a nonexistent node
+        # and the output stage is left disconnected from PAD.
+        n1 = re.sub(r'[./#]', '_', toks[1])
+        n2 = re.sub(r'[./#]', '_', toks[2])
+        out.append('R_SERIES %s %s 22.272727\n' % (n1, n2))
         continue
     for i, t in enumerate(toks):
         if i == 0 or '=' in t or num_rx.match(t):

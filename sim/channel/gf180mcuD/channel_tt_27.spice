@@ -1,0 +1,32 @@
+
+* P1-4 CHANNEL CO-SIMULATION: pad PEX + package + PCB + DRAM pin.
+* DESIGN ASSUMPTION: pre-layout channel, no vendor IBIS/EM extraction.
+.lib "$PDK_ROOT/libs.tech/ngspice/sm141064.ngspice" typical
+.lib "$PDK_ROOT/libs.tech/ngspice/sm141064.ngspice" diode_typical
+.include "$PDK_ROOT/libs.tech/ngspice/design.ngspice"
+
+.include "/grid/ddr-phy/sim/char/gf180mcuD/sized_sdr_delay_tt_27.spice"
+VDD VDD 0 3.3
+VSS VSS 0 0
+VDDIO VDDIO 0 3.3
+VSSIO VSSIO 0 0
+* power-up sequencing first (as in the P1-1 slice), then the data edges
+VPU PU_OK 0 PWL(0 0 1.0n 0 1.1n 3.3 20n 3.3)
+VOE OE_N 0 PWL(0 3.3 3.9n 3.3 4.0n 0 15.9n 0 16.0n 3.3 20n 3.3)
+VOUT OUT 0 PWL(0 3.3 5.9n 3.3 6.0n 0 11.9n 0 12.0n 3.3 20n 3.3)
+X_PAD OUT OE_N IN PAD PU_OK VDD VSS VDDIO VSSIO sdr_bidir_pad
+RIN IN VSSIO 1G
+* package parasitics
+R_PKG PAD PKG 0.05
+L_PKG PKG PKG2 1.5n
+C_PKG PKG2 0 0.4p
+* PCB microstrip (50 ohm, 50.0 mm)
+T1 PKG2 0 ND 0 Z0=50 TD=2.75e-10
+* far-end load: DRAM input capacitance + high-Z bleed
+RTT ND VTT 1e+06
+VTT VTT 0 1.65
+C_DRAM ND 0 3.0p
+.tran 5p 20n
+.options trtol=10 reltol=1e-2 abstol=1e-9 vntol=1e-4 rshunt=1e9 gmin=1e-8 itl4=100
+.print tran v(PAD) v(ND)
+.end

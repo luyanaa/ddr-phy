@@ -89,6 +89,20 @@ def load_sta():
     return out
 
 
+def load_channel():
+    """P1-4 channel delay (ns) and trace skew (ns), if characterized."""
+    files = sorted(REPORTS.glob("channel_*_*.json"))
+    if not files:
+        return None
+    p = files[0]
+    d = json.loads(p.read_text())
+    m = d["measures"]
+    lo = min(m["t_chan_r"], m["t_chan_f"])
+    hi = max(m["t_chan_r"], m["t_chan_f"])
+    return {"file": p.name, "min": lo, "max": hi,
+            "skew": d["trace_skew_s"]}
+
+
 def load_oe(tag):
     """OE on/off from the P1-1 characterization (same PVT tag)."""
     p = REPORTS / ("pad_char_gf180mcuD_%s.json" % tag)
@@ -109,6 +123,7 @@ def main():
     thz = dev_param(dev, "tHZ_CL2_max")
     tlz = dev_param(dev, "tLZ_min")
     sta = load_sta()
+    ch = load_channel()
 
     rows = []
     for corner, tag in CORNERS.items():
@@ -127,11 +142,15 @@ def main():
         po_min = min(m["tpd_out_r"], m["tpd_out_f"]) * 1e9
         pi_max = max(m["tpd_in_r"], m["tpd_in_f"]) * 1e9
         pi_min = min(m["tpd_in_r"], m["tpd_in_f"]) * 1e9
+        # P1-4 board: the same channel for CK and DQ, so only the
+        # matched-length skew survives the subtraction.
+        b_min = (ch["min"] - ch["skew"]) if ch else 0.0
+        b_max = (ch["max"] + ch["skew"]) if ch else 0.0
         # end-to-end path delays
-        ckf_max = ck_max + po_max          # tCLK,fwd max
-        ckf_min = ck_min + po_min          # tCLK,fwd min
-        dqtx_max = dqo_max + po_max        # tDQ,tx max
-        dqtx_min = dqo_min + po_min        # tDQ,tx min
+        ckf_max = ck_max + po_max + b_max   # tCLK,fwd max (pad + board)
+        ckf_min = ck_min + po_min + b_min   # tCLK,fwd min
+        dqtx_max = dqo_max + po_max + b_max # tDQ,tx max
+        dqtx_min = dqo_min + po_min + b_min # tDQ,tx min
         dqrx_max = dqi_max + pi_max        # tDQ,rx max (incl. FF setup)
         dqrx_min = dqi_min + pi_min        # tDQ,rx min (incl. FF hold)
         # write path (WRITE command and first DQ on the same CK edge)
@@ -161,6 +180,8 @@ def main():
             "write_hold_ns": w_hold,
             "read_setup_ns": r_setup,
             "read_hold_ns": r_hold,
+            "board_min_ns": b_min,
+            "board_max_ns": b_max,
             "t_oe_on_ns": toe_on,
             "t_oe_off_ns": toe_off,
             "oe_off_ns": oe_off,
@@ -189,6 +210,7 @@ def main():
         "device": dev["meta"]["part"],
         "device_terms_ns": {"tDS": tds, "tDH": tdh, "tAC_max": tac,
                             "tOH_min": toh, "tHZ_max": thz, "tLZ_min": tlz},
+        "channel": ch,
         "notes": [
             "STA netlist is synthesised but not placed and has no wire load.",
             "Pad delays are SPICE from the first-pass sizing fixture.",
@@ -241,7 +263,8 @@ def main():
     if worst["read_hold_ns"] <= 0:
         md += ["- Read hold is negative."]
     md += ["", "## Not included", "",
-           "- Board/package RLC and connector (P1-4).",
+           "- Board/package: included as the P1-4 channel (matched traces).",
+          "- The channel is a pre-layout RLC/T-line model, not an EM extraction.",
            "- Clock jitter/DCD/OCV: the SDC uncertainty term is still TBD.",
            "- Placement, routing, CTS, wire load, SDF back-annotation.",
            "- OE turn-on: needs the DRAM release reference through the board.",

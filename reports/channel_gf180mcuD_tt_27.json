@@ -1,0 +1,46 @@
+{
+  "generated_by": "generator/emit_channel.py",
+  "status": "design_assumption - pre-layout RLC channel, no vendor IBIS/EM",
+  "backend": "gf180mcuD",
+  "tag": "tt_27",
+  "spec": "/grid/ddr-phy/specs/pads/channel/gf180mcuD.yaml",
+  "pad_netlist": "/grid/ddr-phy/sim/char/gf180mcuD/sized_sdr_delay_tt_27.spice",
+  "channel": {
+    "pcb_length_mm": 50.0,
+    "z0_ohm": 50.0,
+    "t_pd_ps_per_mm": 5.5,
+    "length_tolerance_mm": 1.0,
+    "pcb_sections": 10,
+    "l_per_section_nh": 1.375,
+    "c_per_section_pf": 0.55,
+    "r_per_section_ohm": 0.15,
+    "dram_cin_pf": 3.0,
+    "term_ohm": 1000000.0
+  },
+  "package": {
+    "r_ohm": 0.05,
+    "l_nh": 1.5,
+    "c_pf": 0.4,
+    "source": "typical wire-bond IBIS [Package] RLC range"
+  },
+  "measures": {
+    "t_chan_f": 3.352088772376925e-10,
+    "t_chan_r": 3.3745256258983564e-10,
+    "slew_r": 4.244700421946703e-10,
+    "slew_f": 4.168278148146189e-10,
+    "ov_dram": 3.397433,
+    "uv_dram": -0.0447564
+  },
+  "trace_skew_s": 5.4999999999999996e-12,
+  "notes": [
+    "Absolute channel delay is common-mode for CK and DQ when the",
+    "traces are matched; the budget uses the trace skew.",
+    "Package RLC and the PCB stackup are published typical ranges,",
+    "not vendor data. P1-4 is a pre-layout study.",
+    "The pad model is the sized schematic slice, not the Magic PEX",
+    "netlist: the flat PEX writes device w/l/ad/as in layout units",
+    "while the PDK models expect SI units, so the output stage does",
+    "not drive in transient. The PEX is still used for DRC/LVS and",
+    "the .op check in P1-2."
+  ]
+}
