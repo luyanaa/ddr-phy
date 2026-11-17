@@ -1,0 +1,45 @@
+{
+  "generated_by": "generator/emit_pad_ring.py",
+  "status": "structural_assembly - not signoff",
+  "pad_cell": "gf180_pad_core",
+  "die_um": [
+    1500.0,
+    1500.0
+  ],
+  "pitch_um": 145.0,
+  "seal_ring_um": 20.0,
+  "pads": {
+    "bottom": 9,
+    "top": 9,
+    "left": 9,
+    "right": 9,
+    "total": 36
+  },
+  "overlap_check": "pass",
+  "guard_ring_per_pad": "open - pad cell has no dedicated guard ring yet",
+  "not_included": [
+    "bond pads / package",
+    "ESD qualification",
+    "power grid",
+    "DRC on the assembled ring",
+    "seal ring DRC/LVS"
+  ],
+  "seal_layers": [
+    "Metal1",
+    "Metal2",
+    "Metal3",
+    "Metal4",
+    "Metal5",
+    "MetalTop",
+    "Via1",
+    "Via2",
+    "Via3",
+    "Via4",
+    "Via5",
+    "Comp",
+    "Pplus",
+    "Nplus",
+    "Contact",
+    "Nwell"
+  ]
+}
