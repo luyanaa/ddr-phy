@@ -140,25 +140,45 @@ previously merged its drain with VDDIO was fixed by finding the real
 cause: an existing Metal3 bar at x -57900..-57500 sits in that channel,
 so the second clamp's drain now runs at x -55 um instead.
 
-### Why more clamp width does not help (model limit)
+### The PEX unit bug that made every earlier ESD number meaningless
 
-Two experiments on the extracted netlist:
+The extracted netlist carried `.option scale=5n` **and** layout-unit device
+geometry (`w=1000 l=56`). ngspice applied the scale a second time inside
+the PDK subcircuits, so the model lookup failed and every MOSFET was
+inert: the "PEX transient" was a passive R-C-D network. Evidence: a single
+`pfet_03v3` with `w=1000 l=56` reports "could not find a valid modelname",
+while `w=5e-06 l=2.8e-07` works.
 
-| experiment | result |
+`sim/gf180_pad_layout.sh` now converts `w/l/ad/as/pd/ps` to SI and drops
+`.option scale`, so the PEX MOSFETs conduct. The `.op` still passes
+(5/5) and the ESD numbers below are from the working netlist.
+
+### Clamp width now matters (working model)
+
+| clamp width | peak |
 |---|---|
-| gate grounded / floating / 10k / 100k to VSSIO | 37.85 V in all four |
-| clamp width 80 / 160 / 320 / 640 um | 37.85 / 37.39 / 36.82 / 35.85 V |
+| 80 um (in the pad cell) | **40.9 V** |
+| 160 um (SPICE, same netlist) | **29.8 V** |
 
-Gate bias has **no** effect and 8x the width buys 2 V. That means the
-ngspice BSIM model is not reproducing the clamp's intended mechanism
-(parasitic npn / snapback); the improvement from 51.2 V to 37.9 V tracks
-the added junction area, not the NMOS channel.
+Gate coupling was re-tested with the working model
+(1/2/5 pF from PAD to gate, 10k to VSSIO): 40.944 -> 40.928 V, i.e. still
+no dependence. The peak occurs at the **end** of the 100 ns pulse, so it
+is set by the clamp's on-resistance (41 ohm at 80 um), not by a fast
+trigger. Width is the lever, not the gate.
 
-Conclusion: **the 37.9 V number cannot be used as an ESD qualification.**
-Verifying a ggNMOS clamp needs TLP characterization or an ESD-specific
-compact model; a DC/transient BSIM simulation has a floor around 35 V no
-matter how large the device is. The exit condition stays NO_GO, and this
-is a model-capability limit, not a layout problem.
+### Why the pad cell stops at 80 um
+
+Growing the clamp inside the pad cell to 120/160 um was tried in three
+placements. Every one broke the die-level Poly2 density rule (PL.8:
+14.05 % -> 12.3 %), because a taller device removes the dummy-fill rows in
+the band it occupies and the cell has no other free area. The pad cell
+therefore keeps 80 um (DRC 0, LVS match, 40.9 V) and the **pad ring**
+instances a 160 um clamp per pad, where the area exists.
+
+Conclusion: the pad cell's clamp is **area-bound**, not model-bound. The
+SPICE evidence says 160 um gives 29.8 V, and that is what the ring
+carries. Qualifying either still needs TLP data (the BSIM model has no
+snapback), so the ESD exit condition stays NO_GO.
 
 ## 7. ESD stress check (not a qualification)
 

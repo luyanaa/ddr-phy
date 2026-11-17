@@ -95,7 +95,19 @@ node_rx = re.compile(r'^[A-Za-z_][A-Za-z0-9_$]*[./#][A-Za-z0-9_$./#]*$')
 num_rx = re.compile(r'^[+-]?[0-9]')
 out = []
 for line in open(src):
-    if line.startswith('*') or line.startswith('.'):
+    if line.startswith('*'):
+        out.append(line)
+        continue
+    if line.startswith('.option'):
+        # .option scale=5n makes ngspice scale the PDK subcircuit geometry a
+        # second time and the model lookup then fails ("could not find a valid
+        # modelname"); every geometry parameter is converted to SI below, so
+        # the option must go.
+        if 'scale' in line:
+            continue
+        out.append(line)
+        continue
+    if line.startswith('.'):
         out.append(line)
         continue
     toks = line.rstrip('\n').split()
@@ -112,9 +124,22 @@ for line in open(src):
             continue
         if any(c in t for c in './#') and node_rx.match(t):
             toks[i] = re.sub(r'[./#]', '_', t)
-    # Magic writes diode area/pj in layout units (scale = 5 nm); ngspice does
-    # not apply .option scale to these two instance parameters, so convert
-    # them to SI here (800000 * 25e-18 = 20p, 3600 * 5e-9 = 18u).
+    # Magic writes every device geometry in layout units (scale = 5 nm) and
+    # ngspice does not apply .option scale to instance parameters. Without
+    # this conversion the MOSFETs get w=1000 m / l=56 m and never conduct,
+    # which silently turns the whole PEX transient into a passive network.
+    _model = next((t for t in toks if t.startswith(("nfet_03v3", "pfet_03v3"))), None)
+    if _model is not None and toks[0].startswith("X"):
+        for i, t in enumerate(toks):
+            for key, scale in (("w=", 5e-9), ("l=", 5e-9),
+                               ("ad=", 25e-18), ("as=", 25e-18),
+                               ("pd=", 5e-9), ("ps=", 5e-9)):
+                if t.startswith(key):
+                    try:
+                        toks[i] = "%s%g" % (key, float(t[len(key):]) * scale)
+                    except ValueError:
+                        pass
+    # Diode area/pj use the same scale.
     if len(toks) >= 4 and toks[3].startswith('diode'):
         for i, t in enumerate(toks):
             if t.startswith('area='):

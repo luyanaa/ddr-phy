@@ -132,7 +132,9 @@ def main():
         top.insert(pya.CellInstArray(sub.cell_index(), t))
         # ESD clamp next to each pad, in the same local frame.
         cl = ly.create_cell("cl_%s_%d_%d" % (side, x, y))
-        ecl.draw_clamp(ly, cl)
+        # 160 um clamp: the pad cell can only host 80 um before the
+        # die-level Poly2 density rule breaks, but the ring has the area.
+        ecl.draw_clamp(ly, cl, nf=40, w=4.0)
         top.insert(pya.CellInstArray(cl.cell_index(), t))
 
     # overlap check on transformed bounding boxes
