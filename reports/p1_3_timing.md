@@ -35,22 +35,6 @@ Operating point `baseline_100_cl2`, tCK = 10.0 ns, device MT48LC16M16A2.
 ## Reading
 
 
-## Fix (P1-3 path B)
-
-The negative write setup was structural. Path B is implemented in
-`rtl/sdr_phy.sv`: the pin command is pipelined one cycle and DQ/DM/OE are
-launched on the falling edge, so the DRAM sees the data half a period plus
-a full period before the command edge it samples. The DFI read latency is
-now CL+2. A characterised delay line (path A) was evaluated and removed:
-its PVT slope is steeper than the DQ path and the ff corner stayed
-negative.
-
-| corner | write setup | write hold | read setup | read hold |
-|---|---|---|---|---|
-| tt | +2.637 | +4.574 | +3.278 | +3.359 |
-| ss | +1.781 | +4.963 | +2.617 | +3.719 |
-| ff | +3.005 | +4.416 | +3.567 | +3.204 |
-
 ## Not included
 
 - Board/package: included as the P1-4 channel (matched traces).

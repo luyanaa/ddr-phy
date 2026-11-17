@@ -194,11 +194,13 @@ module tb_sdr_phy;
         `CHECK(a === 13'h005A)
         `CHECK(ba === 2'd1)
         `CHECK(cke === 1'b1)
+
+        // P1-3 path B: DQ/DM/OE launch on the falling edge.
+        @(negedge clk);
+        #1;
         `CHECK(dq_oe === 1'b1)
         `CHECK(dq_o === wr_pat)
         `CHECK(dm === wr_mask)
-
-        @(negedge clk);
         idle_dfi();
         dfi_wrdata_mask = {DM_BITS{1'b1}};
         @(posedge clk);

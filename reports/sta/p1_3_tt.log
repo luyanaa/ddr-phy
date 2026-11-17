@@ -55,7 +55,7 @@ Path Type: min
 
 
 == cmd_max
-Startpoint: _711_ (falling edge-triggered flip-flop clocked by clk)
+Startpoint: _757_ (falling edge-triggered flip-flop clocked by clk)
 Endpoint: pad_cmd[0] (output port clocked by clk)
 Path Group: clk
 Path Type: max
@@ -64,8 +64,8 @@ Path Type: max
 -----------------------------------------------------------------
    5.000000    5.000000   clock clk (fall edge)
    0.000000    5.000000   clock network delay (ideal)
-   0.000000    5.000000 v _711_/CLKN (gf180mcu_fd_sc_mcu7t5v0__dffnq_1)
-   0.984168    5.984169 ^ _711_/Q (gf180mcu_fd_sc_mcu7t5v0__dffnq_1)
+   0.000000    5.000000 v _757_/CLKN (gf180mcu_fd_sc_mcu7t5v0__dffnq_1)
+   0.984168    5.984169 ^ _757_/Q (gf180mcu_fd_sc_mcu7t5v0__dffnq_1)
    0.000000    5.984169 ^ pad_cmd[0] (out)
                5.984169   data arrival time
 
@@ -109,7 +109,7 @@ Path Type: min
 
 
 == dqo_max
-Startpoint: _712_ (falling edge-triggered flip-flop clocked by clk)
+Startpoint: _749_ (falling edge-triggered flip-flop clocked by clk)
 Endpoint: pad_dq[0] (output port clocked by clk)
 Path Group: clk
 Path Type: max
@@ -118,8 +118,8 @@ Path Type: max
 -----------------------------------------------------------------
    5.000000    5.000000   clock clk (fall edge)
    0.000000    5.000000   clock network delay (ideal)
-   0.000000    5.000000 v _712_/CLKN (gf180mcu_fd_sc_mcu7t5v0__dffnq_1)
-   1.123983    6.123983 ^ _712_/Q (gf180mcu_fd_sc_mcu7t5v0__dffnq_1)
+   0.000000    5.000000 v _749_/CLKN (gf180mcu_fd_sc_mcu7t5v0__dffnq_1)
+   1.123983    6.123983 ^ _749_/Q (gf180mcu_fd_sc_mcu7t5v0__dffnq_1)
    0.000000    6.123983 ^ pad_dq[0] (inout)
                6.123983   data arrival time
 
@@ -136,7 +136,7 @@ Path Type: max
 
 
 == dqo_min
-Startpoint: _712_ (falling edge-triggered flip-flop clocked by clk)
+Startpoint: _749_ (falling edge-triggered flip-flop clocked by clk)
 Endpoint: pad_dq[0] (output port clocked by clk)
 Path Group: clk
 Path Type: min
@@ -145,8 +145,8 @@ Path Type: min
 -----------------------------------------------------------------
    5.000000    5.000000   clock clk (fall edge)
    0.000000    5.000000   clock network delay (ideal)
-   0.000000    5.000000 v _712_/CLKN (gf180mcu_fd_sc_mcu7t5v0__dffnq_1)
-   0.872479    5.872479 v _712_/Q (gf180mcu_fd_sc_mcu7t5v0__dffnq_1)
+   0.000000    5.000000 v _749_/CLKN (gf180mcu_fd_sc_mcu7t5v0__dffnq_1)
+   0.872479    5.872479 v _749_/Q (gf180mcu_fd_sc_mcu7t5v0__dffnq_1)
    0.000000    5.872479 v pad_dq[0] (inout)
                5.872479   data arrival time
 

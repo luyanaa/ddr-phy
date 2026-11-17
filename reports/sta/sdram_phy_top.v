@@ -641,8 +641,10 @@ module sdram_phy_top(clk, rst, dfi_address, dfi_bank, dfi_ras_n, dfi_cas_n, dfi_
   wire \u_core.dfi_wrdata_en ;
   wire [0:0] \u_core.dfi_wrdata_mask ;
   wire [0:0] \u_core.dm ;
+  wire [0:0] \u_core.dm_q ;
   wire [7:0] \u_core.dq_i ;
   wire [7:0] \u_core.dq_o ;
+  wire [7:0] \u_core.dq_o_q ;
   wire \u_core.ras_n ;
   wire \u_core.rst ;
   wire \u_core.unused_dfi ;
@@ -1275,50 +1277,50 @@ module sdram_phy_top(clk, rst, dfi_address, dfi_bank, dfi_ras_n, dfi_cas_n, dfi_
     .B2(_249_),
     .ZN(_092_)
   );
-  gf180mcu_fd_sc_mcu7t5v0__and3_1 _598_ (
-    .A1(_177_),
-    .A2(_176_),
-    .A3(_193_),
+  gf180mcu_fd_sc_mcu7t5v0__and2_1 _598_ (
+    .A1(_193_),
+    .A2(_168_),
     .Z(_093_)
   );
   gf180mcu_fd_sc_mcu7t5v0__and2_1 _599_ (
     .A1(_193_),
-    .A2(_168_),
+    .A2(_169_),
     .Z(_094_)
   );
   gf180mcu_fd_sc_mcu7t5v0__and2_1 _600_ (
     .A1(_193_),
-    .A2(_169_),
+    .A2(_170_),
     .Z(_095_)
   );
   gf180mcu_fd_sc_mcu7t5v0__and2_1 _601_ (
     .A1(_193_),
-    .A2(_170_),
+    .A2(_171_),
     .Z(_096_)
   );
   gf180mcu_fd_sc_mcu7t5v0__and2_1 _602_ (
     .A1(_193_),
-    .A2(_171_),
+    .A2(_172_),
     .Z(_097_)
   );
   gf180mcu_fd_sc_mcu7t5v0__and2_1 _603_ (
     .A1(_193_),
-    .A2(_172_),
+    .A2(_173_),
     .Z(_098_)
   );
   gf180mcu_fd_sc_mcu7t5v0__and2_1 _604_ (
     .A1(_193_),
-    .A2(_173_),
+    .A2(_174_),
     .Z(_099_)
   );
   gf180mcu_fd_sc_mcu7t5v0__and2_1 _605_ (
     .A1(_193_),
-    .A2(_174_),
+    .A2(_175_),
     .Z(_100_)
   );
-  gf180mcu_fd_sc_mcu7t5v0__and2_1 _606_ (
-    .A1(_193_),
-    .A2(_175_),
+  gf180mcu_fd_sc_mcu7t5v0__and3_1 _606_ (
+    .A1(_177_),
+    .A2(_176_),
+    .A3(_193_),
     .Z(_101_)
   );
   gf180mcu_fd_sc_mcu7t5v0__and2_1 _607_ (
@@ -1895,50 +1897,50 @@ module sdram_phy_top(clk, rst, dfi_address, dfi_bank, dfi_ras_n, dfi_cas_n, dfi_
     .D(_419_),
     .Q(\u_cdc.req_toggle )
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _711_ (
-    .CLKN(clk),
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _711_ (
+    .CLK(clk),
     .D(_420_),
-    .Q(\u_core.dm )
+    .Q(\u_core.dq_o_q [0])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _712_ (
-    .CLKN(clk),
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _712_ (
+    .CLK(clk),
     .D(_421_),
-    .Q(pad_dq[0])
+    .Q(\u_core.dq_o_q [1])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _713_ (
-    .CLKN(clk),
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _713_ (
+    .CLK(clk),
     .D(_422_),
-    .Q(pad_dq[1])
+    .Q(\u_core.dq_o_q [2])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _714_ (
-    .CLKN(clk),
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _714_ (
+    .CLK(clk),
     .D(_423_),
-    .Q(pad_dq[2])
+    .Q(\u_core.dq_o_q [3])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _715_ (
-    .CLKN(clk),
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _715_ (
+    .CLK(clk),
     .D(_424_),
-    .Q(pad_dq[3])
+    .Q(\u_core.dq_o_q [4])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _716_ (
-    .CLKN(clk),
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _716_ (
+    .CLK(clk),
     .D(_425_),
-    .Q(pad_dq[4])
+    .Q(\u_core.dq_o_q [5])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _717_ (
-    .CLKN(clk),
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _717_ (
+    .CLK(clk),
     .D(_426_),
-    .Q(pad_dq[5])
+    .Q(\u_core.dq_o_q [6])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _718_ (
-    .CLKN(clk),
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _718_ (
+    .CLK(clk),
     .D(_427_),
-    .Q(pad_dq[6])
+    .Q(\u_core.dq_o_q [7])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _719_ (
-    .CLKN(clk),
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _719_ (
+    .CLK(clk),
     .D(_428_),
-    .Q(pad_dq[7])
+    .Q(\u_core.dm_q )
   );
   gf180mcu_fd_sc_mcu7t5v0__dffq_1 _720_ (
     .CLK(clk),
@@ -2085,42 +2087,87 @@ module sdram_phy_top(clk, rst, dfi_address, dfi_bank, dfi_ras_n, dfi_cas_n, dfi_
     .D(_465_),
     .Q(\u_turn.dead [7])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _749_ (
+  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _749_ (
+    .CLKN(clk),
+    .D(\u_core.dq_o_q [0]),
+    .Q(pad_dq[0])
+  );
+  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _750_ (
+    .CLKN(clk),
+    .D(\u_core.dq_o_q [1]),
+    .Q(pad_dq[1])
+  );
+  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _751_ (
+    .CLKN(clk),
+    .D(\u_core.dq_o_q [2]),
+    .Q(pad_dq[2])
+  );
+  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _752_ (
+    .CLKN(clk),
+    .D(\u_core.dq_o_q [3]),
+    .Q(pad_dq[3])
+  );
+  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _753_ (
+    .CLKN(clk),
+    .D(\u_core.dq_o_q [4]),
+    .Q(pad_dq[4])
+  );
+  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _754_ (
+    .CLKN(clk),
+    .D(\u_core.dq_o_q [5]),
+    .Q(pad_dq[5])
+  );
+  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _755_ (
+    .CLKN(clk),
+    .D(\u_core.dq_o_q [6]),
+    .Q(pad_dq[6])
+  );
+  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _756_ (
+    .CLKN(clk),
+    .D(\u_core.dq_o_q [7]),
+    .Q(pad_dq[7])
+  );
+  gf180mcu_fd_sc_mcu7t5v0__dffnq_1 _757_ (
+    .CLKN(clk),
+    .D(\u_core.dm_q ),
+    .Q(\u_core.dm )
+  );
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _758_ (
     .CLK(clk),
     .D(_467_),
     .Q(\u_cdc.rddata [0])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _750_ (
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _759_ (
     .CLK(clk),
     .D(_469_),
     .Q(\u_cdc.rddata [1])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _751_ (
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _760_ (
     .CLK(clk),
     .D(_471_),
     .Q(\u_cdc.rddata [2])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _752_ (
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _761_ (
     .CLK(clk),
     .D(_473_),
     .Q(\u_cdc.rddata [3])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _753_ (
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _762_ (
     .CLK(clk),
     .D(_475_),
     .Q(\u_cdc.rddata [4])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _754_ (
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _763_ (
     .CLK(clk),
     .D(_477_),
     .Q(\u_cdc.rddata [5])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _755_ (
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _764_ (
     .CLK(clk),
     .D(_479_),
     .Q(\u_cdc.rddata [6])
   );
-  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _756_ (
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1 _765_ (
     .CLK(clk),
     .D(_481_),
     .Q(\u_cdc.rddata [7])
@@ -2353,22 +2400,22 @@ module sdram_phy_top(clk, rst, dfi_address, dfi_bank, dfi_ras_n, dfi_cas_n, dfi_
   assign _334_ = \u_cdc.valid_pipe [4];
   assign _418_ = _091_;
   assign _419_ = _092_;
-  assign _420_ = _093_;
   assign _168_ = dfi_wrdata[0];
-  assign _421_ = _094_;
+  assign _420_ = _093_;
   assign _169_ = dfi_wrdata[1];
-  assign _422_ = _095_;
+  assign _421_ = _094_;
   assign _170_ = dfi_wrdata[2];
-  assign _423_ = _096_;
+  assign _422_ = _095_;
   assign _171_ = dfi_wrdata[3];
-  assign _424_ = _097_;
+  assign _423_ = _096_;
   assign _172_ = dfi_wrdata[4];
-  assign _425_ = _098_;
+  assign _424_ = _097_;
   assign _173_ = dfi_wrdata[5];
-  assign _426_ = _099_;
+  assign _425_ = _098_;
   assign _174_ = dfi_wrdata[6];
-  assign _427_ = _100_;
+  assign _426_ = _099_;
   assign _175_ = dfi_wrdata[7];
+  assign _427_ = _100_;
   assign _428_ = _101_;
   assign _147_ = dfi_address[0];
   assign _429_ = _102_;

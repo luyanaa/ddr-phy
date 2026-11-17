@@ -120,11 +120,26 @@ module sdr_phy #(
     end
 
     // Half-cycle write launch.
+    //
+    // The DFI value is captured on the rising edge (a DFI master may drop
+    // dfi_wrdata_en right after it) and launched on the falling edge, which
+    // keeps dq_oe valid across the rising edge that carries the pipelined
+    // command.
+    reg [DATA_BITS-1:0] dq_o_q;
+    reg [DM_BITS-1:0]   dm_q;
+    reg                 dq_oe_q;
+
+    always @(posedge clk) begin
+        dq_o_q  <= rst ? {DATA_BITS{1'b0}} : dfi_wrdata;
+        dm_q    <= rst ? {DM_BITS{1'b0}}
+                       : ({DM_BITS{dfi_wrdata_en}} & dfi_wrdata_mask);
+        dq_oe_q <= rst ? 1'b0 : dfi_wrdata_en;
+    end
+
     always @(negedge clk) begin
-        dm    <= rst ? {DM_BITS{1'b0}}
-                    : ({DM_BITS{dfi_wrdata_en}} & dfi_wrdata_mask);
-        dq_o  <= rst ? {DATA_BITS{1'b0}} : dfi_wrdata;
-        dq_oe <= rst ? 1'b0 : dfi_wrdata_en;
+        dq_o  <= dq_o_q;
+        dm    <= dm_q;
+        dq_oe <= dq_oe_q;
     end
 
 endmodule
