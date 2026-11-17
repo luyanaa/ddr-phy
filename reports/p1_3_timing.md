@@ -1,6 +1,6 @@
 # P1-3: CK output and end-to-end timing margins
 
-**Status: NO_GO** (design assumption; unplaced STA netlist, first-pass pad fixture, no board/package terms).
+**Status: GO** (design assumption; unplaced STA netlist, first-pass pad fixture, no board/package terms).
 
 Operating point `baseline_100_cl2`, tCK = 10.0 ns, device MT48LC16M16A2.
 
@@ -17,29 +17,39 @@ Operating point `baseline_100_cl2`, tCK = 10.0 ns, device MT48LC16M16A2.
 
 | corner | tco_ck | tco_dq | pad_out | pad_in | tCLK,fwd | tDQ,tx | tDQ,rx | W setup | W hold | R setup | R hold | OE on | OE off |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| tt | 0.307-0.453 | 0.940-1.089 | 0.271-0.317 | 0.0079-0.0852 | 0.578-0.770 | 1.212-1.406 | 0.359-0.720 | -2.327 | +9.642 | +3.280 | +3.359 | +3.577 | +5.877 |
-| ss | 0.616-0.907 | 1.878-2.219 | 0.375-0.441 | 0.0285-0.0960 | 0.992-1.349 | 2.254-2.660 | 0.719-1.379 | -3.168 | +10.105 | +2.621 | +3.719 | +3.408 | +5.737 |
-| ff | 0.176-0.261 | 0.544-0.613 | 0.208-0.239 | -0.0023-0.0735 | 0.384-0.499 | 0.752-0.851 | 0.204-0.432 | -1.967 | +9.453 | +3.568 | +3.204 | +3.680 | +5.973 |
+| tt | 0.307-0.453 | 0.872-1.124 | 0.271-0.317 | 0.0079-0.0852 | 0.578-0.770 | 1.144-1.441 | 0.359-0.722 | +2.637 | +4.574 | +3.278 | +3.359 | +3.577 | +5.877 |
+| ss | 0.616-0.907 | 1.737-2.269 | 0.375-0.441 | 0.0285-0.0960 | 0.992-1.349 | 2.112-2.711 | 0.719-1.383 | +1.781 | +4.963 | +2.617 | +3.719 | +3.408 | +5.737 |
+| ff | 0.176-0.261 | 0.507-0.641 | 0.208-0.239 | -0.0023-0.0735 | 0.384-0.499 | 0.715-0.880 | 0.204-0.433 | +3.005 | +4.416 | +3.567 | +3.204 | +3.680 | +5.973 |
 
 ## Worst case
 
 | check | margin (ns) |
 |---|---|
-| write_setup_ns | -3.168 |
-| write_hold_ns | +9.453 |
-| read_setup_ns | +2.621 |
+| write_setup_ns | +1.781 |
+| write_hold_ns | +4.416 |
+| read_setup_ns | +2.617 |
 | read_hold_ns | +3.204 |
 | oe_off_ns | +5.737 |
 | oe_on_ns | +3.408 |
 
 ## Reading
 
-- Write setup is **negative**: the forwarded CK leaves the chip
-  ~0.6 ns earlier than DQ (2-gate mux vs register + mux), so the
-  DRAM sees DQ after its CK edge. This is the `assign ck = clk`
-  limitation from `docs/TIMING_BUDGET.md` section 5, now with
-  numbers. It needs a characterized CK phase/delay (gate G6) or a
-  write-scheme change; no constraint tweak fixes it.
+
+## Fix (P1-3 path B)
+
+The negative write setup was structural. Path B is implemented in
+`rtl/sdr_phy.sv`: the pin command is pipelined one cycle and DQ/DM/OE are
+launched on the falling edge, so the DRAM sees the data half a period plus
+a full period before the command edge it samples. The DFI read latency is
+now CL+2. A characterised delay line (path A) was evaluated and removed:
+its PVT slope is steeper than the DQ path and the ff corner stayed
+negative.
+
+| corner | write setup | write hold | read setup | read hold |
+|---|---|---|---|---|
+| tt | +2.637 | +4.574 | +3.278 | +3.359 |
+| ss | +1.781 | +4.963 | +2.617 | +3.719 |
+| ff | +3.005 | +4.416 | +3.567 | +3.204 |
 
 ## Not included
 

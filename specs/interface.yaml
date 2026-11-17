@@ -14,7 +14,11 @@ timing:
   rdphase: 0
   wrphase: 0
   write_latency: 0
-  read_latency: "CL+1"
+  read_latency: "CL+2"
+  # P1-3 path B: the pin command is pipelined one cycle inside sdr_phy so
+  # DQ/DM/OE can launch on the falling edge of the DFI cycle. Write data is
+  # still presented with dfi_wrdata_en; the pin command appears one cycle
+  # later, which is why the read latency is CL+2 instead of CL+1.
   dfi_databits: DATA_BITS
   sys_to_ck: "1:1, assign ck = clk (rtl/sdr_phy.sv:77)"
   note: "One register on command, DQ and DM. rddata_en shifts through a CL+1 bit register."

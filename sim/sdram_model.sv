@@ -97,6 +97,7 @@ module sdram_model #(
 
     integer i;
     integer beat;
+    integer h;
     integer col;
     integer word;
     integer slot;
@@ -241,6 +242,17 @@ module sdram_model #(
                                 slot = (cas_lat - 2) + beat;
                                 nxt_d[slot]  = mem[word];
                                 nxt_oe[slot] = 1'b1;
+                                // Hold the last beat a few cycles: a real
+                                // SDRAM keeps the data until the next command,
+                                // and the PHY captures one edge after the beat
+                                // appears (P1-3 path B pipelines the command).
+                                for (h = 1; h <= 5; h = h + 1) begin
+                                    if (beat == burst_len - 1 &&
+                                        slot + h < PIPE) begin
+                                        nxt_d[slot + h]  = mem[word];
+                                        nxt_oe[slot + h] = 1'b1;
+                                    end
+                                end
                             end
                         end
                     end

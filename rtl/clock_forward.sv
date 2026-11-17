@@ -7,9 +7,10 @@
 // consequence: write setup margin degenerates to tCLK,fwd - tDQ,tx - tDS.
 //
 // This module makes the path explicit and provides a hook for a backend
-// selected CK phase. It does NOT create that phase: ck_phase_clks comes
-// from a characterized backend resource (capability gate G6). CK is held
-// low until io_power_ok.
+// selected CK phase (ck_phase_clks, capability gate G6). P1-3 path B fixes
+// the write setup inside sdr_phy (command pipelined one cycle, DQ launched
+// on the falling edge), so no delay line is needed here. CK is held low
+// until io_power_ok.
 //
 // STA obligation: create_generated_clock on ck_o (see flow/sdr_phy.sdc).
 

@@ -20,7 +20,7 @@ module tb_sdr_phy;
     localparam integer ADDR_BITS = 13;
     localparam integer BANK_BITS = 2;
     localparam integer DM_BITS   = DATA_BITS / 8;
-    localparam integer READ_LATENCY = CL + 1;
+    localparam integer READ_LATENCY = CL + 2;  // P1-3 path B
 
     reg                          clk;
     reg                          rst;
@@ -120,6 +120,10 @@ module tb_sdr_phy;
 
     task check_nop_pads;
         begin
+            // P1-3 path B: dq_oe/dm are launched on the falling edge, so
+            // sample after the negedge before declaring the pads idle.
+            @(negedge clk);
+            #1;
             `CHECK(cs_n === 1'b1)
             `CHECK(ras_n === 1'b1)
             `CHECK(cas_n === 1'b1)
@@ -227,7 +231,7 @@ module tb_sdr_phy;
         @(negedge clk);
         idle_dfi();
 
-        for (k = 1; k <= CL; k = k + 1) begin
+        for (k = 1; k <= CL + 1; k = k + 1) begin
             dq_i = {DATA_BITS{1'b0}};
             @(posedge clk);
             #1;

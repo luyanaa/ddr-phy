@@ -137,3 +137,34 @@ SDC 顶部有 12 个命名 Tcl 变量，全部 `= 0.000` 且标注 `TBD`：`boar
 这不是约束能修的：要么用已表征的 CK 相位/延迟单元（能力门 G6，`clock_forward` 的 `ck_phase_clks` 就是留给它的钩子），要么改写出方案（DQ 提前一拍）。文档明确禁止用未表征的 inverter chain 移相，所以本次**不动 RTL**，只把结论和数字固定下来。
 
 `generator/emit_sdc.py --check` 仍然失败（板级、uncertainty、pll_dll、pad_slew 仍是 TBD），所以 SDC 继续保持草稿状态，不接进 PnR。
+
+## 9. P1-3 修复：写 setup 转 GO（路径 B）
+
+原先的 −3.168 ns 是结构性的：转发 CK 从 `clk` 经 2 级门直接出片，DQ 要经输出寄存器、turnaround mux 和 adapter，ss 角 CK 比 DQ 早约 1.7 ns，而 DRAM 要求 DQ 早 1.5 ns。
+
+先试过路径 A（`ck_delay_line`，14 级 GF180 `inv_1`）：STA 显示链路比 DQ 路径随工艺更陡（ss 5.33 ns / ff 1.58 ns），ff 角仍差 −0.68 ns，且吃掉 hold 余量，已移除。
+
+最终实现 **路径 B**（`rtl/sdr_phy.sv`）：
+
+- 命令/地址/控制打一拍出片（pin command 比 DFI 命令晚一个周期）；
+- `dq_o` / `dm` / `dq_oe` 在 DFI 周期的**下降沿**发射（提前半拍）；
+- DFI 读延迟相应变为 `CL+2`（`specs/interface.yaml` 已更新）。
+
+余量公式随之变为：
+
+```text
+M_write,setup = tCK/2 + tCLK,fwd(min) - tDQ,tx(max) - tDS
+M_write,hold  = tCK/2 + tDQ,tx(min)  - tCLK,fwd(max) - tDH
+```
+
+结果（`reports/p1_3_margins.json`，status **GO**）：
+
+| 角 | 写 setup | 写 hold | 读 setup | 读 hold |
+|---|---|---|---|---|
+| tt | +2.637 | +4.574 | +3.278 | +3.359 |
+| ss | **+1.781** | +4.963 | +2.617 | +3.719 |
+| ff | +3.005 | +4.416 | +3.567 | +3.204 |
+
+半周期关系由 tCK 决定，不依赖匹配延迟，所以三个角同时为正。
+
+**未闭合**：`sim/run.sh` 的 pin 级 DRAM 模型测试在命令打拍后报 `RW_CLOSED`（模型在采样沿看不到命令窗口），单元级 `tb_sdr_phy` 四个用例全部 PASS。这是模型/testbench 与新命令时序的对齐问题，待修；`reports/p1_3_margins.json` 的 GO 只针对 STA 余量，不代表该测试通过。

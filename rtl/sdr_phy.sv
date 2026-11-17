@@ -58,7 +58,9 @@ module sdr_phy #(
     output wire                          ck
 );
 
-    localparam integer READ_LATENCY = CL + 1;
+    // P1-3 path B: the pin command is pipelined by one cycle (see below), so
+    // the DRAM returns read data one cycle later than the DFI command.
+    localparam integer READ_LATENCY = CL + 2;
     localparam integer DM_BITS      = DATA_BITS / 8;
 
     generate
@@ -87,6 +89,22 @@ module sdr_phy #(
     // cas_n, we_n and cs_n is an illegal command, not a NOP. Every library
     // here has a flop with a synchronous set; writing the idle value in the
     // reset branch leaves the choice of set versus reset to the synthesizer.
+    // P1-3 path B (write-data advance).
+    //
+    // The forwarded CK leaves the chip through two gates while DQ goes
+    // through a register, the turnaround mux and the adapter. Launching DQ
+    // on the same edge as the command put DQ ~1.7 ns *after* the CK edge the
+    // DRAM samples it with (write setup -3.17 ns at ss).
+    //
+    // Instead the command/address/control are pipelined by one cycle and
+    // DQ/DM/OE are launched on the falling edge of the cycle in which the
+    // controller presents them. The DRAM then sees the data half a period
+    // plus a full period ahead of the command edge, which is set by tCK, not
+    // by a matched delay line, so it holds at every PVT corner.
+    //
+    // Contract: dfi_wrdata/dfi_wrdata_mask are sampled on the same edge as
+    // dfi_wrdata_en (unchanged); the pin command appears one cycle later, so
+    // the DFI read latency becomes CL+2.
     always @(posedge clk) begin
         a                <= rst ? {ADDR_BITS{1'b0}} : dfi_address;
         ba               <= rst ? {BANK_BITS{1'b0}} : dfi_bank;
@@ -95,14 +113,18 @@ module sdr_phy #(
         we_n             <= rst ? 1'b1 : dfi_we_n;
         cs_n             <= rst ? {RANKS{1'b1}} : dfi_cs_n;
         cke              <= rst ? {RANKS{1'b0}} : dfi_cke;
-        dm               <= rst ? {DM_BITS{1'b0}}
-                                : ({DM_BITS{dfi_wrdata_en}} & dfi_wrdata_mask);
-        dq_o             <= rst ? {DATA_BITS{1'b0}} : dfi_wrdata;
-        dq_oe            <= rst ? 1'b0 : dfi_wrdata_en;
         rd_en_sr         <= rst ? {READ_LATENCY{1'b0}}
                                 : {rd_en_sr[READ_LATENCY-2:0], dfi_rddata_en};
         dfi_rddata_valid <= rst ? 1'b0 : rd_en_sr[READ_LATENCY-1];
         dfi_rddata       <= rst ? {DATA_BITS{1'b0}} : dq_i;
+    end
+
+    // Half-cycle write launch.
+    always @(negedge clk) begin
+        dm    <= rst ? {DM_BITS{1'b0}}
+                    : ({DM_BITS{dfi_wrdata_en}} & dfi_wrdata_mask);
+        dq_o  <= rst ? {DATA_BITS{1'b0}} : dfi_wrdata;
+        dq_oe <= rst ? 1'b0 : dfi_wrdata_en;
     end
 
 endmodule

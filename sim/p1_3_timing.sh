@@ -38,7 +38,7 @@ done
 echo "== 2/4 synthesis"
 LIB_TT="$LIBDIR/gf180mcu_fd_sc_mcu7t5v0__tt_025C_3v30.lib"
 NET=reports/sta/sdram_phy_top.v
-yosys -q -p "read_verilog -sv sim/pad_cell_sta_stub.sv rtl/clock_forward.sv \
+yosys -q -p "read_liberty -lib $LIB_TT; read_verilog -sv sim/pad_cell_sta_stub.sv rtl/clock_forward.sv \
 rtl/dq_turnaround.sv rtl/phy_io_adapter.sv rtl/read_capture_cdc.sv \
 rtl/read_capture_ctrl.sv rtl/sdr_phy.sv rtl/sdr_ctrl.sv rtl/sdram_phy_top.sv; \
 synth -top sdram_phy_top -flatten; dfflibmap -liberty $LIB_TT; \

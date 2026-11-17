@@ -153,9 +153,11 @@ def main():
         dqtx_min = dqo_min + po_min + b_min # tDQ,tx min
         dqrx_max = dqi_max + pi_max        # tDQ,rx max (incl. FF setup)
         dqrx_min = dqi_min + pi_min        # tDQ,rx min (incl. FF hold)
-        # write path (WRITE command and first DQ on the same CK edge)
-        w_setup = ckf_min - dqtx_max - tds
-        w_hold = dqtx_min + tck - ckf_max - tdh
+        # write path, P1-3 path B: the pin command is pipelined one cycle
+        # (+tCK) and DQ/DM/OE launch on the falling edge (+tCK/2), so the
+        # relative budget gains tCK/2 against the command edge.
+        w_setup = tck / 2.0 + ckf_min - dqtx_max - tds
+        w_hold = tck / 2.0 + dqtx_min - ckf_max - tdh
         # read path
         r_setup = tck - tac - dqrx_max
         r_hold = toh + dqrx_min
