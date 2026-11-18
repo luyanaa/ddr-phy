@@ -17,6 +17,8 @@ ROOT = Path(__file__).resolve().parent.parent
 CONTRACT = ROOT / "specs" / "timing_contract.yaml"
 DEVICE = ROOT / "specs" / "devices" / "micron_mt48lc16m16a2-75.yaml"
 OUT = ROOT / "flow" / "sdr_phy.sdc"
+OUT_TOP = ROOT / "flow" / "sdram_phy_top.sdc"
+TOP_CK_PORT = "pad_ck"
 REPORTS = ROOT / "reports"
 
 
@@ -226,6 +228,28 @@ group_path -name OE_TURNAROUND -to [get_ports dq_oe]
 # multi-corner PVT, DRC/LVS on the pad ring. See docs/STA_PLAN.md.
 """
     OUT.write_text(head)
+    # Top-level variant: sdram_phy_top exposes the forwarded clock as pad_ck
+    # (its sdr_phy.ck output is deliberately unconnected).
+    top = head.replace("[get_ports ck]", "[get_ports %s]" % TOP_CK_PORT)
+    # sdram_phy_top packs command/address into pad_cmd and DQ into the
+    # bidirectional pad_dq, so the port sets differ from the sdr_phy core.
+    # The generated text has single braces (f-string doubles collapse), so
+    # the replacements must use single braces too.
+    top = top.replace("set cmd_ports {a[*] ba[*] ras_n cas_n we_n cs_n* cke* dm*}",
+                      "set cmd_ports {pad_cmd[*]}")
+    top = top.replace("set wr_ports {dq_o[*] dq_oe}", "set wr_ports {pad_dq[*]}")
+    top = top.replace("set rd_ports {dq_i[*]}", "set rd_ports {pad_dq[*]}")
+    top = top.replace("[get_ports dq_oe]", "[get_ports pad_dq]")
+    top = top.replace("group_path -name OE_TURNAROUND -to [get_ports pad_dq]",
+                      "group_path -name OE_TURNAROUND -to [get_ports pad_dq]")
+    top = top.replace("group_path -name CK_OUT -to [get_ports ck]",
+                      "group_path -name CK_OUT -to [get_ports %s]" % TOP_CK_PORT)
+    top = top.replace("set_output_delay -clock sdram_ck -max \\\n    [expr {$pad_out_max - $board_ck_min}] [get_ports ck]",
+                      "set_output_delay -clock sdram_ck -max \\\n    [expr {$pad_out_max - $board_ck_min}] [get_ports %s]" % TOP_CK_PORT)
+    top = top.replace("set_output_delay -clock sdram_ck -min \\\n    [expr {$pad_out_min - $board_ck_max}] [get_ports ck]",
+                      "set_output_delay -clock sdram_ck -min \\\n    [expr {$pad_out_min - $board_ck_max}] [get_ports %s]" % TOP_CK_PORT)
+    OUT_TOP.write_text(top)
+    print("wrote %s" % OUT_TOP)
     print(f"wrote {OUT} ({len(tbds)} TBD placeholders)")
     print("STATUS: pre-layout constraints; placement/CTS/SDF still missing")
     if "--check" in sys.argv and tbds:

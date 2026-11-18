@@ -57,12 +57,19 @@ gf180-as-7t3v3)
     ;;
 esac
 
-echo "LibreLane sdr_phy  pdk=$PDK_NAME  scl=$SCL  root=$PDKROOT"
-rm -rf "flow/runs/$SPEC"
-librelane flow/config.librelane.json \
+if [ -n "$TOP" ]; then
+    CFG=flow/config.$TOP.json
+    [ -f "$CFG" ] || { echo "no such top config: $CFG" >&2; exit 2; }
+else
+    CFG=flow/config.librelane.json
+fi
+
+echo "LibreLane ${TOP:-sdr_phy}  pdk=$PDK_NAME  scl=$SCL  root=$PDKROOT"
+rm -rf "flow/runs/${SPEC}${TOP:+-$TOP}"
+librelane "$CFG" \
     --manual-pdk \
     --pdk-root "$PDKROOT" \
     --pdk "$PDK_NAME" \
     --scl "$SCL" \
-    --run-tag "$SPEC" \
-    --ef-save-views-to "results/$SPEC/sdr_phy"
+    --run-tag "${SPEC}${TOP:+-$TOP}" \
+    --ef-save-views-to "results/$SPEC/${TOP:-sdr_phy}"
