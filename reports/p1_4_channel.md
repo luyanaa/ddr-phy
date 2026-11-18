@@ -196,8 +196,14 @@ sizing guess), holds the 1 A / 100 ns stress at **28.4 V** - close to the
 | clamp | source | peak |
 |---|---|---|
 | none | - | 51.2 V |
-| 80 um in the pad cell | pad PEX | 40.9 V |
-| **160 um in the ring** | **clamp PEX** | **28.4 V** |
+| 80 um (old, 2x40) in the cell | pad PEX | 40.9 V |
+| 160 um standalone cell | clamp PEX | 28.4 V |
+| **160 um inside the pad cell** | **pad PEX** | **32.2 V** |
+
+The 160 um clamp is now part of the pad macro itself: full DRC 0
+violations, LVS Netlists match with `MCLAMP ... W=160u`, Magic RC-PEX and
+ngspice .op all pass, and the ESD stress on the extracted pad drops from
+51.2 V to 32.2 V.
 
 Qualifying either still needs TLP data (the BSIM model has no snapback),
 so the ESD exit condition stays NO_GO - but the clamp research itself is

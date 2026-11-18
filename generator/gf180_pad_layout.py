@@ -554,7 +554,11 @@ class PadLayout:
             r.merge()
             return r.sized(grow) if grow else r
 
-        extent = pya.Region(self.top.bbox())
+        # Fill only inside the design area: if the fill is allowed to extend
+        # the bbox, every added tile grows the denominator and the ratio
+        # freezes just below the target (seen as a constant 29.99 %).
+        bb0 = self.top.bbox()
+        extent = pya.Region(bb0)
         comp = reg("Comp")
         poly = reg("Poly2")
         pad = reg("Pad")
@@ -570,7 +574,7 @@ class PadLayout:
                      nw.sized(1000) + dnw.sized(2000) + lvp.sized(1000) +
                      dg.sized(1000) + res.sized(19700))
         allowed = (extent - keep_comp
-                   - pya.Region(pya.Box(*self.CORRIDOR)).sized(1500))
+                   - pya.Region(pya.Box(*self.CORRIDOR)).sized(800))
         b = extent.bbox()
         count = 0
         y = b.bottom + 1000
@@ -599,10 +603,13 @@ class PadLayout:
         self.rect("Comp_dummy", 38900, 31200, 45000, 51400)
 
 
-        self.rect("Metal4_dummy", 39000, -46000, 44000, -31000)
-        self.rect("Metal5_dummy", 39000, -64000, 44000, -31000)
-        self.rect("Metal4_dummy", 39000, 14000, 44000, 30000)
-        self.rect("Metal5_dummy", 39000, 14000, 44000, 30000)
+        # Fixed blocks for the layers the automatic grid cannot reach. The
+        # 160 um clamp made the die 86.3 um tall, which pushed Metal3/Metal4
+        # to 29.99 % (rule 30 %), so the upper-right corner is filled too.
+        for _ln in ("Metal3_dummy", "Metal4_dummy", "Metal5_dummy"):
+            self.rect(_ln, 39000, -46000, 44000, -31000)
+            self.rect(_ln, 39000, 14000, 44000, 32000)
+            self.rect(_ln, 39000, 50000, 44500, 86200)
 
         print("dummy fill tiles: %d" % count)
 
@@ -660,7 +667,11 @@ class PadLayout:
             r.merge()
             return r.sized(grow) if grow else r
 
-        extent = pya.Region(self.top.bbox())
+        # Fill only inside the design area: if the fill is allowed to extend
+        # the bbox, every added tile grows the denominator and the ratio
+        # freezes just below the target (seen as a constant 29.99 %).
+        bb0 = self.top.bbox()
+        extent = pya.Region(bb0)
         total = float(extent.area())
         b = extent.bbox()
 
@@ -851,33 +862,45 @@ def main():
     lay.rect("Via2", -57830, -39930, -57570, -39670)
 
     lay.oe_logic()
-    # ESD clamp: instance the verified standalone ggNMOS cell. Its source
-    # bus lands on the VSSIO frame's bottom bar (y -48750..-48250) and its
-    # drain bus is at y -51180..-51580, so the drain reaches PAD on Metal3
-    # without crossing the output stage's Metal2 buses.
+    # ESD clamp: the verified 160 um ggNMOS, placed above the pad bbox and
+    # wired to the corridor ports (PAD on Metal3 lane x 33.0-33.6, VSSIO on
+    # Metal4 lane x 35.0-35.6, both reaching the top edge at y 71.5-72.5).
+    #
+    # The unit's buses (verified by LVS on the standalone cell) are:
+    #   drain  local y -2030..1200
+    #   source local y  2150..6030
+    # With the instance at _CY they land at _CY-2030.._CY+1200 and
+    # _CY+2150.._CY+6030, so each tap stays inside its own band.
     import sys as _sys
     _sys.path.insert(0, str(Path(__file__).resolve().parent))
     import emit_esd_clamp as _ecl
-    _cl = lay.ly.create_cell("esd_clamp")
-    _ecl.draw_clamp(lay.ly, _cl, nf=20, w=2.0)
-    lay.top.insert(pya.CellInstArray(_cl.cell_index(),
-                                     pya.Trans(pya.Point(-42000, -49550))))
-    # drain -> PAD on Metal3
-    lay.rect("Via2", -40130, -51530, -39870, -51270)
-    lay.rect("Metal3", -40350, -51700, -39650, -32000)
-    lay.rect("Metal3", -40350, -32350, -31500, -32000)
+    _cl160 = lay.ly.create_cell("esd_clamp_160")
+    _ecl.draw_clamp(lay.ly, _cl160, nf=40, w=4.0, fill=False)
+    _CY = 80000
+    lay.top.insert(pya.CellInstArray(_cl160.cell_index(),
+                                     pya.Trans(pya.Point(0, _CY))))
+    # drain -> PAD: Via2 row inside the drain band, then Metal3 up to the
+    # corridor PAD lane.
+    # Drain bus is local -2030..1200 -> absolute _CY-2030.._CY+1200.
+    # Put the Via2 row inside it, e.g. at _CY-600.._CY-340.
+    _ydr = 78000
+    for _x in range(17400, 29000, 3600):
+        lay.rect("Via2", _x, _ydr + 40, _x + 260, _ydr + 300)
+    lay.rect("Metal3", 17200, 77600, 29000, 78400)
+    lay.rect("Metal3", 17200, 70000, 17800, 78400)
+    lay.rect("Metal3", 17200, 70000, 22000, 70600)
+    lay.rect("Metal3", 21400, 70000, 22000, 71200)
+    lay.rect("Metal3", 21400, 70600, 33600, 71200)
 
-    # Second clamp: same cell, placed left of the first. Its drain runs on
-    # Metal3 at x -55 um because an existing Metal3 bar sits at
-    # x -57900..-57500 (that is what shorted the earlier nf=40 attempt to
-    # VDDIO).
-    _cl2 = lay.ly.create_cell("esd_clamp2")
-    _ecl.draw_clamp(lay.ly, _cl2, nf=20, w=2.0)
-    lay.top.insert(pya.CellInstArray(_cl2.cell_index(),
-                                     pya.Trans(pya.Point(-60900, -49550))))
-    lay.rect("Via2", -55130, -51530, -54870, -51270)
-    lay.rect("Metal3", -55350, -51700, -54650, -32000)
-    lay.rect("Metal3", -55350, -32350, -31500, -32000)
+    # source -> VSSIO: Via2 inside the source band, Metal3 stub, Via3, Metal4
+    # up to the corridor VSSIO lane.
+    _ysrc = 85600
+    lay.rect("Via2", 30000, 85700, 30260, 85960)
+    lay.rect("Metal3", 29800, 85600, 30600, 86100)
+    lay.rect("Metal3", 29800, 85800, 31800, 86300)
+    lay.rect("Via3", 31200, 85900, 31460, 86160)
+    lay.rect("Metal4", 31000, 70600, 31800, 86200)
+    lay.rect("Metal4", 31000, 70600, 35700, 71200)
 
     lay.corridor()
     lay.dummy_fill()
@@ -935,8 +958,7 @@ def main():
         "MRP IN PAD VDDIO VDDIO pfet_03v3 W=4u L=0.28u\n"
         "MPOB OUTB_I OUT VDDIO VDDIO pfet_03v3 W=2u L=0.28u\n"
         "MNOB OUTB_I OUT VSSIO VSSIO nfet_03v3 W=1u L=0.28u\n"
-        "MCLAMP PAD VSSIO VSSIO VSSIO nfet_03v3 W=40u L=0.28u\n"
-        "MCLAMP2 PAD VSSIO VSSIO VSSIO nfet_03v3 W=40u L=0.28u\n"
+        "MCLAMP PAD VSSIO VSSIO VSSIO nfet_03v3 W=160u L=0.28u\n"
         "MPOE OENB OE_N VDDIO VDDIO pfet_03v3 W=2u L=0.28u\n"
         "MNOE OENB OE_N VSSIO VSSIO nfet_03v3 W=1u L=0.28u\n"
                                                                                                         "MPNGP N_GP NGPB VDDIO VDDIO pfet_03v3 W=2u L=0.28u\n"
