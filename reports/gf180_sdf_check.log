@@ -1,0 +1,3 @@
+dq_o/dq_oe transitions: rising=0 falling=3
+PASS sdf-gate-check
+/tmp/tb_gf180_sdf.sv:99: $finish called at 155000 (1ps)
