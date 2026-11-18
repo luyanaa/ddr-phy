@@ -63,6 +63,8 @@ def seal_ring(ly, top, w_um, h_um, width_um, dbu):
                  ("Metal4", "Via4"), ("Metal5", "Via5")):
         frame(m, 0, w)
         frame(v, 300, w - 600)
+    # MetalTop closes the stack above Metal5 (Via5 already drawn above).
+    frame("MetalTop", 0, w)
 
 
 def main():

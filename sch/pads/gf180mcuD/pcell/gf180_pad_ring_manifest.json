@@ -16,12 +16,12 @@
     "total": 36
   },
   "overlap_check": "pass",
-  "guard_ring_per_pad": "cell verified (DRC 0); instanced 36x outside the pad bbox",
+  "guard_ring_per_pad": "open - pad cell has no dedicated guard ring yet",
   "not_included": [
     "bond pads / package",
-    "ESD qualification (needs TLP)",
-    "core power grid",
-    "ring-level DRC/LVS (needs a tiled flow)",
+    "ESD qualification",
+    "power grid",
+    "DRC on the assembled ring",
     "seal ring DRC/LVS"
   ],
   "seal_layers": [
@@ -41,7 +41,5 @@
     "Nplus",
     "Contact",
     "Nwell"
-  ],
-  "esd_clamp_per_pad": "160 um cell verified (DRC clean geometry, LVS match, PEX 28.4 V); instanced 36x, NOT connected to PAD/VSSIO - the pad cell has no routing channel and its dense M1-M4 mesh shorted any in-cell strap",
-  "ring_level_drc_lvs": "not run: flat deck on 1.5 mm die with 108 instances timed out (30 min)"
+  ]
 }

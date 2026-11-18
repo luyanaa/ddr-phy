@@ -136,7 +136,19 @@ module sdr_phy #(
         dq_oe_q <= rst ? 1'b0 : dfi_wrdata_en;
     end
 
-    always @(negedge clk) begin
+    // Half-cycle launch on an explicitly inverted clock.
+    //
+    // `always @(negedge clk)` was silently turned into a rising-edge flop by
+    // yosys (the synthesis log shows a plain $dff for dq_o_q, and the post-PnR
+    // netlist clocks _112_.._115_ and _156_.._158_ from the same posedge
+    // clk_regs tree). That destroys the half-cycle advance the write setup
+    // margin relies on, which the SDF gate-level check caught.
+    //
+    // Driving the launch flops from !clk keeps the intent explicit and lets
+    // synthesis map it to a falling-edge flop (or a negedge clock gate) that
+    // the netlist preserves.
+    wire clk_n = ~clk;
+    always @(posedge clk_n) begin
         dq_o  <= dq_o_q;
         dm    <= dm_q;
         dq_oe <= dq_oe_q;
