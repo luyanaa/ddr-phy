@@ -27,10 +27,8 @@ result
 # See docs/DRAM_MODEL_REFERENCES.md.
 /third_party/reference/mt48lc16m16a2.v
 
-# OpenSPARC T1 DDR2/FBDIMM behavioral models: GPL-2.0 (Sun). Copyleft
-# conflicts with this Apache-2.0 repo, so the tree is local evaluation
-# only. See docs/T1_DRAM_MODELS.md.
-/third_party/reference/opensparc_t1/
+# OpenSPARC T1 models now live in the GPL-2.0 submodule
+# third_party/t1_ddr2 (see docs/T1_DRAM_MODELS.md) - not copied here.
 
 # Packaging-profile closure GDS are regenerated with timestamps (binary noise).
 # The closure evidence is the JSON/MD reports, not these throwaway sketches.

@@ -1,17 +1,19 @@
 # OpenSPARC T1 DDR2/FBDIMM 行为模型 — 研究与继承方案
 
-状态：**已在本机落地评估，不入 git。** 与 `docs/DRAM_MODEL_REFERENCES.md` 中 Micron 模型的处理一致。
+状态：**以 GPL-2.0 submodule `third_party/t1_ddr2` 引用，不改。** 与 `third_party/litedram`（BSD submodule，"不改"）同一模式：GPL 代码留在它自己的 GPL 仓库，本仓库只存 gitlink 指针。
 
 ## 1. 来源与许可
 
 | 项 | 值 |
 |---|---|
-| 来源 | `~/t1_dram_models/`（OpenSPARC T1 发布树抽取） |
-| 落地 | `third_party/reference/opensparc_t1/`（**`.gitignore` 排除**） |
+| 来源 | `~/t1_dram_models/`（OpenSPARC T1 发布树抽取），已推至 `github.com/luyanaa/t1_ddr2` |
+| 引用 | `third_party/t1_ddr2`（git submodule，`branch = main`，pinned `116ecae`） |
 | 许可 | **GPL-2.0**（每文件头部 Sun 版权块，"License version 2"） |
 | 规模 | 9 个文件 / 696 KB |
 
-**许可结论：GPL-2.0 是 copyleft。把这些 `.v` 提交进本 Apache-2.0 仓库会污染下游再分发，与 `ARCHITECTURE.md` §7 "GPL-3.0 代码不进本仓库" 的精神一致，故不入库。** GPL-2.0 与 GPL-3.0 在这一点上同等处理。模型只作本机评估与结构参考；任何移植产出的**新写**文件（见 §4）从需求出发重写，不复制 T1 代码行，保持 Apache-2.0。
+**许可结论：GPL-2.0 是 copyleft，不能直接编进本 Apache-2.0 仓库 —— 但作为 submodule 引用是成立的**：GPL 文本只存在于它自己的 GPL 仓库 `luyanaa/t1_ddr2`，本仓库的 git 树里只有一个 commit 指针（gitlink），不复制任何 GPL 代码行。这与 `ARCHITECTURE.md` §7 "GPL-3.0 代码不进本仓库" 不冲突 —— 那条禁的是把代码**复制进**本仓库，不是指向一个外部 GPL 仓库。`litedram` 已经用同一模式。
+
+引用 vs 链接的边界仍然有效：本仓库的任何 `.v`/`.sv`/`.py` **不 `include`、不 import、不复制** submodule 里的 GPL 行；自研模型（§4.2）从需求重写，保持 Apache-2.0。
 
 ## 2. 文件清单与角色
 
@@ -110,7 +112,7 @@ DQ/CB/DQS）的断言监视器，比 `dram_mon.v`（388 KB、T1 层次引用）�
 
 ## 5. 不做的事
 
-- **不提交** `third_party/reference/opensparc_t1/`（GPL-2.0，gitignored）。
+- **不在本仓库内复制** GPL 文本 —— submodule `third_party/t1_ddr2` 只持有 gitlink；本仓库任何文件不 `include` 它的行。
 - 不把 Denali/Infineon/Micron `ifdef` 分支当可用路径 —— `ch_mem.v` 只有
   `dimm` 分支自包含，其余引用缺失的厂商模型。
 - 不移植 `dram_mon.v` / `cmp_mem.v` / `cmp_dram.v`：它们硬编码 T1 四通道拓扑、

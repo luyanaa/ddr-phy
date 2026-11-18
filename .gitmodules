@@ -1,3 +1,7 @@
 [submodule "third_party/litedram"]
 	path = third_party/litedram
 	url = https://github.com/enjoy-digital/litedram.git
+[submodule "third_party/t1_ddr2"]
+	path = third_party/t1_ddr2
+	url = https://github.com/luyanaa/t1_ddr2
+	branch = main
