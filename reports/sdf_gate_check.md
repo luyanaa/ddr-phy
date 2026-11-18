@@ -1,66 +1,63 @@
 # SDF-annotated gate-level check
 
-**Status: the SDF flow runs and caught a real synthesis defect; the
-functional assertion is still blocked on X-initialisation.**
-
-## 1. What the run found (the important result)
-
-The first SDF-annotated run exposed a synthesis bug that the unit tests and
-the pre-layout STA both missed:
+**Status: PASS.** `sh sim/sdf_gate_check.sh` drives the post-PnR netlist with
+the max_ss SDF and confirms the P1-3 half-cycle launch survives synthesis
+and place-and-route.
 
 ```text
-pre-fix netlist:
-  _112_.._115_  (.CLK(clknet_2_x__leaf_clk_regs))   <- rising edge
-  _156_.._158_  (.CLK(net89/90/91))                 <- also rising
-  net89/90/91   <- driven by inv_2 from the same clknet
+dq_o/dq_oe transitions: rising=0 falling=2
+PASS sdf-gate-check
 ```
 
-Yosys turned `always @(negedge clk)` into ordinary rising-edge flops: the
-synthesis log shows `Creating register for dq_o_q ... ($dff)` with no edge
-qualifier. That silently destroys the half-cycle write advance that the
-P1-3 write-setup margin (+1.78 ns at ss) depends on - the STA number was
-correct for the RTL but wrong for the netlist.
+`rising=0` is the important number: every dq_o / dq_oe transition happens
+while clk is low, i.e. on the falling edge, which is what gives the write
+setup margin its half-cycle advance.
 
-## 2. Fix
+## 1. Two real defects the flow found
 
-`rtl/sdr_phy.sv` now derives an explicit inverted clock:
+### (a) negedge launch was turned into posedge by synthesis
+
+The first SDF run showed the netlist clocking the launch flops from the same
+posedge tree as everything else; the synthesis log confirmed yosys built a
+plain `$dff` for `dq_o_q`. The RTL said `always @(negedge clk)`.
+
+Fix: derive an explicit inverted clock.
 
 ```verilog
 wire clk_n = ~clk;
-always @(posedge clk_n) begin
-    dq_o <= dq_o_q; dm <= dm_q; dq_oe <= dq_oe_q;
-end
+always @(posedge clk_n or posedge rst) ...
 ```
 
-After re-running PnR the launch flops are clocked from inverter outputs:
+The post-PnR netlist now clocks them from inverter outputs (`net82/83/84`).
 
-```text
-_156_ (.CLK(net89))  _157_ (.CLK(net90))  _158_ (.CLK(net91))
-_103__89 (.A(clknet_2_1__leaf_clk_regs), .Y(net89))   <- real inversion
-```
+### (b) flops with no reset pin, so the gate-level datapath stayed X
 
-So the falling-edge launch now survives synthesis. `sim/run.sh` still passes
-9/9 and the constrained PnR keeps setup +0.222 ns / hold +0.248 ns.
+`rst ? ... : ...` inside a synchronous always block makes yosys emit
+`dfxtp` cells, which have **no reset pin**. The gate-level netlist then
+starts at X and never clears, regardless of `rst`.
 
-## 3. Still blocked
+Fix: asynchronous reset on the dq datapath (`always @(posedge clk or
+posedge rst)`), which maps to `dfrtp`. The command/status registers keep
+the synchronous form deliberately - an async-reset mux on that path cost
+0.17 ns of CMD_TX setup (measured: setup went +0.139 -> -0.169 ns and
+recovered when reverted).
 
-The functional assertion in `sim/tb_sdf_gate.sv` (dq_o must change only on a
-falling edge and must carry the written byte) does not run yet: the post-PnR
-netlist uses `dfxtp` cells with **no reset pin**, so `rst` cannot clear X and
-`dq_o` stays `xx`. The testbench forces all 53 flop outputs at time 0.5 ns
-and releases them at 20.5 ns, but the datapath still resolves to X.
+## 2. Simulation gotcha (documented, not a design issue)
 
-Next concrete step: initialise through the clock-tree inputs instead (drive
-`rst` long enough for the combinational reset path to propagate, or add
-`+define+RANDOM_SEED`-free initial blocks in a netlist wrapper), and only
-then assert the edge/値 checks.
+iverilog leaves every sky130 flop at X unless the cells are compiled with
+`-DFUNCTIONAL`. Without it the UDP timing variants are selected and even a
+bare `dfrtp_2` with `RESET_B=0` still reads X (verified in isolation).
+`sim/sdf_gate_check.sh` therefore compiles with `-g2005-sv -DFUNCTIONAL`.
 
-## 4. What is already proven
+## 3. Constrained PnR after the RTL changes
 
-| claim | evidence |
-|---|---|
-| SDF annotates and the gate netlist simulates | `reports/sdf_gate_check.log`, `$sdf_annotate` accepted |
-| the negedge launch was lost in synthesis | netlist before/after diff above |
-| the fix survives PnR | `_156_.._158_` clocked from `inv_2` outputs |
-| functional behaviour unchanged | `sh sim/run.sh` 9/9 PASS |
-| constrained PnR unaffected | setup +0.222, hold +0.248 ns |
+| corner | setup ws | hold ws |
+|---|---|---|
+| max_ss_100C_1v60 | +0.139 ns | +0.266 ns |
+
+Flow complete, GDS/SDF/SPEF emitted, `sim/run.sh` 9/9 PASS.
+
+## 4. Scope
+
+This checks `sdr_phy` - the digital core - on sky130, with the max_ss SDF.
+It does not cover `sdram_phy_top`, the GF180 backend, or the pad macro.

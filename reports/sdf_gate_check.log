@@ -1,6 +1,3 @@
-FAIL: dq_oe not asserted after the write command
-FAIL: dq_o=xx expected A5
-FAIL: no dq_o/dq_oe transition on a falling edge
-dq_o/dq_oe transitions: rising=0 falling=0
-FAIL sdf-gate-check errors=3
-sim/tb_sdf_gate.sv:229: $finish called at 195000 (1ps)
+dq_o/dq_oe transitions: rising=0 falling=2
+PASS sdf-gate-check
+sim/tb_sdf_gate.sv:99: $finish called at 155000 (1ps)

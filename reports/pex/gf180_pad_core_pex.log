@@ -77,6 +77,7 @@ Device pdiodec does not have a compatible substrate node!
 Device pdiodec does not have a compatible substrate node!
 Device pdiodec does not have a compatible substrate node!
 Device pdiodec does not have a compatible substrate node!
+gf180_pad_core_flat: 8 warnings
 Processing cell gf180_pad_core_flat for resistance extraction.
 Extracting a_n5372_11080#
 Extracting a_n4948_11920#
@@ -90,7 +91,6 @@ Extracting a_n4804_11920#
 Extracting a_n3172_11080#
 Extracting a_628_11080#
 Extracting a_n7856_9000#
-Extracting VSSIO
 Extracting VDDIO
 Extracting OUT
 Extracting OE_N
@@ -99,7 +99,9 @@ Extracting GP
 Extracting GN
 Extracting PAD
 Extracting IN
+Extracting VSSIO
 Total Nets: 30
 Nets extracted: 21 (0.700000)
 Nets output: 21 (0.700000)
+Total of 8 warnings.
 exttospice finished.

@@ -569,7 +569,8 @@ class PadLayout:
         keep_poly = (pad.sized(6700) + comp.sized(3200) + poly.sized(5000) +
                      nw.sized(1000) + dnw.sized(2000) + lvp.sized(1000) +
                      dg.sized(1000) + res.sized(19700))
-        allowed = extent - keep_comp
+        allowed = (extent - keep_comp
+                   - pya.Region(pya.Box(*self.CORRIDOR)).sized(1500))
         b = extent.bbox()
         count = 0
         y = b.bottom + 1000
@@ -591,12 +592,12 @@ class PadLayout:
         self.rect("Comp_dummy", -10000, -10000, 10000, 10000)
         # Density top-up in the free strip right of the pad (DPF.9 needs
         # 6.7 um to the Pad layer, so it starts at x 39000).
-        self.rect("Comp_dummy", 38900, -64500, 44500, -31000)
-        self.rect("Poly2_dummy", 38900, -64500, 44500, -31000)
-        self.rect("Poly2_dummy", 38900, 33500, 44500, 46000)
-        self.rect("Comp_dummy", 38900, 33500, 44500, 46000)
-        self.rect("Comp_dummy", 38900, 47900, 44500, 51200)
-        self.rect("Poly2_dummy", 38900, 47900, 44500, 51200)
+        self.rect("Comp_dummy", 38900, -64900, 44900, -31000)
+
+        self.rect("Poly2_dummy", 38900, -64900, 44900, -31000)
+        self.rect("Poly2_dummy", 38900, 31200, 45000, 51400)
+        self.rect("Comp_dummy", 38900, 31200, 45000, 51400)
+
 
         self.rect("Metal4_dummy", 39000, -46000, 44000, -31000)
         self.rect("Metal5_dummy", 39000, -64000, 44000, -31000)
@@ -604,6 +605,43 @@ class PadLayout:
         self.rect("Metal5_dummy", 39000, 14000, 44000, 30000)
 
         print("dummy fill tiles: %d" % count)
+
+    # ------------------------------------------------------------------
+    # Routing corridor + edge ports.
+    #
+    # Region probes show the core area y -29..+19 um, x -50..+34 um has no
+    # Metal3/Metal4 at all (only small diode M2 pads), and the die-edge
+    # dummy fill starts outside y +/-29 um. A corridor can therefore run
+    # INSIDE that empty core band and out through the top without touching
+    # dummy fill, which is what broke the earlier right-strip attempt.
+    #
+    #   PAD   on Metal3: pad-stack M3 plate (y <= 32000) -> lane at x 33100
+    #         -> up to y 71500 -> right to the cell edge, label PAD.
+    #   VSSIO on Metal4: VSSIO M2 island (x -32..32 um) -> via stack ->
+    #         lane at x 35500 -> up -> edge, label VSSIO.
+    # The two lanes are 2.4 um apart, well above the 0.28 um M3/M4 spacing.
+    # ------------------------------------------------------------------
+    CORRIDOR = (32900, 19000, 36800, 73250)
+
+    def corridor(self):
+        # --- PAD on Metal3 --------------------------------------------
+        # The pad-stack M3 plate ends at x 32000; extend it to the lane.
+        self.rect("Metal3", 31500, 20000, 33500, 24000)
+        self.rect("Metal3", 33000, 21000, 33600, 72500)
+        self.rect("Metal3", 33000, 71500, 36800, 72500)
+        self.label("Metal3_label", "PAD", 36000, 72000)
+
+        # --- VSSIO on Metal4 ------------------------------------------
+        # Tap the VSSIO Metal2 island (the big rect -32000..38600) where the
+        # core band is empty, then go up on Metal4 beside the PAD lane.
+        self.rect("Metal2", 33100, 8000, 34500, 11000)
+        self.rect("Via2", 33500, 9250, 33760, 9510)
+        self.rect("Metal3", 33200, 8900, 34400, 9900)
+        self.rect("Via3", 33650, 9180, 33910, 9440)
+        self.rect("Metal4", 33200, 8900, 35600, 10500)
+        self.rect("Metal4", 35000, 9500, 35600, 72500)
+        self.rect("Metal4", 35000, 71500, 36800, 72500)
+        self.label("Metal4_label", "VSSIO", 36500, 72000)
 
     def dummy_density_fill(self):
         """Top up layer coverage so the die-level density rules pass.
@@ -841,6 +879,7 @@ def main():
     lay.rect("Metal3", -55350, -51700, -54650, -32000)
     lay.rect("Metal3", -55350, -32350, -31500, -32000)
 
+    lay.corridor()
     lay.dummy_fill()
     lay.dummy_density_fill()
 

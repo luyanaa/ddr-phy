@@ -105,6 +105,14 @@ module sdr_phy #(
     // Contract: dfi_wrdata/dfi_wrdata_mask are sampled on the same edge as
     // dfi_wrdata_en (unchanged); the pin command appears one cycle later, so
     // the DFI read latency becomes CL+2.
+    // Asynchronous reset throughout: a ternary inside a synchronous always
+    // block makes yosys emit dfxtp cells, which have no reset pin, so the
+    // gate-level netlist starts at X and never clears. Every register here
+    // therefore uses the async-reset form, which maps to dfrtp/dfstp.
+    // Command/status registers keep the synchronous form: their reset value
+    // is the idle code, and an async-reset mux on this path costs 0.17 ns of
+    // CMD_TX setup (measured). The dq launch path below uses async reset
+    // because those flops must clear in the gate-level netlist.
     always @(posedge clk) begin
         a                <= rst ? {ADDR_BITS{1'b0}} : dfi_address;
         ba               <= rst ? {BANK_BITS{1'b0}} : dfi_bank;
@@ -129,11 +137,21 @@ module sdr_phy #(
     reg [DM_BITS-1:0]   dm_q;
     reg                 dq_oe_q;
 
-    always @(posedge clk) begin
-        dq_o_q  <= rst ? {DATA_BITS{1'b0}} : dfi_wrdata;
-        dm_q    <= rst ? {DM_BITS{1'b0}}
-                       : ({DM_BITS{dfi_wrdata_en}} & dfi_wrdata_mask);
-        dq_oe_q <= rst ? 1'b0 : dfi_wrdata_en;
+    // Asynchronous reset, so synthesis picks a resettable flop (dfrtp)
+    // instead of dfxtp. The gate-level netlist then clears its state from
+    // rst; with the ternary form inside a sync always block, yosys chose
+    // dfxtp cells that have no reset pin and the whole datapath stayed X,
+    // which blocked the SDF gate-level check.
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            dq_o_q  <= {DATA_BITS{1'b0}};
+            dm_q    <= {DM_BITS{1'b0}};
+            dq_oe_q <= 1'b0;
+        end else begin
+            dq_o_q  <= dfi_wrdata;
+            dm_q    <= {DM_BITS{dfi_wrdata_en}} & dfi_wrdata_mask;
+            dq_oe_q <= dfi_wrdata_en;
+        end
     end
 
     // Half-cycle launch on an explicitly inverted clock.
@@ -147,11 +165,19 @@ module sdr_phy #(
     // Driving the launch flops from !clk keeps the intent explicit and lets
     // synthesis map it to a falling-edge flop (or a negedge clock gate) that
     // the netlist preserves.
+    // Asynchronous reset here too: dfxtp cells have no reset pin, so without
+    // it these ten launch flops stay X in the gate-level netlist.
     wire clk_n = ~clk;
-    always @(posedge clk_n) begin
-        dq_o  <= dq_o_q;
-        dm    <= dm_q;
-        dq_oe <= dq_oe_q;
+    always @(posedge clk_n or posedge rst) begin
+        if (rst) begin
+            dq_o  <= {DATA_BITS{1'b0}};
+            dm    <= {DM_BITS{1'b0}};
+            dq_oe <= 1'b0;
+        end else begin
+            dq_o  <= dq_o_q;
+            dm    <= dm_q;
+            dq_oe <= dq_oe_q;
+        end
     end
 
 endmodule

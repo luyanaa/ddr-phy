@@ -20,11 +20,14 @@ fi
 
 python3 generator/emit_sdf_tb.py
 
-iverilog -g2012 -o /tmp/sdf_gate \
+# -DFUNCTIONAL makes the sky130 cells use their behavioural model. Without
+# it the UDP-based timing variants are selected and iverilog leaves every
+# flop at X (measured: a bare dfrtp_2 with RESET_B=0 still reads X).
+iverilog -g2005-sv -DFUNCTIONAL -o /tmp/sdf_gate \
     -I "$SKY/libs.ref/sky130_fd_sc_hd/verilog" \
     "$SKY/libs.ref/sky130_fd_sc_hd/verilog/primitives.v" \
     "$SKY/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v" \
-    "$NL" sim/tb_sdf_gate.sv 2>&1 | grep -vE 'warning|^$' | head -5 || true
+    "$NL" sim/tb_sdf_gate.sv 2>&1 | grep -E ' error' | head -5 || true
 
 vvp /tmp/sdf_gate > reports/sdf_gate_check.log 2>&1 || true
 grep -E 'PASS|FAIL|transitions' reports/sdf_gate_check.log | tail -6

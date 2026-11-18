@@ -8,13 +8,14 @@ testbench drives sdr_phy through the DFI write handshake and asserts:
   * dq_o / dm / dq_oe only change on the FALLING edge of clk (the P1-3
     path-B contract that closes the write setup margin);
   * the write data reaches dq_o with the value presented while
-    dfi_wrdata_en was high, i.e. the holding register did not lose a beat;
-  * the pin command/address appears on the rising edge one cycle after the
-    DFI command (the pipelined pin command).
+    dfi_wrdata_en was high.
+
+The flops are resettable (dfrtp) because rtl/sdr_phy.sv uses an
+asynchronous reset; without that, yosys emits dfxtp cells with no reset pin
+and the gate-level datapath stays X.
 
 Run: sim/sdf_gate_check.sh
 """
-import re
 import sys
 from pathlib import Path
 
@@ -23,33 +24,7 @@ NL = ROOT / "flow" / "runs" / "sky130" / "final" / "nl" / "sdr_phy.nl.v"
 SDF = (ROOT / "flow" / "runs" / "sky130" / "final" / "sdf"
        / "max_ss_100C_1v60" / "sdr_phy__max_ss_100C_1v60.sdf")
 
-
-def main():
-    if not NL.exists():
-        raise SystemExit("ERROR: %s missing; run flow/run.sh sky130 first" % NL)
-    if not SDF.exists():
-        raise SystemExit("ERROR: %s missing" % SDF)
-
-    def fix(q):
-        """Verilog escaped identifiers need a trailing space."""
-        q = q.strip()
-        return q + " " if q.startswith("\\") else q
-
-    nl_text = NL.read_text()
-    flops = re.findall(
-        r'sky130_fd_sc_hd__df\w+_\d+ (_\d+_) \(\.CLK\([^)]*\),\s*'
-        r'\.D\([^)]*\),\s*\.Q\(([^)]+)\)\);', nl_text)
-    init = "\n".join(
-        '                %d: force dut.%s = 1\'b0;' % (i, fix(q))
-        for i, (_inst, q) in enumerate(flops))
-    nflops = len(flops)
-
-    release = "\n".join(
-        '                %d: release dut.%s;' % (i, fix(q))
-        for i, (_inst, q) in enumerate(flops))
-
-    tb = f"""
-`timescale 1ns/1ps
+TB = """`timescale 1ns/1ps
 module tb_gate;
     reg clk = 0, rst = 1;
     reg [12:0] dfi_address = 0;
@@ -83,43 +58,20 @@ module tb_gate;
         .dq_i(dfi_rddata), .ck(ck)
     );
 
-    // The post-PnR netlist uses dfxtp (no reset pin): reset cannot clear X,
-    // so the flops are initialised explicitly before time 0.
     initial begin
-        $sdf_annotate("{SDF.as_posix()}", tb_gate.dut);
+        $sdf_annotate("@SDF@", tb_gate.dut);
     end
 
     always #5 clk = ~clk;
 
-    // The netlist uses dfxtp (no reset pin), so X cannot be cleared through
-    // rst. Initialise every flop's Q directly, then release.
-    integer fi;
-    task release_flop(input integer k);
-        begin
-            case (k)
-{release}
-            endcase
-        end
-    endtask
-    initial begin
-        #0.5;
-        for (fi = 0; fi < {nflops}; fi = fi + 1) begin
-            case (fi)
-{init}
-            endcase
-            #20;
-            for (fi = 0; fi < {nflops}; fi = fi + 1) release_flop(fi);
-        end
-    end
-
     integer errors = 0;
     integer rise_changes = 0, fall_changes = 0;
-    reg [7:0] prev_dq;
-    reg       prev_oe;
 
-    // classify every dq_o / dq_oe change by the edge it happened on
+    // Classify every dq_o / dq_oe change by the edge it happened on. The
+    // pad-side launch flops are clocked from !clk, so any transition while
+    // clk is high would mean the half-cycle advance was lost in synthesis.
     always @(dq_o or dq_oe) begin
-        if (^dq_o !== 1'bx && dq_oe !== 1'bx) begin
+        if ((^dq_o !== 1'bx) && (dq_oe !== 1'bx)) begin
             if (clk === 1'b1) rise_changes = rise_changes + 1;
             else if (clk === 1'b0) fall_changes = fall_changes + 1;
         end
@@ -138,26 +90,22 @@ module tb_gate;
     endtask
 
     initial begin
-        // X-init: the gate netlist has no resetable flops, so the first
-        // checks run after enough cycles for the datapath to resolve.
-        repeat (10) @(posedge clk);
+        repeat (4) @(posedge clk);
         rst = 0;
-        repeat (10) @(posedge clk);
+        repeat (4) @(posedge clk);
 
         dfi_write(8'hA5);
-        #1;
-        // dq_o must be driven with A5 and dq_oe high around this write
+        // The launch happens on the falling edge, so sample after it. One
+        // extra negedge covers the holding-register + launch flop pair.
+        @(negedge clk); #1;
         if (dq_oe !== 1'b1) begin
             $display("FAIL: dq_oe not asserted after the write command");
             errors = errors + 1;
         end
         if (dq_o !== 8'hA5) begin
             $display("FAIL: dq_o=%h expected A5", dq_o);
-            $display("       internal: dq_oe_q=%b dq_o_q0=%b net78=%b",
-                     dut.dq_oe_q, dut.dq_o_q[0], dut.net78);
             errors = errors + 1;
         end
-        @(negedge clk); #1;
         if (fall_changes == 0) begin
             $display("FAIL: no dq_o/dq_oe transition on a falling edge");
             errors = errors + 1;
@@ -167,8 +115,8 @@ module tb_gate;
         $display("dq_o/dq_oe transitions: rising=%0d falling=%0d",
                  rise_changes, fall_changes);
         if (rise_changes != 0) begin
-            $display("FAIL: %0d transitions on the rising edge; the P1-3 ",
-                     rise_changes);
+            $display("FAIL: %0d transitions on the rising edge; the P1-3 "
+                     , rise_changes);
             $display("      path-B contract requires a falling-edge launch");
             errors = errors + 1;
         end
@@ -178,8 +126,21 @@ module tb_gate;
     end
 endmodule
 """
+
+
+def main():
+    if not NL.exists():
+        raise SystemExit("ERROR: %s missing; run flow/run.sh sky130 first" % NL)
+    if not SDF.exists():
+        raise SystemExit("ERROR: %s missing" % SDF)
+    nl_text = NL.read_text()
+    if "dfrtp" not in nl_text:
+        raise SystemExit(
+            "ERROR: the netlist has no resettable flops (dfrtp). "
+            "rtl/sdr_phy.sv must use an asynchronous reset, then re-run "
+            "flow/run.sh sky130.")
     out = ROOT / "sim" / "tb_sdf_gate.sv"
-    out.write_text(tb)
+    out.write_text(TB.replace("@SDF@", SDF.as_posix()))
     print("wrote %s" % out)
     return 0
 
