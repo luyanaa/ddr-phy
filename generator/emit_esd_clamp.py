@@ -35,7 +35,7 @@ def find_pdk():
     raise SystemExit("ERROR: no gf180mcuD PDK found")
 
 
-def draw_clamp(ly, cell, nf=40, w=2.0):
+def draw_clamp(ly, cell, nf=40, w=2.0, dy=0, fill=True):
     """Draw the ggNMOS clamp into an existing layout/cell."""
     import glob
     pdk = sorted(glob.glob(str(Path(PDK_GLOB).expanduser())))
@@ -43,16 +43,17 @@ def draw_clamp(ly, cell, nf=40, w=2.0):
     sys.path.insert(0, str(pdk / "libs.tech/klayout/tech/pymacros/klayout_api_cells"))
     from draw_mos import draw_nfet
     dev = draw_nfet(ly, 0.28, w, 0.44, nf, 0.36, "Bulk Tie", "3.3V", False, False)
-    cell.insert(pya.CellInstArray(dev.cell_index(), pya.Trans(pya.Point(0, 0))))
+    cell.insert(pya.CellInstArray(dev.cell_index(), pya.Trans(pya.Point(0, dy))))
     bb = dev.bbox()
     yt, yb = bb.top, bb.bottom
 
     def rect(layer, x0, y0, x1, y1):
-        cell.shapes(ly.layer(*L[layer])).insert(pya.Box(x0, y0, x1, y1))
+        cell.shapes(ly.layer(*L[layer])).insert(
+            pya.Box(x0, y0 + dy, x1, y1 + dy))
 
     def label(layer, text, x, y):
         cell.shapes(ly.layer(L[layer][0], 10)).insert(
-            pya.Text(text, pya.Trans(pya.Point(x, y))))
+            pya.Text(text, pya.Trans(pya.Point(x, y + dy))))
 
     rect("Poly2", -2000, yt + 20, bb.right, yt + 520)
     for i in range(nf):
@@ -94,16 +95,17 @@ def main():
     cell = ly.create_cell(name)
 
     dev = draw_nfet(ly, 0.28, w, 0.44, nf, 0.36, "Bulk Tie", "3.3V", False, False)
-    cell.insert(pya.CellInstArray(dev.cell_index(), pya.Trans(pya.Point(0, 0))))
+    cell.insert(pya.CellInstArray(dev.cell_index(), pya.Trans(pya.Point(0, dy))))
     bb = dev.bbox()
     yt, yb = bb.top, bb.bottom
 
     def rect(layer, x0, y0, x1, y1):
-        cell.shapes(ly.layer(*L[layer])).insert(pya.Box(x0, y0, x1, y1))
+        cell.shapes(ly.layer(*L[layer])).insert(
+            pya.Box(x0, y0 + dy, x1, y1 + dy))
 
     def label(layer, text, x, y):
         cell.shapes(ly.layer(L[layer][0], 10)).insert(
-            pya.Text(text, pya.Trans(pya.Point(x, y))))
+            pya.Text(text, pya.Trans(pya.Point(x, y + dy))))
 
     # gate bus above the device, tied to VSSIO. Each finger needs a short
     # Poly2 stub from the gate end cap up to the bus (PL.3a).

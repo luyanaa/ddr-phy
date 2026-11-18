@@ -82,10 +82,31 @@ Covered:
 - a DRC-verified guard ring in every pad slot,
 - a DRC/LVS-verified ggNMOS ESD clamp in every pad slot.
 
-Not covered:
-- the clamp is **not wired to the pad's PAD net in the assembled ring**:
-  the cells are placed but the pad-to-clamp connection is a pad-ring
-  routing task (the pad cell exposes PAD on Metal2 at its edge),
+Not covered - and this is now a **measured architectural constraint**, not
+an unfinished task:
+
+- **the pad cell cannot host a clamp connection inside its own bbox.**
+  `generator/emit_pad_tile.py` builds one pad site (pad + clamp + wiring)
+  and the full decks show why:
+  - the pad's Metal2 is a single dense mesh (one merged polygon spanning
+    x -62800..45000, y -49200..48430), so any Metal2 strap shorted PAD to
+    VSSIO - measured: the whole pad M2 collapsed into one net and the clamp
+    extracted as `W=245U` with PAD|VSSIO merged;
+  - Metal1/M2/M3/M4 fill inside the pad bbox is 31.3 / 30.3 / 27.9 / 26.7 %,
+    so a Metal4 escape bar also merged into the pad's own M4 island;
+  - routing the clamp from outside the bbox clears the collisions (tile
+    DRC settles at the six die-level density rules only) but the PAD and
+    VSSIO connections still cannot be made without crossing the pad's
+    metal islands.
+
+  Closing this needs a **pad cell with a dedicated routing channel**
+  (reserved M3/M4 corridor and a PAD/VSSIO port on the cell edge), which
+  means changing the pad generator, not the ring. The clamp itself is
+  verified: `sim/gf180_esd_clamp_160.sh` -> geometry clean, LVS match,
+  Magic PEX, 28.4 V.
+- the assembled ring has not passed flat DRC/LVS: the 1.5 mm die with 108
+  instances exceeds the DRC run budget (the flat deck timed out at 30 min),
+  so ring-level checking needs a hierarchical or tiled flow;
 - DRC/LVS on the assembled ring, pad-to-pad spacing rules, the die core
   power grid, bond pads / package,
 - ESD qualification: the clamp's effect is measured on the pad macro
