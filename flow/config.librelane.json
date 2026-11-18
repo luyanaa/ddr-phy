@@ -7,8 +7,11 @@
     "CLOCK_PERIOD": 10,
     "DESIGN_IS_CORE": false,
     "FP_SIZING": "relative",
-    "FP_CORE_UTIL": 40,
-    "PL_TARGET_DENSITY_PCT": 50,
+    "FP_CORE_UTIL": 25,
+    "PL_TARGET_DENSITY_PCT": 35,
     "RUN_CTS": true,
-    "//": "100 MHz sys clock, the Class S CK rate. Defaults are x8, CL 2. flow/sdr_phy.sdc is a GENERATED DRAFT with 28 TBD placeholders at 0.0; it is deliberately NOT wired in via PNR_SDC_FILE/SIGNOFF_SDC_FILE. A control experiment showed wiring it in breaks PostCTS with DPL-0036 while the unmodified flow completes 80/80. Wire it in only after generator/emit_sdc.py --check passes. See docs/STA_PLAN.md section 5."
+    "//": "100 MHz sys clock. flow/sdr_phy.sdc is generated from specs/timing_contract.yaml with 0 TBD (pad/board/OE/clock terms measured in P1-1..P1-4, t_uncertainty an explicit conservative bound) and is wired in via PNR_SDC_FILE/SIGNOFF_SDC_FILE. With the 0.6 ns uncertainty the hold repair inserts ~57 buffers, so the core is sized at 25 % util / 35 % target density to give detail placement room; the earlier 40 %/50 % setting fails with DPL-0036. See docs/STA_PLAN.md section 5.",
+    "PNR_SDC_FILE": "dir::../flow/sdr_phy.sdc",
+    "SIGNOFF_SDC_FILE": "dir::../flow/sdr_phy.sdc",
+    "RUN_HEURISTIC_DIODE_INSERTION": false
 }

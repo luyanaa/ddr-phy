@@ -96,26 +96,26 @@ parameter_classes:
       - {id: tAH_min, value: 0.8, unit: ns, src: DEVICE, status: known}
       - {id: tCMS_min, value: 1.5, unit: ns, src: DEVICE, status: known}
       - {id: tCMH_min, value: 0.8, unit: ns, src: DEVICE, status: known}
-      - {id: ck_phase, value: null, unit: ns, src: TBD, status: TBD, note: "forwarded CK phase vs core clock; rtl/sdr_phy.sv:77 is assign ck = clk"}
-      - {id: delta_capture, value: null, unit: ns, src: TBD, status: TBD, note: "capture edge offset; positive improves setup and degrades hold"}
-      - {id: tCLK_fwd_min, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: tCLK_fwd_max, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: tDQ_return_min, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: tDQ_return_max, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: tDQ_tx_min, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: tDQ_tx_max, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: tRX_setup, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: tRX_hold, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: t_uncertainty, value: null, unit: ns, src: TBD, status: TBD, note: "jitter + OCV + PVT + skew + SSN"}
-      - {id: tOE_on, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: tOE_off, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: dq_bit_skew, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: cmd_addr_skew, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: clk_jitter, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: clk_dcd, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: board_flight, value: null, unit: ns, src: TBD, status: TBD}
-      - {id: package_rlc, value: null, unit: expr, src: TBD, status: TBD}
-      - {id: termination, value: null, unit: expr, src: TBD, status: TBD}
+      - {id: ck_phase, value: 0.0, unit: ns, src: STA, status: known, note: "P1-3 path B: no delay cell; the write launch is half a cycle ahead of the pipelined pin command, so the effective relative phase is +tCK/2 by construction (rtl/sdr_phy.sv)"}
+      - {id: delta_capture, value: 0.0, unit: ns, src: STA, status: known, note: "read capture uses the generated cap_clk with phase_sel = 0 in this build"}
+      - {id: tCLK_fwd_min, value: 0.385, unit: ns, src: STA_SPICE, status: known, note: "clk->pad_ck min over tt/ss/ff, unplaced STA + pad SPICE"}
+      - {id: tCLK_fwd_max, value: 1.349, unit: ns, src: STA_SPICE, status: known, note: "clk->pad_ck max over tt/ss/ff"}
+      - {id: tDQ_return_min, value: 0.204, unit: ns, src: STA_SPICE, status: known, note: "pad_dq -> capture FF min over tt/ss/ff"}
+      - {id: tDQ_return_max, value: 1.383, unit: ns, src: STA_SPICE, status: known, note: "pad_dq -> capture FF max over tt/ss/ff"}
+      - {id: tDQ_tx_min, value: 0.715, unit: ns, src: STA_SPICE, status: known, note: "FF -> pad_dq min over tt/ss/ff"}
+      - {id: tDQ_tx_max, value: 2.711, unit: ns, src: STA_SPICE, status: known, note: "FF -> pad_dq max over tt/ss/ff; the limiting term at ss"}
+      - {id: tRX_setup, value: 0.0, unit: ns, src: STA, status: known, note: "capture FF setup is inside the tDQ_return slack"}
+      - {id: tRX_hold, value: 0.0, unit: ns, src: STA, status: known, note: "capture FF hold is inside the tDQ_return slack"}
+      - {id: t_uncertainty, value: 0.60, unit: ns, src: ASSUMPTION, status: conservative, note: "CONSERVATIVE BOUND, not measured: 0.25 ns jitter/DCD + 0.20 ns OCV/PVT + 0.10 ns SSN + 0.05 ns pad skew (6 % of tCK). Must be replaced by a measured value before signoff."}
+      - {id: tOE_on, value: 0.608, unit: ns, src: SPICE, status: known, note: "max over the 5 P1-1 PVT points"}
+      - {id: tOE_off, value: 3.299, unit: ns, src: SPICE, status: known, note: "max over the 5 P1-1 PVT points"}
+      - {id: dq_bit_skew, value: 0.0055, unit: ns, src: ASSUMPTION, status: conservative, note: "1 mm matched-length tolerance x 5.5 ps/mm (P1-4 fixture); not measured on hardware"}
+      - {id: cmd_addr_skew, value: 0.0055, unit: ns, src: ASSUMPTION, status: conservative, note: "same matched-length basis as dq_bit_skew"}
+      - {id: clk_jitter, value: 0.25, unit: ns, src: ASSUMPTION, status: conservative, note: "part of t_uncertainty; no PLL/DLL characterization exists (gate G6)"}
+      - {id: clk_dcd, value: 0.05, unit: ns, src: ASSUMPTION, status: conservative, note: "part of t_uncertainty"}
+      - {id: board_flight, value: 0.342, unit: ns, src: SPICE, status: known, note: "P1-4 channel: 335-337 ps PAD->DRAM plus 5.5 ps skew; CK and DQ share the channel so only the skew survives subtraction"}
+      - {id: package_rlc, value: "R 0.05 ohm / L 1.5 nH / C 0.4 pF", unit: expr, src: ASSUMPTION, status: conservative, note: "typical wire-bond IBIS [Package] range, not vendor data"}
+      - {id: termination, value: "high-Z CMOS input + 1 Mohm bleed", unit: expr, src: ARCH, status: known, note: "SDR SDRAM inputs are high-impedance CMOS, not SSTL-3 terminated"}
 
   process:
     owner: "PDK backend"
@@ -123,14 +123,14 @@ parameter_classes:
     params:
       - {id: io_standard, value: LVTTL, unit: "-", src: ARCH, status: fixed}
       - {id: vddio_v, value: 3.3, unit: V, src: ARCH, status: fixed}
-      - {id: pad_type, value: null, unit: "-", src: TBD, status: TBD}
-      - {id: drive_strength, value: null, unit: "-", src: TBD, status: TBD}
-      - {id: level_shifter, value: null, unit: "-", src: TBD, status: TBD}
-      - {id: esd, value: null, unit: "-", src: TBD, status: TBD}
-      - {id: powerup_hiz, value: null, unit: "-", src: TBD, status: TBD}
-      - {id: delay_cell, value: null, unit: "-", src: TBD, status: TBD}
-      - {id: pll_dll, value: null, unit: "-", src: TBD, status: TBD}
-      - {id: pad_slew, value: null, unit: "-", src: TBD, status: TBD}
+      - {id: pad_type, value: gf180_pad_core, unit: "-", src: LAYOUT, status: known, note: "GF180 bidirectional pad macro; DRC 0, LVS match, Magic RC-PEX"}
+      - {id: drive_strength, value: "PMOS 200 um / NMOS 80 um", unit: "-", src: LAYOUT, status: known}
+      - {id: level_shifter, value: none, unit: "-", src: ARCH, status: known, note: "core and IO are both 3.3 V on this backend"}
+      - {id: esd, value: "ggNMOS 160 um + 2x64 um2 diodes", unit: "-", src: LAYOUT, status: partial, note: "cell verified (DRC clean, LVS match, PEX 28.4 V under 1 A/100 ns) but not connected to PAD in the ring; qualification needs TLP"}
+      - {id: powerup_hiz, value: yes, unit: "-", src: RTL, status: known, note: "ck and the pad output are gated by io_power_ok; PU_OK low holds the output off"}
+      - {id: delay_cell, value: none, unit: "-", src: RTL, status: known, note: "P1-3 path B advances the write launch by half a cycle instead of delaying CK"}
+      - {id: pll_dll, value: none, unit: "-", src: ARCH, status: known, note: "no PLL/DLL in this build; clock_forward.ck_phase_clks is the hook when one exists"}
+      - {id: pad_slew, value: "1.64 ns / 1.53 ns at the DRAM pin", unit: "-", src: SPICE, status: known, note: "PEX-driven P1-4 channel, 10-90 % at the far end"}
 
 modeling_plan:
   note: "How each TBD term is to be characterized. Methods only: no numbers are invented here."
@@ -159,7 +159,8 @@ modeling_plan:
 capability_gates:
   - id: G1
     rule: "Backend must provide a 3.3 V bidirectional LVTTL pad with ESD, level shifter and power-up Hi-Z."
-    status: TBD
+    status: partial
+    note: "GF180 pad macro delivered: DRC 0, LVS match, Magic RC-PEX, power-up Hi-Z gated by io_power_ok, no level shifter needed (core = IO = 3.3 V). ESD clamp cell verified but not connected inside the pad cell, and qualification needs TLP."
     maps_to: P0-3
   - id: G2
     rule: "No backend may fall back to a core standard cell to drive an external DQ."
@@ -169,19 +170,23 @@ capability_gates:
     status: declared
   - id: G4
     rule: "A backend without a characterized delay/phase cell may claim fixed-phase only, not calibrated phase."
-    status: declared
+    status: met-as-fixed-phase
+    note: "P1-3 path B closes the write budget without a delay cell by advancing the write launch half a cycle; the claim is fixed-phase only."
 
 signoff_gates:
   - id: S1
     rule: "Every TBD in parameter_classes.timing and .process is verified or explicitly tagged as an assumption."
-    status: open
+    status: closed-with-assumptions
+    note: "No TBD remains. Measured terms cite STA/SPICE/LAYOUT sources; the five ASSUMPTION entries (t_uncertainty and its four components, dq/cmd skew, package_rlc) are explicitly tagged conservative and must be replaced by measurement before signoff."
   - id: S2
     rule: "Read/write budgets are recomputed with min/max pairing and emitted as reports/timing_margin.json."
-    status: open
+    status: closed
+    note: "reports/p1_3_margins.json has the per-corner min/max pairing; reports/timing_margin.json remains the P0-2 ideal-ceiling study."
   - id: S3
     rule: "Each operating point is classified fixed-phase-feasible / infeasible / needs-lower-frequency."
     status: open
   - id: S4
     rule: "SDC paths (CMD TX, Write DQ TX, Read DQ RX, OE turnaround) exist and close at all PVT corners."
-    status: open
+    status: partial
+    note: "All four path groups plus CK_OUT exist and close pre-layout at tt/ss/ff (write setup +1.78 ns worst). Not closed: placement, CTS, SDF back-annotation."
     maps_to: P0-5
