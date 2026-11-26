@@ -1,0 +1,387 @@
+{
+  "exit_code": 0,
+  "generated_at_utc": "2026-11-26T15:46:50.281250+00:00",
+  "holdout": {
+    "case_result": {
+      "case": "ff_high",
+      "exit_code": 0,
+      "id": "ff_high_vtt_minus40mv",
+      "report": {
+        "cases": {
+          "ff_high": {
+            "failures": {},
+            "measurements_si": {
+              "guard_off_h": 1.136731e-09,
+              "guard_off_l": 1.037595e-09,
+              "hiz_ah_22": -2.203352e-09,
+              "hiz_ah_8": 9.050653e-14,
+              "hiz_al_22": 3.725975e-11,
+              "hiz_al_8": 9.050639e-14,
+              "hiz_bh_22": -1.126729e-09,
+              "hiz_bh_8": -8.210954e-09,
+              "hiz_bl_22": 3.725544e-11,
+              "hiz_bl_8": 3.703171e-11,
+              "leak_h_max": 5.729145e-11,
+              "leak_h_min": -1.126995e-10,
+              "leak_l_max": 5.729145e-11,
+              "leak_l_min": -1.126995e-10,
+              "oe_off_h": 1.204114e-09,
+              "oe_off_l": 1.116709e-09,
+              "oe_on_h": 5.424409e-10,
+              "oe_on_l": 4.49172e-10,
+              "offset_hi": -0.01299996,
+              "offset_lo": -0.013,
+              "offset_mid": -0.013,
+              "ramp_ah_max": 2.187497e-06,
+              "ramp_ah_min": -0.0001061821,
+              "ramp_al_max": 4.113939e-05,
+              "ramp_al_min": -1.075084e-05,
+              "ramp_bh_max": 1.935581e-06,
+              "ramp_bh_min": -8.39301e-05,
+              "ramp_bl_max": 3.998719e-05,
+              "ramp_bl_min": -9.282036e-06,
+              "rx_core_bias": -0.001253218,
+              "rx_fall": 4.446082e-10,
+              "rx_high_hi": 3.63,
+              "rx_high_lo": 3.63,
+              "rx_high_mid": 3.63,
+              "rx_io_bias": -0.0006953233,
+              "rx_level_max": 3.641177,
+              "rx_level_min": 0.4059252,
+              "rx_low_hi": 2.14087e-09,
+              "rx_low_lo": 2.14087e-09,
+              "rx_low_mid": 2.14087e-09,
+              "rx_rise": 3.565807e-10,
+              "tx_enable_high": 1.948025,
+              "tx_fall": 5.740456e-10,
+              "tx_high": 1.948025,
+              "tx_io_peak": -0.02981151,
+              "tx_low": 0.706504,
+              "tx_rise": 6.206559e-10
+            },
+            "mos": "ff",
+            "res": "bcs",
+            "temp_c": -40,
+            "vdd": 3.63,
+            "vddio": 2.7
+          }
+        },
+        "cell": "/tmp/ddr1-tune-stsoca44/cell.spice",
+        "dc_solver": "sparse",
+        "license": "Apache-2.0 (GlobalFoundries PDK Authors); 2.5 V op-point UNCHARACTERIZED, NO_GO",
+        "pdk": "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD",
+        "process": "gf180mcu",
+        "signoff": false,
+        "simulator": "ngspice",
+        "status": "custom_netlist",
+        "vtt_offset_mv": -40
+      },
+      "status": "electrical_pass",
+      "vtt_offset_mv": -40
+    },
+    "failures": [],
+    "knobs": {
+      "xrbias_l_um": 13,
+      "xrdriver_w_um": 8
+    },
+    "metrics": {
+      "max_abs_bias_or_tx_io_peak_current_a": 0.02981151,
+      "max_rx_tx_propagation_s": 6.206559e-10,
+      "per_measurement_max_abs_current_a": {
+        "rx_core_bias": 0.001253218,
+        "rx_io_bias": 0.0006953233,
+        "tx_io_peak": 0.02981151
+      },
+      "per_measurement_max_delay_s": {
+        "rx_fall": 4.446082e-10,
+        "rx_rise": 3.565807e-10,
+        "tx_fall": 5.740456e-10,
+        "tx_rise": 6.206559e-10
+      }
+    },
+    "status": "pass"
+  },
+  "method": {
+    "description": "Enumerate the configured discrete Cartesian grid with the source baseline first. Require all characterizer hard limits at every development case; then minimize maximum measured RX/TX propagation, using maximum absolute measured bias/TX-I/O current as a tie-breaker. Run the holdout only for the development winner.",
+    "development_cases": [
+      {
+        "case": "tt",
+        "id": "tt_vtt_0mv",
+        "vtt_offset_mv": 0
+      },
+      {
+        "case": "ss_low",
+        "id": "ss_low_vtt_plus40mv",
+        "vtt_offset_mv": 40
+      }
+    ],
+    "grid_size": 4,
+    "holdout_case": {
+      "case": "ff_high",
+      "id": "ff_high_vtt_minus40mv",
+      "vtt_offset_mv": -40
+    },
+    "limits_source": "the registered characterizer JSON failures; no thresholds are duplicated here",
+    "sampler": "deterministic_grid",
+    "trials_requested": 1
+  },
+  "provenance": {
+    "adapter": "/grid/ddr-phy/generator/ddr1_gf180mcu_backend.py",
+    "adapter_sha256": "ed92e1a523733e8b787a87aee6700fcbe2b866ef4c2b7fb09e49b48c0279c4d7",
+    "backend_spec": "/grid/ddr-phy/specs/ddr1/gf180mcu-sstl2.yaml",
+    "backend_spec_sha256": "8e64944c43534df3921920e6d8ce73f4ad9b6b4ee76c02ffe1596806841e371c",
+    "characterizer": "/grid/ddr-phy/generator/char_ddr1_gf180mcu.py",
+    "characterizer_sha256": "54c7f8ef450c15ec8fa4870e629fd17a30b58805362cd9dd955facf26eebf479",
+    "pdk_root_override": null,
+    "source_netlist": "/grid/ddr-phy/sch/pads/gf180mcu/sstl2_dq.spice",
+    "source_netlist_sha256": "ac311309f7318ce8f99006777b2e05c8430a2fec202eabf4a7cd11f361cd115e"
+  },
+  "recommended": {
+    "holdout_case_id": "ff_high_vtt_minus40mv",
+    "knobs": {
+      "xrbias_l_um": 13,
+      "xrdriver_w_um": 8
+    },
+    "metrics": {
+      "max_abs_bias_or_tx_io_peak_current_a": 0.01931921,
+      "max_rx_tx_propagation_s": 1.340551e-09,
+      "per_measurement_max_abs_current_a": {
+        "rx_core_bias": 0.0009123693,
+        "rx_io_bias": 0.0004478352,
+        "tx_io_peak": 0.01931921
+      },
+      "per_measurement_max_delay_s": {
+        "rx_fall": 1.007413e-09,
+        "rx_rise": 7.260942e-10,
+        "tx_fall": 1.328074e-09,
+        "tx_rise": 1.340551e-09
+      }
+    },
+    "trial_id": "trial-01"
+  },
+  "reproduction": {
+    "command": "/usr/bin/python3 /grid/ddr-phy/generator/tune_ddr1.py --backend /grid/ddr-phy/specs/ddr1/gf180mcu-sstl2.yaml --output /tmp/gf180-ddr1-installed-tune.5B2bWp/tune.json --sampler grid --max-trials 1",
+    "python": "3.13.5",
+    "sampler": "grid"
+  },
+  "schema_version": 1,
+  "selection": {
+    "ranked_trial_ids": [
+      "trial-01"
+    ],
+    "winner_trial_id": "trial-01"
+  },
+  "signoff": false,
+  "status": "pass",
+  "trials": [
+    {
+      "cases": {
+        "ss_low_vtt_plus40mv": {
+          "case": "ss_low",
+          "exit_code": 0,
+          "id": "ss_low_vtt_plus40mv",
+          "report": {
+            "cases": {
+              "ss_low": {
+                "failures": {},
+                "measurements_si": {
+                  "guard_off_h": 1.589175e-09,
+                  "guard_off_l": 1.407847e-09,
+                  "hiz_ah_22": -5.081103e-09,
+                  "hiz_ah_8": -1.705466e-13,
+                  "hiz_al_22": 8.119818e-10,
+                  "hiz_al_8": -1.705549e-13,
+                  "hiz_bh_22": -2.514618e-09,
+                  "hiz_bh_8": -1.62275e-08,
+                  "hiz_bl_22": 8.118662e-10,
+                  "hiz_bl_8": 8.176766e-10,
+                  "leak_h_max": 1.001627e-09,
+                  "leak_h_min": -2.032654e-10,
+                  "leak_l_max": 1.001627e-09,
+                  "leak_l_min": -2.032654e-10,
+                  "oe_off_h": 1.729943e-09,
+                  "oe_off_l": 1.572914e-09,
+                  "oe_on_h": 1.324739e-09,
+                  "oe_on_l": 1.312104e-09,
+                  "offset_hi": -0.00499999,
+                  "offset_lo": -0.005,
+                  "offset_mid": -0.005,
+                  "ramp_ah_max": 1.51335e-06,
+                  "ramp_ah_min": -9.66367e-05,
+                  "ramp_al_max": 3.498137e-05,
+                  "ramp_al_min": -8.849495e-06,
+                  "ramp_bh_max": 1.227375e-06,
+                  "ramp_bh_min": -8.379824e-05,
+                  "ramp_bl_max": 3.458428e-05,
+                  "ramp_bl_min": -8.382466e-06,
+                  "rx_core_bias": -0.000656711,
+                  "rx_fall": 1.007413e-09,
+                  "rx_high_hi": 2.97,
+                  "rx_high_lo": 2.97,
+                  "rx_high_mid": 2.97,
+                  "rx_io_bias": -0.0002805649,
+                  "rx_level_max": 2.989352,
+                  "rx_level_min": 0.5160106,
+                  "rx_low_hi": 5.584347e-09,
+                  "rx_low_lo": 5.584339e-09,
+                  "rx_low_mid": 5.584342e-09,
+                  "rx_rise": 7.260942e-10,
+                  "tx_enable_high": 1.575729,
+                  "tx_fall": 1.328074e-09,
+                  "tx_high": 1.575729,
+                  "tx_io_peak": -0.01169928,
+                  "tx_low": 0.7840173,
+                  "tx_rise": 1.340551e-09
+                },
+                "mos": "ss",
+                "res": "wcs",
+                "temp_c": 125,
+                "vdd": 2.97,
+                "vddio": 2.3
+              }
+            },
+            "cell": "/tmp/ddr1-tune-08dba5ix/cell.spice",
+            "dc_solver": "sparse",
+            "license": "Apache-2.0 (GlobalFoundries PDK Authors); 2.5 V op-point UNCHARACTERIZED, NO_GO",
+            "pdk": "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD",
+            "process": "gf180mcu",
+            "signoff": false,
+            "simulator": "ngspice",
+            "status": "custom_netlist",
+            "vtt_offset_mv": 40
+          },
+          "status": "electrical_pass",
+          "vtt_offset_mv": 40
+        },
+        "tt_vtt_0mv": {
+          "case": "tt",
+          "exit_code": 0,
+          "id": "tt_vtt_0mv",
+          "report": {
+            "cases": {
+              "tt": {
+                "failures": {},
+                "measurements_si": {
+                  "guard_off_h": 1.285242e-09,
+                  "guard_off_l": 1.164581e-09,
+                  "hiz_ah_22": -3.485583e-09,
+                  "hiz_ah_8": 2.196514e-14,
+                  "hiz_al_22": 5.647268e-11,
+                  "hiz_al_8": 2.196489e-14,
+                  "hiz_bh_22": -1.772287e-09,
+                  "hiz_bh_8": -1.216226e-08,
+                  "hiz_bl_22": 5.644588e-11,
+                  "hiz_bl_8": 5.698327e-11,
+                  "leak_h_max": 7.791229e-11,
+                  "leak_h_min": -1.041349e-10,
+                  "leak_l_max": 7.791229e-11,
+                  "leak_l_min": -1.041349e-10,
+                  "oe_off_h": 1.379285e-09,
+                  "oe_off_l": 1.274172e-09,
+                  "oe_on_h": 8.183467e-10,
+                  "oe_on_l": 7.181791e-10,
+                  "offset_hi": -0.007000001,
+                  "offset_lo": -0.00704714,
+                  "offset_mid": -0.007,
+                  "ramp_ah_max": 1.565622e-06,
+                  "ramp_ah_min": -0.0001032052,
+                  "ramp_al_max": 3.847614e-05,
+                  "ramp_al_min": -1.045971e-05,
+                  "ramp_bh_max": 1.551186e-06,
+                  "ramp_bh_min": -8.388852e-05,
+                  "ramp_bl_max": 3.745908e-05,
+                  "ramp_bl_min": -9.76292e-06,
+                  "rx_core_bias": -0.0009123693,
+                  "rx_fall": 6.298882e-10,
+                  "rx_high_hi": 3.3,
+                  "rx_high_lo": 3.3,
+                  "rx_high_mid": 3.3,
+                  "rx_io_bias": -0.0004478352,
+                  "rx_level_max": 3.321194,
+                  "rx_level_min": 0.4256225,
+                  "rx_low_hi": 1.94028e-09,
+                  "rx_low_lo": 1.94028e-09,
+                  "rx_low_mid": 1.94028e-09,
+                  "rx_rise": 5.029868e-10,
+                  "tx_enable_high": 1.759335,
+                  "tx_fall": 8.035308e-10,
+                  "tx_high": 1.759335,
+                  "tx_io_peak": -0.01931921,
+                  "tx_low": 0.7370977,
+                  "tx_rise": 8.748658e-10
+                },
+                "mos": "tt",
+                "res": "typ",
+                "temp_c": 27,
+                "vdd": 3.3,
+                "vddio": 2.5
+              }
+            },
+            "cell": "/tmp/ddr1-tune-08dba5ix/cell.spice",
+            "dc_solver": "sparse",
+            "license": "Apache-2.0 (GlobalFoundries PDK Authors); 2.5 V op-point UNCHARACTERIZED, NO_GO",
+            "pdk": "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD",
+            "process": "gf180mcu",
+            "signoff": false,
+            "simulator": "ngspice",
+            "status": "custom_netlist",
+            "vtt_offset_mv": 0
+          },
+          "status": "electrical_pass",
+          "vtt_offset_mv": 0
+        }
+      },
+      "classification": "feasible",
+      "failures": [],
+      "hard_limits_pass": true,
+      "knobs": {
+        "xrbias_l_um": 13,
+        "xrdriver_w_um": 8
+      },
+      "metrics": {
+        "max_abs_bias_or_tx_io_peak_current_a": 0.01931921,
+        "max_rx_tx_propagation_s": 1.340551e-09,
+        "per_measurement_max_abs_current_a": {
+          "rx_core_bias": 0.0009123693,
+          "rx_io_bias": 0.0004478352,
+          "tx_io_peak": 0.01931921
+        },
+        "per_measurement_max_delay_s": {
+          "rx_fall": 1.007413e-09,
+          "rx_rise": 7.260942e-10,
+          "tx_fall": 1.328074e-09,
+          "tx_rise": 1.340551e-09
+        }
+      },
+      "normalized_violation_unavailable_for_no_cross": false,
+      "trial_id": "trial-01",
+      "trial_index": 1,
+      "worst_normalized_violation": null
+    }
+  ],
+  "winner": {
+    "development_classification": "feasible",
+    "development_metrics": {
+      "max_abs_bias_or_tx_io_peak_current_a": 0.01931921,
+      "max_rx_tx_propagation_s": 1.340551e-09,
+      "per_measurement_max_abs_current_a": {
+        "rx_core_bias": 0.0009123693,
+        "rx_io_bias": 0.0004478352,
+        "tx_io_peak": 0.01931921
+      },
+      "per_measurement_max_delay_s": {
+        "rx_fall": 1.007413e-09,
+        "rx_rise": 7.260942e-10,
+        "tx_fall": 1.328074e-09,
+        "tx_rise": 1.340551e-09
+      }
+    },
+    "holdout_passed": true,
+    "knobs": {
+      "xrbias_l_um": 13,
+      "xrdriver_w_um": 8
+    },
+    "recommended": true,
+    "trial_id": "trial-01"
+  }
+}

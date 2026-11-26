@@ -1,0 +1,82 @@
+* SPDX-License-Identifier: Apache-2.0
+* sky130, pre-layout DDR1 SSTL-2 DQ pad, 1.8 V core / 2.5 V I/O.
+* EXPERIMENTAL WITNESS-POINT STUDY: 2.5 V is NOT a characterized sky130 IO
+* library. The IO devices are 5 V-gate-class nfet/pfet_g5v0d10v5 operated at
+* 2.5 V (inside their safe operating area, but not a foundry-characterized
+* 2.5 V operating point). signoff=false always.
+* Active-high OE is core-domain. PU_OK is a 2.5 V supervisor input: hold
+* low until both supplies are valid, and drop it before either rail falls.
+* PAD must remain within the I/O rails; this is not an unpowered fail-safe pad.
+* VREF is the distributed board reference, after its separate entry pad.
+* HV devices use 0.5 um lengths with explicit per-finger PM3 bins in Xyce.
+* With the legacy ngspice model path these geometries were not qualified.
+* sky130 ngspice subckts use .option scale=1u: w/l are in MICRONS (no suffix).
+* MOS mult parameter is `mult` (not m); nf splits total width into fingers.
+
+.subckt sky130_sstl2_io_inv A Y VP VN params: wn=2.4 wp=4.8 fingers=2
+XN Y A VN VN sky130_fd_pr__nfet_g5v0d10v5 w={wn} l=0.5 nf={fingers}
+XP Y A VP VP sky130_fd_pr__pfet_g5v0d10v5 w={wp} l=0.5 nf={fingers}
+.ends sky130_sstl2_io_inv
+
+.subckt sky130_sstl2_io_nand A B Y VP VN wn=4.8 wp=4.8
+XNA Y A N VN sky130_fd_pr__nfet_g5v0d10v5 w={wn} l=0.5 nf=2
+XNB N B VN VN sky130_fd_pr__nfet_g5v0d10v5 w={wn} l=0.5 nf=2
+XPA Y A VP VP sky130_fd_pr__pfet_g5v0d10v5 w={wp} l=0.5 nf=2
+XPB Y B VP VP sky130_fd_pr__pfet_g5v0d10v5 w={wp} l=0.5 nf=2
+.ends sky130_sstl2_io_nand
+
+.subckt sky130_sstl2_core_inv A Y VDD VSS wn=3 wp=6
+XN Y A VSS VSS sky130_fd_pr__nfet_01v8 w={wn} l=0.15 nf=1
+XP Y A VDD VDD sky130_fd_pr__pfet_01v8 w={wp} l=0.15 nf=1
+.ends sky130_sstl2_core_inv
+
+* Core (1.8 V) -> IO (2.5 V) level shifter. Only the HV pull-down gates see
+* the core voltage; the core complement driver stays inside the low-voltage
+* domain. Sized for the slow low core drive, not nominal only.
+.subckt sky130_sstl2_up A Y YB VDD VSS VDDIO VSSIO
+XCINV A AB VDD VSS sky130_sstl2_core_inv wn=8 wp=20
+XNA YB A  VSSIO VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=5 l=0.5 nf=1 mult=12
+XNB Y  AB VSSIO VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=5 l=0.5 nf=1 mult=12
+XPA Y  YB VDDIO VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=14 l=0.5 nf=4
+XPB YB Y  VDDIO VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=14 l=0.5 nf=4
+.ends sky130_sstl2_up
+
+.subckt sky130_sstl2_dq OUT OE IN PAD VREF PU_OK VDD VSS VDDIO VSSIO
+* RX: resistively fed current mirror, NMOS input pair, PMOS mirror load.
+* PAD > VREF raises SENSE. The NAND inverts and qualifies the decision.
+XRBIAS VDDIO BIAS VSSIO sky130_fd_pr__res_high_po w=1.2 l=6
+XBIAS BIAS BIAS VSSIO VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=3 l=0.5 nf=2
+XTAIL TAIL BIAS VSSIO VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=3 l=0.5 nf=2
+XRP MIRROR PAD  TAIL VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=5 l=0.5 nf=2
+XRR SENSE  VREF TAIL VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=5 l=0.5 nf=2
+XLP MIRROR MIRROR VDDIO VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=4 l=0.5 nf=2
+XLR SENSE  MIRROR VDDIO VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=4 l=0.5 nf=2
+XDET SENSE PU_OK DEC_B VDDIO VSSIO sky130_sstl2_io_nand wn=3.6
+* Resistively loaded HV pull-down translates DEC_B without a 2.5 V gate on
+* any oxide in the core inverter. The only core-facing RX_LEVEL node is
+* pulled up to the 1.8 V rail. This draws core current for a low read.
+XRDOWN VDD RX_LEVEL VSS sky130_fd_pr__res_high_po w=1.2 l=10
+XDOWN RX_LEVEL DEC_B VSS VSS sky130_fd_pr__nfet_g5v0d10v5 w=5 l=0.5 nf=2
+XRXB0 RX_LEVEL RX_B VDD VSS sky130_sstl2_core_inv
+XRXB1 RX_B IN VDD VSS sky130_sstl2_core_inv
+
+* TX: independently move data and core OE into the I/O domain. Qualify
+* OE after the shifter so PU_OK=0 dominates even if its latch is undefined.
+XDATA OUT DATA_H DATA_L VDD VSS VDDIO VSSIO sky130_sstl2_up
+XOE   OE  OE_H   OE_L   VDD VSS VDDIO VSSIO sky130_sstl2_up
+XGUARD OE_H PU_OK EN_B VDDIO VSSIO sky130_sstl2_io_nand wn=10 wp=14.4
+XEN EN_B EN VDDIO VSSIO sky130_sstl2_io_inv wn=4.8 wp=9.6 fingers=4
+XUP DATA_H EN P_B VDDIO VSSIO sky130_sstl2_io_nand wn=14 wp=9.6
+XDN DATA_L EN N_B VDDIO VSSIO sky130_sstl2_io_nand wn=18 wp=9.6
+XPPRE P_B P1 VDDIO VSSIO sky130_sstl2_io_inv wn=14 wp=30 fingers=5
+XPG P1 PG VDDIO VSSIO sky130_sstl2_io_inv wn=55 wp=50 fingers=10
+XNG N_B NG VDDIO VSSIO sky130_sstl2_io_inv wn=30 wp=75 fingers=10
+XDRVH DRIVER PG VDDIO VDDIO sky130_fd_pr__pfet_g5v0d10v5 w=5 l=0.5 nf=1 mult=72
+XDRVL DRIVER NG VSSIO VSSIO sky130_fd_pr__nfet_g5v0d10v5 w=4 l=0.5 nf=1 mult=40
+XRDRIVER DRIVER PAD VSSIO sky130_fd_pr__res_high_po w=40 l=0.6
+
+* PDK pad diodes for nominal loading/leakage, not qualified HBM/CDM or a
+* rail clamp. 2-terminal .model diodes.
+DESDHI PAD VDDIO sky130_fd_pr__diode_pd2nw_11v0
+DESDLO VSSIO PAD sky130_fd_pr__diode_pw2nd_11v0
+.ends sky130_sstl2_dq

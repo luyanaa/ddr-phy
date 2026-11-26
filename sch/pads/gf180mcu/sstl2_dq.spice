@@ -1,0 +1,97 @@
+* SPDX-License-Identifier: Apache-2.0
+* gf180mcuD schematic-only DDR1 SSTL-2 DQ pad witness; signoff=false.
+* This cell uses GF180 3.3 V devices; the PDK also has 5/6 V variants.
+* Its 2.3-2.7 V SSTL-2 operating point is not foundry-characterized for
+* SSTL-2. Capability remains NO_GO; witness only, not a compliant signoff pad.
+*
+* Pin contract: OUT and active-high OE are VDD-domain inputs; IN is a VDD-domain
+* output. PU_OK is an IO-domain supervisor input: keep it low until VDD and
+* VDDIO are valid, and drive it low before either rail falls. PAD and VREF must
+* remain within VSSIO..VDDIO; this cell is not fail-safe for an out-of-rail PAD
+* or an absent IO supply.
+*
+* Each core-to-IO input feeds a high-poly divider; two IO-powered 03v3
+* inverters restore complementary outputs. A high input must source static
+* divider current. The 3.63 V thin-oxide DC gate-to-terminal limit
+* (GF180 DRM 14.1.4.2) is a comparison, not stress or lifetime qualification.
+* Devices are .subckt nfet_03v3/pfet_03v3 d g s b, w/l in METRES, nf/m params.
+* Resistor ppolyf_u uses r_length/r_width (metres). Diodes are 2-terminal .model.
+
+.subckt gf180_sstl2_io_inv A Y VP VN params: wn=2.4u wp=4.8u
+XN Y A VN VN nfet_03v3 w={wn} l=0.28u nf=1 m=1
+XP Y A VP VP pfet_03v3 w={wp} l=0.28u nf=1 m=1
+.ends gf180_sstl2_io_inv
+
+.subckt gf180_sstl2_io_nand A B Y VP VN wn=4.8u wp=4.8u
+XNA Y A N VN nfet_03v3 w={wn} l=0.28u nf=1 m=1
+XNB N B VN VN nfet_03v3 w={wn} l=0.28u nf=1 m=1
+XPA Y A VP VP pfet_03v3 w={wp} l=0.28u nf=1 m=1
+XPB Y B VP VP pfet_03v3 w={wp} l=0.28u nf=1 m=1
+.ends gf180_sstl2_io_nand
+
+.subckt gf180_sstl2_io_nand3 A B C Y VP VN wn=12u wp=9.6u
+XNA Y A N1 VN nfet_03v3 w={wn} l=0.28u nf=1 m=1
+XNB N1 B N2 VN nfet_03v3 w={wn} l=0.28u nf=1 m=1
+XNC N2 C VN VN nfet_03v3 w={wn} l=0.28u nf=1 m=1
+XPA Y A VP VP pfet_03v3 w={wp} l=0.28u nf=1 m=1
+XPB Y B VP VP pfet_03v3 w={wp} l=0.28u nf=1 m=1
+XPC Y C VP VP pfet_03v3 w={wp} l=0.28u nf=1 m=1
+.ends gf180_sstl2_io_nand3
+
+.subckt gf180_sstl2_core_to_io A Y YB VDDIO VSSIO
+XR_A_H A A_LIM VSSIO ppolyf_u r_length=2.5u r_width=1.2u
+XR_A_L A_LIM VSSIO VSSIO ppolyf_u r_length=15u r_width=1.2u
+XINV_L A_LIM YB VDDIO VSSIO gf180_sstl2_io_inv wn=8u wp=12u
+XINV_H YB Y VDDIO VSSIO gf180_sstl2_io_inv wn=16u wp=12u
+.ends gf180_sstl2_core_to_io
+
+.subckt gf180_sstl2_dq OUT OE IN PAD VREF PU_OK VDD VSS VDDIO VSSIO
+* RX: preserve resistively fed current mirror, NMOS input pair, PMOS mirror load.
+XRBIAS VDDIO BIAS VSSIO ppolyf_u r_length=13u r_width=1.2u
+XBIAS BIAS BIAS VSSIO VSSIO nfet_03v3 w=3u l=0.4u nf=1 m=1
+XTAIL TAIL BIAS VSSIO VSSIO nfet_03v3 w=3u l=0.4u nf=1 m=1
+XRP MIRROR PAD  TAIL VSSIO nfet_03v3 w=5u l=0.3u nf=1 m=1
+XRR SENSE  VREF TAIL VSSIO nfet_03v3 w=5u l=0.3u nf=1 m=1
+XLP MIRROR MIRROR VDDIO VDDIO pfet_03v3 w=4u l=0.3u nf=1 m=1
+XLR SENSE  MIRROR VDDIO VDDIO pfet_03v3 w=4u l=0.3u nf=1 m=1
+XDET SENSE PU_OK DEC_B VDDIO VSSIO gf180_sstl2_io_nand
+XRDOWN VDD RX_LEVEL VSS ppolyf_u r_length=10u r_width=1.2u
+XDOWN RX_LEVEL DEC_B VSS VSS nfet_03v3 w=5u l=0.28u nf=1 m=1
+* VDD-domain inverters preserve the existing RX output polarity.
+XRXB0N RX_B RX_LEVEL VSS VSS nfet_03v3 w=3u l=0.28u nf=1 m=1
+XRXB0P RX_B RX_LEVEL VDD VDD pfet_03v3 w=6u l=0.28u nf=1 m=1
+XRXB1N IN RX_B VSS VSS nfet_03v3 w=3u l=0.28u nf=1 m=1
+XRXB1P IN RX_B VDD VDD pfet_03v3 w=6u l=0.28u nf=1 m=1
+
+* Shift OE and data to the IO rail before qualification/output gating.
+XDATA OUT DATA_H DATA_L VDDIO VSSIO gf180_sstl2_core_to_io
+XOE OE OE_H OE_L VDDIO VSSIO gf180_sstl2_core_to_io
+* Active-high OE is qualified by IO-domain PU_OK; a low supervisor forces EN=0.
+XGUARD OE_H PU_OK EN_B VDDIO VSSIO gf180_sstl2_io_nand wn=8u wp=9.6u
+XEN EN_B EN VDDIO VSSIO gf180_sstl2_io_inv
+
+* Delay assertion only: each NAND3 requires raw and delayed data plus EN.
+* Raw data or EN can remove the request without waiting for the delay.
+XHDELAYB DATA_H H_DELAY_B VDDIO VSSIO gf180_sstl2_io_inv wn=3.6u wp=4.8u
+XHDELAY H_DELAY_B H_DELAY VDDIO VSSIO gf180_sstl2_io_inv wn=2.4u wp=9.6u
+XLDELAYB DATA_L L_DELAY_B VDDIO VSSIO gf180_sstl2_io_inv wn=3.6u wp=4.8u
+XLDELAY L_DELAY_B L_DELAY VDDIO VSSIO gf180_sstl2_io_inv wn=2.4u wp=9.6u
+XUP DATA_H EN H_DELAY P_B VDDIO VSSIO gf180_sstl2_io_nand3 wn=15u wp=10u
+XDN DATA_L EN L_DELAY N_B VDDIO VSSIO gf180_sstl2_io_nand3 wn=12u wp=9.6u
+
+* CMOS NOR of P_B and raw DATA_L: as DATA_L rises, P1 falls and PG rises
+* to turn off the PMOS before the NMOS makes, without waiting for DATA_H.
+XPPRE_N P1 P_B VSSIO VSSIO nfet_03v3 w=11u l=0.28u nf=1 m=1
+XPKILL_N P1 DATA_L VSSIO VSSIO nfet_03v3 w=20u l=0.28u nf=1 m=1
+XPPRE_P P1 P_B P1_STACK VDDIO pfet_03v3 w=35u l=0.28u nf=1 m=1
+XPKILL_P P1_STACK DATA_L VDDIO VDDIO pfet_03v3 w=35u l=0.28u nf=1 m=1
+XPG P1 PG VDDIO VSSIO gf180_sstl2_io_inv wn=44u wp=66u
+XNG N_B NG VDDIO VSSIO gf180_sstl2_io_inv wn=24u wp=58u
+XDRVH DRIVER PG VDDIO VDDIO pfet_03v3 w=5u l=0.28u nf=1 m=40
+XDRVL DRIVER NG VSSIO VSSIO nfet_03v3 w=4u l=0.28u nf=1 m=18
+XRDRIVER DRIVER PAD VSSIO ppolyf_u r_length=0.6u r_width=8u
+
+* 2-terminal .model diodes; orientation per device yaml review note.
+DESDHI PAD VDDIO diode_pd2nw_03v3 area=1p
+DESDLO VSSIO PAD diode_nd2ps_03v3 area=1p
+.ends gf180_sstl2_dq

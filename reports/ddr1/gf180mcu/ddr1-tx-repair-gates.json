@@ -1,0 +1,390 @@
+{
+  "signoff": false,
+  "cell": "/tmp/gf180mcu_sstl2_dq_candidate.spice",
+  "cell_sha256": "43ac19a78fa26ab3b71a5bad2ffe2e94f10c8be34cec3273e933e8b783bd4c42",
+  "pdk": "/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD",
+  "model_includes": [
+    ".include \"/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/design.ngspice\"",
+    ".lib \"/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/sm141064.ngspice\" ss",
+    ".lib \"/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/sm141064.ngspice\" diode_ss",
+    "",
+    ".lib \"/home/yanlu/.ciel/ciel/gf180mcu/versions/792ef67037d74c8c51811eab3ce23cf793491296/gf180mcuD/libs.tech/ngspice/sm141064.ngspice\" res_ss"
+  ],
+  "mos": "ss",
+  "res": "wcs",
+  "temp_c": 125,
+  "core_v": 2.97,
+  "io_v": 2.3,
+  "vtt_v": 1.19,
+  "dc": {
+    "oe_off_low": {
+      "out_v": 0.0,
+      "oe_v": 0.0,
+      "pu_ok_v": 2.3,
+      "io_v": 2.3,
+      "pg_v": 2.299999870318638,
+      "ng_v": 3.77165364383112e-09,
+      "pad_v": 1.189999980464104,
+      "driver_v": 1.189999963027358,
+      "enable_v": 5.931623292847307e-09,
+      "p_vth_v": 0.741408042531569,
+      "p_model_id_a": 7.460396239734626e-11,
+      "n_vth_v": 0.6312903096722013,
+      "n_model_id_a": 4.884341504216018e-10,
+      "p_vgs_v": -1.2968136164914768e-07,
+      "p_vgd_v": 1.10999990729128,
+      "p_vds_v": -1.1100000369726417,
+      "n_vgs_v": 3.77165364383112e-09,
+      "n_vgd_v": -1.1899999592557045,
+      "n_vds_v": 1.189999963027358,
+      "p_overdrive_v": -0.7414079128502074,
+      "n_overdrive_v": -0.6312903059005477,
+      "core_supply_a": 2.914327425218577e-10,
+      "io_supply_a": 0.0002573896153108161,
+      "common_overdrive_v": -0.7414079128502074,
+      "pad_to_termination_a": -3.9071792024003573e-10,
+      "expected_p_n_overdriven": [
+        false,
+        false
+      ],
+      "observed_p_n_overdriven": [
+        false,
+        false
+      ],
+      "driver_truth_matches": true,
+      "loaded_leakage_within_5ua": true
+    },
+    "oe_off_high": {
+      "out_v": 2.97,
+      "oe_v": 0.0,
+      "pu_ok_v": 2.3,
+      "io_v": 2.3,
+      "pg_v": 2.299999870318638,
+      "ng_v": 3.771648525805267e-09,
+      "pad_v": 1.189999980464104,
+      "driver_v": 1.189999963027358,
+      "enable_v": 5.93162329284736e-09,
+      "p_vth_v": 0.741408042531569,
+      "p_model_id_a": 7.460396239734626e-11,
+      "n_vth_v": 0.6312903096722013,
+      "n_model_id_a": 4.884341504215445e-10,
+      "p_vgs_v": -1.2968136164914768e-07,
+      "p_vgd_v": 1.10999990729128,
+      "p_vds_v": -1.1100000369726417,
+      "n_vgs_v": 3.771648525805267e-09,
+      "n_vgd_v": -1.1899999592557096,
+      "n_vds_v": 1.189999963027358,
+      "p_overdrive_v": -0.7414079128502074,
+      "n_overdrive_v": -0.6312903059005528,
+      "core_supply_a": 2.38215032755811e-10,
+      "io_supply_a": 0.0002573896331616003,
+      "common_overdrive_v": -0.7414079128502074,
+      "pad_to_termination_a": -3.9071792024003573e-10,
+      "expected_p_n_overdriven": [
+        false,
+        false
+      ],
+      "observed_p_n_overdriven": [
+        false,
+        false
+      ],
+      "driver_truth_matches": true,
+      "loaded_leakage_within_5ua": true
+    },
+    "guard_off_low": {
+      "out_v": 0.0,
+      "oe_v": 2.97,
+      "pu_ok_v": 0.0,
+      "io_v": 2.3,
+      "pg_v": 2.299999870318638,
+      "ng_v": 3.771653643831068e-09,
+      "pad_v": 1.189999980464104,
+      "driver_v": 1.189999963027358,
+      "enable_v": 5.93162221920745e-09,
+      "p_vth_v": 0.741408042531569,
+      "p_model_id_a": 7.460396239734626e-11,
+      "n_vth_v": 0.6312903096722013,
+      "n_model_id_a": 4.884341504216018e-10,
+      "p_vgs_v": -1.2968136164914768e-07,
+      "p_vgd_v": 1.10999990729128,
+      "p_vds_v": -1.1100000369726417,
+      "n_vgs_v": 3.771653643831068e-09,
+      "n_vgd_v": -1.1899999592557045,
+      "n_vds_v": 1.189999963027358,
+      "p_overdrive_v": -0.7414079128502074,
+      "n_overdrive_v": -0.6312903059005477,
+      "core_supply_a": 0.0006567111680099822,
+      "io_supply_a": 0.0002573593039234338,
+      "common_overdrive_v": -0.7414079128502074,
+      "pad_to_termination_a": -3.9071792024003573e-10,
+      "expected_p_n_overdriven": [
+        false,
+        false
+      ],
+      "observed_p_n_overdriven": [
+        false,
+        false
+      ],
+      "driver_truth_matches": true,
+      "loaded_leakage_within_5ua": true
+    },
+    "guard_off_high": {
+      "out_v": 2.97,
+      "oe_v": 2.97,
+      "pu_ok_v": 0.0,
+      "io_v": 2.3,
+      "pg_v": 2.299999870318637,
+      "ng_v": 3.771648525805187e-09,
+      "pad_v": 1.189999980464104,
+      "driver_v": 1.189999963027358,
+      "enable_v": 5.931622219210573e-09,
+      "p_vth_v": 0.741408042531569,
+      "p_model_id_a": 7.460396239734658e-11,
+      "n_vth_v": 0.6312903096722013,
+      "n_model_id_a": 4.884341504215445e-10,
+      "p_vgs_v": -1.296813629814153e-07,
+      "p_vgd_v": 1.1099999072912787,
+      "p_vds_v": -1.1100000369726417,
+      "n_vgs_v": 3.771648525805187e-09,
+      "n_vgd_v": -1.1899999592557096,
+      "n_vds_v": 1.189999963027358,
+      "p_overdrive_v": -0.741407912850206,
+      "n_overdrive_v": -0.6312903059005528,
+      "core_supply_a": 0.0006567111147923222,
+      "io_supply_a": 0.0002573593217738498,
+      "common_overdrive_v": -0.741407912850206,
+      "pad_to_termination_a": -3.9071792024003573e-10,
+      "expected_p_n_overdriven": [
+        false,
+        false
+      ],
+      "observed_p_n_overdriven": [
+        false,
+        false
+      ],
+      "driver_truth_matches": true,
+      "loaded_leakage_within_5ua": true
+    },
+    "drive_low": {
+      "out_v": 0.0,
+      "oe_v": 2.97,
+      "pu_ok_v": 2.3,
+      "io_v": 2.3,
+      "pg_v": 2.299999870318638,
+      "ng_v": 2.299999951121473,
+      "pad_v": 0.7840172714350567,
+      "driver_v": 0.4215764498272528,
+      "enable_v": 2.299999944773073,
+      "p_vth_v": 0.7328877446877715,
+      "p_model_id_a": 9.535676050856835e-11,
+      "n_vth_v": 0.6460236267348782,
+      "n_model_id_a": 0.00811965473514937,
+      "p_vgs_v": -1.2968136164914768e-07,
+      "p_vgd_v": 1.8784234204913854,
+      "p_vds_v": -1.878423550172747,
+      "n_vgs_v": 2.299999951121473,
+      "n_vgd_v": 1.87842350129422,
+      "n_vds_v": 0.4215764498272528,
+      "p_overdrive_v": -0.7328876150064099,
+      "n_overdrive_v": 1.6539763243865946,
+      "core_supply_a": 0.0006567111214730364,
+      "io_supply_a": 0.0001925118636693353,
+      "common_overdrive_v": -0.7328876150064099,
+      "pad_to_termination_a": -0.008119654571298865,
+      "expected_p_n_overdriven": [
+        false,
+        true
+      ],
+      "observed_p_n_overdriven": [
+        false,
+        true
+      ],
+      "driver_truth_matches": true,
+      "loaded_logic_within_bench_bounds": true
+    },
+    "drive_high": {
+      "out_v": 2.97,
+      "oe_v": 2.97,
+      "pu_ok_v": 2.3,
+      "io_v": 2.3,
+      "pg_v": 1.464368390644902e-09,
+      "ng_v": 3.77165481231765e-09,
+      "pad_v": 1.575729391197906,
+      "driver_v": 1.920089058815623,
+      "enable_v": 2.299999944773073,
+      "p_vth_v": 0.7495032874606565,
+      "p_model_id_a": 0.007714588608714709,
+      "n_vth_v": 0.6172919950091642,
+      "n_model_id_a": 7.646536399439824e-10,
+      "p_vgs_v": -2.2999999985356316,
+      "p_vgd_v": -1.9200890573512546,
+      "p_vds_v": -0.37991094118437685,
+      "n_vgs_v": 3.77165481231765e-09,
+      "n_vgd_v": -1.9200890550439682,
+      "n_vds_v": 1.920089058815623,
+      "p_overdrive_v": 1.5504967110749752,
+      "n_overdrive_v": -0.6172919912375094,
+      "core_supply_a": 1.849120417073587e-10,
+      "io_supply_a": 0.008003477544274735,
+      "common_overdrive_v": -0.6172919912375094,
+      "pad_to_termination_a": 0.0077145878239581215,
+      "expected_p_n_overdriven": [
+        true,
+        false
+      ],
+      "observed_p_n_overdriven": [
+        true,
+        false
+      ],
+      "driver_truth_matches": true,
+      "loaded_logic_within_bench_bounds": true
+    }
+  },
+  "transient": {
+    "sampled_voltage_ranges": {
+      "pg_v": [
+        -0.03971868922023285,
+        2.388348340492825
+      ],
+      "ng_v": [
+        -0.03856271328857404,
+        2.351778534950198
+      ],
+      "p_vgs_v": [
+        -2.339718689220233,
+        0.08834834049282536
+      ],
+      "p_vgd_v": [
+        -1.9635821140162337,
+        1.8847482482361464
+      ],
+      "p_vds_v": [
+        -1.8848733761573793,
+        -0.3717841248657978
+      ],
+      "n_vgs_v": [
+        -0.03856271328857404,
+        2.351778534950198
+      ],
+      "n_vgd_v": [
+        -1.966406892050073,
+        1.936071334839231
+      ],
+      "n_vds_v": [
+        0.4151266238426205,
+        1.928215875134202
+      ]
+    },
+    "edges": {
+      "oe_on_low": {
+        "window_ns": [
+          5,
+          14
+        ],
+        "both_overdriven_estimate_s": 0.0,
+        "peak_sampled_common_overdrive_v": -0.7112583950819409,
+        "peak_sampled_min_abs_model_id_a": 1.426966044183467e-10
+      },
+      "data_rise": {
+        "window_ns": [
+          14,
+          19
+        ],
+        "both_overdriven_estimate_s": 0.0,
+        "peak_sampled_common_overdrive_v": -0.6124454158066459,
+        "peak_sampled_min_abs_model_id_a": 7.775452444458771e-10
+      },
+      "data_fall": {
+        "window_ns": [
+          19,
+          30
+        ],
+        "both_overdriven_estimate_s": 6.629425082369725e-11,
+        "peak_sampled_common_overdrive_v": 0.22698424644013027,
+        "peak_sampled_min_abs_model_id_a": 0.0007959475532324942
+      },
+      "oe_off_low": {
+        "window_ns": [
+          30,
+          34
+        ],
+        "both_overdriven_estimate_s": 0.0,
+        "peak_sampled_common_overdrive_v": -0.7326643562100854,
+        "peak_sampled_min_abs_model_id_a": 9.582651754658378e-11
+      },
+      "data_rise_oe_off": {
+        "window_ns": [
+          34,
+          40
+        ],
+        "both_overdriven_estimate_s": 0.0,
+        "peak_sampled_common_overdrive_v": -0.741247879725947,
+        "peak_sampled_min_abs_model_id_a": 7.484291428336073e-11
+      },
+      "oe_on_high": {
+        "window_ns": [
+          40,
+          47
+        ],
+        "both_overdriven_estimate_s": 0.0,
+        "peak_sampled_common_overdrive_v": -0.6149108187231551,
+        "peak_sampled_min_abs_model_id_a": 7.646536399439832e-10
+      },
+      "oe_off_high": {
+        "window_ns": [
+          47,
+          55
+        ],
+        "both_overdriven_estimate_s": 0.0,
+        "peak_sampled_common_overdrive_v": -0.6168092117654671,
+        "peak_sampled_min_abs_model_id_a": 7.723346780410399e-10
+      },
+      "oe_on_high_again": {
+        "window_ns": [
+          55,
+          65
+        ],
+        "both_overdriven_estimate_s": 0.0,
+        "peak_sampled_common_overdrive_v": -0.6150025595271594,
+        "peak_sampled_min_abs_model_id_a": 7.646536399439859e-10
+      },
+      "guard_off_high": {
+        "window_ns": [
+          65,
+          69
+        ],
+        "both_overdriven_estimate_s": 0.0,
+        "peak_sampled_common_overdrive_v": -0.6168119723062031,
+        "peak_sampled_min_abs_model_id_a": 7.72290191312584e-10
+      },
+      "data_fall_guard_off": {
+        "window_ns": [
+          69,
+          72
+        ],
+        "both_overdriven_estimate_s": 0.0,
+        "peak_sampled_common_overdrive_v": -0.7408135348883527,
+        "peak_sampled_min_abs_model_id_a": 7.549515032745947e-11
+      },
+      "guard_on_low": {
+        "window_ns": [
+          72,
+          80
+        ],
+        "both_overdriven_estimate_s": 0.0,
+        "peak_sampled_common_overdrive_v": -0.7113186451695647,
+        "peak_sampled_min_abs_model_id_a": 1.421058780563693e-10
+      },
+      "guard_off_low": {
+        "window_ns": [
+          80,
+          85
+        ],
+        "both_overdriven_estimate_s": 0.0,
+        "peak_sampled_common_overdrive_v": -0.7326650751265342,
+        "peak_sampled_min_abs_model_id_a": 9.582552375746871e-11
+      }
+    },
+    "interpretation": "Positive BSIM4 overdrive proxy only; duration interpolated between saved samples; raw model id is not isolated shoot-through current. No overlap threshold or signoff claim."
+  }
+}

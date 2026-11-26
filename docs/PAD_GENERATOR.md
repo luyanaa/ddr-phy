@@ -137,6 +137,30 @@ tt/27C、ss/125C、ff/-40C、tt/27C/VDDIO=2.97V、tt/27C/VDDIO=3.63V
 
 仍然是 NO_GO：DDR1 需要 2.5 V SSTL_2 / VREF，gf180 只有 3.3 V（及 5/6 V）IO 器件，没有 2.5 V IO 模型；ck90 / 相位源（G6）也未解决。生成的 VREF 接收器仍是拓扑研究，不是受支持配置。远期要落地必须关掉 blockers 里三条，而不是改一个状态字符串。
 
+### DDR1 SSTL-2：单 DQ 电气 witness（sky130 / gf180mcu / ihp130）
+
+本节记录独立的原理图级 2.5 V SSTL-2 pad witness，不改变上文 GF180 的 `DEFERRED_LONG_TERM` / `NO_GO` 决策。`generator/emit_ddr1_pad.py` 按 `specs/ddr1/*-sstl2.yaml` 生成 `sstl2_dq.spice`、`parameters.json` 和 `corners/*.inc`；输出目录必须尚不存在。可用 `--pdk-root` 指向本机安装的 PDK 模型目录，模型不随本仓库分发。sky130 使用 Xyce，也可用环境变量 `XYCE` 指定可执行文件；gf180mcu 与 ihp130 使用原生 ngspice 模型。
+
+- **sky130**：候选默认尺寸的 7/7 标称 PVT witness 通过；TT/0 mV 与 SS/+40 mV 开发点及 FF/−40 mV 留持点通过，独立 SS/−40 mV 也通过。按 1.50 ns 延迟上限，SS 标称 VTT 最小余量 138.628 ps，VTT−40 mV 时为 111.489 ps。证据：[变更前七角基线](../reports/ddr1/sky130/ddr1-xyce-pvt.json)、[当前七角结果](../reports/ddr1/sky130/ddr1-xyce-ss-margin-pvt.json)、[级间测量](../reports/ddr1/sky130/ddr1-xyce-ss-margin-stages.json)、[tune](../reports/ddr1/sky130/ddr1-xyce-ss-margin-tune.json)、[VTT−40 mV](../reports/ddr1/sky130/ddr1-xyce-ss-margin-vtt-minus40.json)及[温度校准](../reports/ddr1/sky130/ddr1-xyce-temperature.json)。2.5 V 工作点对所用 5 V 栅器件未经表征；高阻 poly 为 30 °C 标称线性近似，二极管为无周边 / 高注入项的 level-1 近似。
+- **gf180mcu**：当前跨域保护 / 先断后通版本的 TT/0 mV、SS/+40 mV 开发点，FF/−40 mV 留持点及独立 SS/−40 mV 均通过；SS/−40 mV 最慢 TX 为 1.462911 ns，距 1.50 ns 限值 37.089 ps。所有已测常规、快速反转及热 FF 波形均未观测到上下管同时具有正 BSIM4 过驱动；跨这些条件的最小保守 BBM 间隔为 20 ps（`ff_hot` 常规/stock 刺激，不证明零直通电流）。冷 FF / VTT−40 mV 的最大栅极至端子电压从早期修复版的 3.662700 V 降至当前 3.063428 V；热 FF 为 3.077161 V。高电平 OUT 或 OE 的静态分压电流为每引脚 0.452–0.818 mA。3.63 V 仅作 DC 比较，不是瞬态应力判据。证据：[当前 tune](../reports/ddr1/gf180mcu/ddr1-tx-guard-tune.json)、[SS−40 mV](../reports/ddr1/gf180mcu/ddr1-tx-guard-ss-minus40.json)、[常规/快速波形](../reports/ddr1/gf180mcu/ddr1-tx-guard-waveforms.json)、[热 FF](../reports/ddr1/gf180mcu/ddr1-tx-guard-ff-hot.json)、[电源爬升](../reports/ddr1/gf180mcu/ddr1-tx-guard-power.json)，以及[早期修复的栅极](../reports/ddr1/gf180mcu/ddr1-tx-repair-gates.json)和[跨域电压](../reports/ddr1/gf180mcu/ddr1-tx-repair-crossing.json)检查。
+- **ihp130**：新 profile 使用原生 ngspice；本次跟踪的 DDR1 数值证据仅覆盖 sky130 与 gf180mcu，因此此处不声称 IHP 的新测量通过。
+
+以上是有限的 witness 点，不是完整 PVT / 失配、PEX、ESD、可靠性或时序签核；尤其 GF180 的 3.3 V 器件在 2.5 V 工作点未经 foundry 表征。所有结果均 `signoff=false`，能力判定仍为 `NO_GO`。本次不发布 evaluation-only 的 ics55 PDK/结果，也不包含数字 DDR1 RTL、testbench 或行为模型；跟踪的仅为上述 Apache-2.0 lane 源码与派生数值证据，不含 PDK 模型卡。
+
+复现（三个 `*_ROOT` 指向本机 PDK 安装目录；`--pdk-root` 可省略以使用脚本默认定位）：
+
+```sh
+work=$(mktemp -d)
+python3 generator/emit_ddr1_pad.py --backend specs/ddr1/sky130-sstl2.yaml --out-dir "$work/sky130" --pdk-root "$SKY130_ROOT"
+python3 generator/char_ddr1_sky130.py --pdk-root "$SKY130_ROOT" --output "$work/sky130-pvt.json"
+python3 generator/emit_ddr1_pad.py --backend specs/ddr1/gf180mcu-sstl2.yaml --out-dir "$work/gf180mcu" --pdk-root "$GF180_ROOT"
+python3 generator/emit_ddr1_pad.py --backend specs/ddr1/ihp130-sstl2.yaml --out-dir "$work/ihp130" --pdk-root "$IHP_ROOT"
+python3 generator/tune_ddr1.py --backend specs/ddr1/sky130-sstl2.yaml --max-trials 1 --pdk-root "$SKY130_ROOT" --output "$work/sky130-tune.json"
+python3 generator/char_ddr1_sky130.py --case ss_low --vtt-offset-mv -40 --pdk-root "$SKY130_ROOT" --output "$work/sky130-ss-low-minus40.json"
+python3 generator/tune_ddr1.py --backend specs/ddr1/gf180mcu-sstl2.yaml --max-trials 1 --pdk-root "$GF180_ROOT" --output "$work/gf180mcu-tune.json"
+python3 generator/char_ddr1_gf180mcu.py --case ss_low --vtt-offset-mv -40 --pdk-root "$GF180_ROOT" --output "$work/gf180mcu-ss-low-minus40.json"
+```
+
 ## 6. 什么还没做 / 下一步
 
 1. **填 31 个参数**：gf180mcuD / sky130 / ihp130 各有一份 `design_assumption` fixture 和可跑切片（§4.1），但都不是签核尺寸；ics55 仍未绑定。驱动管宽/指条、ESD 面积、保护环间距仍要负载/ESD 仿真。
@@ -144,7 +168,7 @@ tt/27C、ss/125C、ff/-40C、tt/27C/VDDIO=2.97V、tt/27C/VDDIO=3.63V
 3. **原理图复核**：二极管极性、体端接法、三端电阻第三端、guard ring 规则。
 4. **绑定 device map**：gf180mcuD / sky130 / IHP 已绑定并生成拓扑；ics55 还差 3.3 V ESD 二极管 SPICE 卡，不能用 2.5 V 卡替代。
 5. **表征链**：三套 PDK 的预驱动+输出级/接收器切片和 ESD 反向泄漏已可跑（§4.1）；`char_tb.spice` 仍是完整测量清单，ESD 应力/资格、VREF 共模/失调、SSO、PVT/min-max SPICE、PEX、IBIS、SI/PI、DRC/LVS 都还没做。ESD 的 TLP/HBM/latch-up 计划见 `docs/ESD_STRESS_PLAN.md`。
-6. **参数语义**：`L_R_SERIES` 现在是片上电阻长度；目标阻值属于板级 SI，不在 pad 参数里。把目标阻值换算成长度仍需要每套 PDK 的 sheet resistance。sky130 的微米/米换算也仍只在注释里，没有代码守卫。
+6. **参数语义**：`L_R_SERIES` 现在是片上电阻长度；目标阻值属于板级 SI，不在 pad 参数里。把目标阻值换算成长度仍需要每套 PDK 的 sheet resistance。sky130 的 SDR 模板微米/米换算仍只在注释里，没有代码守卫。
 7. **能力报告不变**：`reports/capability_report.md` 仍是全部 `NO_GO`，`backends/gf180mcu.yaml` 的 `toe_on_ps/off_ps` 仍是 `null`，`schematic_drawn` 仍是 `false` —— 拓扑模板不等于"原理图已画完、可签核"。
 
 ## 7. 不这样做

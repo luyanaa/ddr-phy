@@ -1,0 +1,434 @@
+{
+  "signoff": false,
+  "simulator": "ngspice",
+  "process": "gf180mcuD",
+  "cell": "/tmp/gf180-ddr1-bbm.9lYBWr/final.spice",
+  "cell_sha256": "ac311309f7318ce8f99006777b2e05c8430a2fec202eabf4a7cd11f361cd115e",
+  "rapid": false,
+  "corner": {
+    "mos": "ff",
+    "diode": "diode_ff",
+    "resistor": "res_ff",
+    "temp_c": 125,
+    "core_v": 3.63,
+    "io_v": 2.7,
+    "vref_v": 1.35,
+    "vtt_v": 1.35,
+    "vtt_offset_mv": 0
+  },
+  "method": "P=max(IO,DRIVER)-PG-|dynamic PMOS vth|; N=NG-min(0,DRIVER)-|dynamic NMOS vth|. Positive means above threshold, not zero current otherwise. Linear intersample crossings; bracket gap is new-side last non-positive sample minus old-side first non-positive sample.",
+  "ff_hot": {
+    "saved_max_step_ps": 5.00000000001144,
+    "overlap_intervals_ns": [],
+    "max_simultaneous_overdrive_v": -0.177293176628732,
+    "all_gate_crossings_ns": [
+      [
+        5.57811675483633,
+        "N+",
+        5.5774999999999935,
+        5.582499999999993
+      ],
+      [
+        14.530419570484314,
+        "N-",
+        14.52750000000003,
+        14.532500000000029
+      ],
+      [
+        14.670295763847628,
+        "P+",
+        14.66750000000005,
+        14.672500000000051
+      ],
+      [
+        19.569328980191493,
+        "P-",
+        19.56749999999995,
+        19.57249999999995
+      ],
+      [
+        19.59725523130742,
+        "N+",
+        19.592499999999948,
+        19.59749999999995
+      ],
+      [
+        30.779052863584784,
+        "N-",
+        30.77749999999991,
+        30.782499999999914
+      ],
+      [
+        40.65231519424425,
+        "P+",
+        40.64749999999993,
+        40.652499999999925
+      ],
+      [
+        47.87370446499513,
+        "P-",
+        47.87249999999989,
+        47.877499999999884
+      ],
+      [
+        55.65175560540552,
+        "P+",
+        55.647499999999944,
+        55.65249999999994
+      ],
+      [
+        65.793024297227,
+        "P-",
+        65.79250000000056,
+        65.79750000000055
+      ],
+      [
+        72.47203309919787,
+        "N+",
+        72.46750000000019,
+        72.47250000000018
+      ],
+      [
+        80.68279318995486,
+        "N-",
+        80.68250000000045,
+        80.68750000000045
+      ]
+    ],
+    "gating_edges": [
+      {
+        "stimulus_ns": 5,
+        "label": "OE rise",
+        "expected": "N+",
+        "crossings_ns": [
+          [
+            5.57811675483633,
+            "N+",
+            5.5774999999999935,
+            5.582499999999993
+          ]
+        ],
+        "truth_matches": true
+      },
+      {
+        "stimulus_ns": 14,
+        "label": "data rise",
+        "expected": "N-,P+",
+        "crossings_ns": [
+          [
+            14.530419570484314,
+            "N-",
+            14.52750000000003,
+            14.532500000000029
+          ],
+          [
+            14.670295763847628,
+            "P+",
+            14.66750000000005,
+            14.672500000000051
+          ]
+        ],
+        "truth_matches": true,
+        "signed_gap_ps": 139.87619336331392,
+        "sample_bracket_gap_ps": 135.0000000000211
+      },
+      {
+        "stimulus_ns": 19,
+        "label": "data fall",
+        "expected": "P-,N+",
+        "crossings_ns": [
+          [
+            19.569328980191493,
+            "P-",
+            19.56749999999995,
+            19.57249999999995
+          ],
+          [
+            19.59725523130742,
+            "N+",
+            19.592499999999948,
+            19.59749999999995
+          ]
+        ],
+        "truth_matches": true,
+        "signed_gap_ps": 27.926251115928835,
+        "sample_bracket_gap_ps": 19.999999999999574
+      },
+      {
+        "stimulus_ns": 30,
+        "label": "OE fall",
+        "expected": "N-",
+        "crossings_ns": [
+          [
+            30.779052863584784,
+            "N-",
+            30.77749999999991,
+            30.782499999999914
+          ]
+        ],
+        "truth_matches": true
+      },
+      {
+        "stimulus_ns": 34,
+        "label": "data rise, OE off",
+        "expected": "",
+        "crossings_ns": [],
+        "truth_matches": true
+      },
+      {
+        "stimulus_ns": 40,
+        "label": "OE rise",
+        "expected": "P+",
+        "crossings_ns": [
+          [
+            40.65231519424425,
+            "P+",
+            40.64749999999993,
+            40.652499999999925
+          ]
+        ],
+        "truth_matches": true
+      },
+      {
+        "stimulus_ns": 47,
+        "label": "OE fall",
+        "expected": "P-",
+        "crossings_ns": [
+          [
+            47.87370446499513,
+            "P-",
+            47.87249999999989,
+            47.877499999999884
+          ]
+        ],
+        "truth_matches": true
+      },
+      {
+        "stimulus_ns": 55,
+        "label": "OE rise",
+        "expected": "P+",
+        "crossings_ns": [
+          [
+            55.65175560540552,
+            "P+",
+            55.647499999999944,
+            55.65249999999994
+          ]
+        ],
+        "truth_matches": true
+      },
+      {
+        "stimulus_ns": 65,
+        "label": "PU_OK fall",
+        "expected": "P-",
+        "crossings_ns": [
+          [
+            65.793024297227,
+            "P-",
+            65.79250000000056,
+            65.79750000000055
+          ]
+        ],
+        "truth_matches": true
+      },
+      {
+        "stimulus_ns": 69,
+        "label": "data fall, PU_OK off",
+        "expected": "",
+        "crossings_ns": [],
+        "truth_matches": true
+      },
+      {
+        "stimulus_ns": 72,
+        "label": "PU_OK rise",
+        "expected": "N+",
+        "crossings_ns": [
+          [
+            72.47203309919787,
+            "N+",
+            72.46750000000019,
+            72.47250000000018
+          ]
+        ],
+        "truth_matches": true
+      },
+      {
+        "stimulus_ns": 80,
+        "label": "PU_OK fall",
+        "expected": "N-",
+        "crossings_ns": [
+          [
+            80.68279318995486,
+            "N-",
+            80.68250000000045,
+            80.68750000000045
+          ]
+        ],
+        "truth_matches": true
+      }
+    ],
+    "gaps_t_ns_interpolated_ps_sample_bracket_ps": [
+      [
+        14,
+        139.87619336331392,
+        135.0000000000211
+      ],
+      [
+        19,
+        27.926251115928835,
+        19.999999999999574
+      ]
+    ],
+    "min_gap_ps": 27.926251115928835,
+    "min_sample_bracket_gap_ps": 19.999999999999574,
+    "min_node_v": {
+      "v(pad_tx)": 0.776113555067285,
+      "v(xtx.driver)": 0.3831015494415121,
+      "v(xtx.pg)": -0.02635285782298283,
+      "v(xtx.ng)": -0.03957962337827407
+    },
+    "max_node_minus_io_v": {
+      "v(pad_tx)": -0.7567963229429933,
+      "v(xtx.driver)": -0.34014922759104715,
+      "v(xtx.pg)": 0.054623642260872796,
+      "v(xtx.ng)": 0.03904147999206886
+    },
+    "settled_disabled_max_abs_term_current_a": [
+      2.8253423560720135e-08,
+      1.8640537829206493e-06,
+      2.768543639239951e-06,
+      2.0159271861164287e-06,
+      1.2938165920628463e-06
+    ],
+    "crossing_full_rail": {
+      "xdata": {
+        "node_min_max_v": {
+          "v(data)": [
+            0.0,
+            3.63
+          ],
+          "v(xtx.xdata.a_lim)": [
+            -0.005247245723931342,
+            3.060055237287427
+          ],
+          "v(xtx.data_l)": [
+            -0.02072707633678043,
+            2.755958841546641
+          ],
+          "v(xtx.data_h)": [
+            -0.02200875435875772,
+            2.797583513311958
+          ]
+        },
+        "XINV_L": {
+          "peak_abs_n_vgs_vgb": {
+            "signed_v": 3.060055237287427,
+            "t_ns": 40.58249999999995
+          },
+          "peak_abs_p_vgs_vgb": {
+            "signed_v": -2.7052472457239314,
+            "t_ns": 5.407499999999997
+          },
+          "peak_abs_both_vgd": {
+            "signed_v": 3.0771608665503094,
+            "t_ns": 40.527499999999954
+          }
+        },
+        "XINV_H": {
+          "peak_abs_n_vgs_vgb": {
+            "signed_v": 2.755958841546641,
+            "t_ns": 80.57250000000032
+          },
+          "peak_abs_p_vgs_vgb": {
+            "signed_v": -2.7207270763367806,
+            "t_ns": 69.11250000000014
+          },
+          "peak_abs_both_vgd": {
+            "signed_v": -2.8019182745834903,
+            "t_ns": 47.622499999999945
+          }
+        }
+      },
+      "xoe": {
+        "node_min_max_v": {
+          "v(oe)": [
+            0.0,
+            3.63
+          ],
+          "v(xtx.xoe.a_lim)": [
+            -2.100022963745269e-06,
+            3.059524498915283
+          ],
+          "v(xtx.oe_l)": [
+            -0.02466318483161253,
+            2.739619353123952
+          ],
+          "v(xtx.oe_h)": [
+            -0.03852072116429033,
+            2.809088862649011
+          ]
+        },
+        "XINV_L": {
+          "peak_abs_n_vgs_vgb": {
+            "signed_v": 3.059524498915283,
+            "t_ns": 72.23750000000027
+          },
+          "peak_abs_p_vgs_vgb": {
+            "signed_v": -2.7000021000229637,
+            "t_ns": 34.43249999999997
+          },
+          "peak_abs_both_vgd": {
+            "signed_v": 3.063005162115031,
+            "t_ns": 65.3
+          }
+        },
+        "XINV_H": {
+          "peak_abs_n_vgs_vgb": {
+            "signed_v": 2.739619353123952,
+            "t_ns": 55.057500000000005
+          },
+          "peak_abs_p_vgs_vgb": {
+            "signed_v": -2.7246631848316127,
+            "t_ns": 30.10249999999999
+          },
+          "peak_abs_both_vgd": {
+            "signed_v": -2.8071786296775314,
+            "t_ns": 65.2625000000003
+          }
+        }
+      },
+      "settled_source_current_a_positive_into_circuit": {
+        "4": {
+          "i(vdata)": 1.911563217001932e-19,
+          "i(voe)": -5.734689651004332e-19,
+          "i(vcore_tx)": 1.450870555058659e-06
+        },
+        "12": {
+          "i(vdata)": -1.377676788044251e-18,
+          "i(voe)": 0.0008183205700654922,
+          "i(vcore_tx)": 0.001251804915237571
+        },
+        "18": {
+          "i(vdata)": 0.0008183205734779708,
+          "i(voe)": 0.0008183205700654922,
+          "i(vcore_tx)": 2.37368995093315e-08
+        },
+        "28": {
+          "i(vdata)": -2.468337578021245e-16,
+          "i(voe)": 0.0008183205700654922,
+          "i(vcore_tx)": 0.001251804915237567
+        },
+        "38": {
+          "i(vdata)": 0.000818320558859803,
+          "i(voe)": -4.592255960146035e-19,
+          "i(vcore_tx)": 1.452683890747729e-06
+        },
+        "45": {
+          "i(vdata)": 0.0008183205700654367,
+          "i(voe)": 0.0008183205700654922,
+          "i(vcore_tx)": 2.373689948417801e-08
+        }
+      }
+    }
+  }
+}

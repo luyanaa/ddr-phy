@@ -57,4 +57,25 @@ slots:
   PREDRIVER:      {device: null, symbol: null, note: "composite NMOS_IO/PMOS_IO inverter; PDRV_STAGES unresolved"}
   RX_INV:         {device: null, symbol: null, note: "composite NMOS_IO/PMOS_IO inverter; Schmitt option TBD"}
 sdr: {status: IN_SCOPE, note: "section 6: DO with self-drawn pad and level shifter"}
-ddr1: {status: TBD, reason: "2.5 V operating point is not a characterized IO library; VREF receiver is topology only", vref_receiver: "topology only"}
+ddr1:
+  status: experimental_witness
+  reason: 2.5 V is not a characterized sky130 IO library
+  signoff: false
+  simulator: xyce
+  root_glob: ~/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A
+  xyce:
+    pm3: 'libs.ref/sky130_fd_pr/spice/{device}__{corner}.pm3.spice'
+    # res_high_po.model.spice: linear sheet terms, geometry in um, at 30 C.
+    resistor:
+      body_sheet_ohm: 317.3885
+      head_sheet_ohm: 345.8312
+      width_offset_um: -0.001
+      narrow_below_um: 0.69
+      narrow_factor: 0.0672
+      length_offset_um: 0.247
+      head_length_um: 1
+      head_width_offset_um: 0.1558
+    # Area-normalized level-1 junction approximation; no sidewall or ESD qualification.
+    diodes:
+      DIODE_TO_VDDIO: {is: 2.1483e-17, n: 1.3632, rs: 600, cjo: 7.7547e-16, m: 0.33956, vj: 0.6587, bv: 12.69, ibv: 0.00106, eg: 1.05, xti: 10}
+      DIODE_TO_VSSIO: {is: 3.75e-16, n: 1.0773, rs: 981, cjo: 8.512e-16, m: 0.295, vj: 0.72468, bv: 12.636, ibv: 0.00106, eg: 0.92, xti: 0.76}

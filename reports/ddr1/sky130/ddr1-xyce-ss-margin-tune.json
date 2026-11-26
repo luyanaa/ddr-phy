@@ -1,0 +1,402 @@
+{
+  "exit_code": 0,
+  "generated_at_utc": "2026-11-26T11:42:47.995545+00:00",
+  "holdout": {
+    "case_result": {
+      "case": "ff_high",
+      "exit_code": 0,
+      "id": "ff_high_vtt_minus40mv",
+      "report": {
+        "cases": {
+          "ff_high": {
+            "failures": {},
+            "measurements_si": {
+              "guard_off_h": 1.359092e-09,
+              "guard_off_l": 1.339834e-09,
+              "hiz_ah_22": -1.98048e-09,
+              "hiz_ah_8": -4.642556e-13,
+              "hiz_al_22": 8.34872e-11,
+              "hiz_al_8": 1.265715e-14,
+              "hiz_bh_22": -1.579742e-09,
+              "hiz_bh_8": -2.466118e-09,
+              "hiz_bl_22": 8.352237e-11,
+              "hiz_bl_8": 8.961501e-11,
+              "leak_h_max": 1.143232e-10,
+              "leak_h_min": -1.971e-10,
+              "leak_l_max": 1.143232e-10,
+              "leak_l_min": -1.971e-10,
+              "oe_off_h": 1.393895e-09,
+              "oe_off_l": 1.373905e-09,
+              "oe_on_h": 6.517162e-10,
+              "oe_on_l": 5.665226e-10,
+              "offset_hi": 0.007,
+              "offset_lo": 0.003,
+              "offset_mid": 0.005,
+              "ramp_ah_max": 3.198382e-05,
+              "ramp_ah_min": -0.0001433387,
+              "ramp_al_max": 9.184229e-05,
+              "ramp_al_min": -1.901331e-06,
+              "ramp_bh_max": 6.793097e-06,
+              "ramp_bh_min": -0.0001276796,
+              "ramp_bl_max": 0.0001302095,
+              "ramp_bl_min": -1.897173e-06,
+              "rx_core_bias": -0.0005912371,
+              "rx_fall": 4.072495e-10,
+              "rx_high_hi": 1.98,
+              "rx_high_lo": 1.98,
+              "rx_high_mid": 1.98,
+              "rx_io_bias": -0.0007300235,
+              "rx_level_max": 2.053507,
+              "rx_level_min": 0.2227307,
+              "rx_low_hi": 2.845519e-08,
+              "rx_low_lo": 2.845519e-08,
+              "rx_low_mid": 2.845519e-08,
+              "rx_rise": 3.958697e-10,
+              "tx_enable_high": 2.142447,
+              "tx_fall": 5.589237e-10,
+              "tx_high": 2.142447,
+              "tx_io_peak": -0.04042965,
+              "tx_low": 0.4596519,
+              "tx_rise": 5.854117e-10
+            },
+            "mos": "ff",
+            "res": "bcs",
+            "simulator_elapsed_s": {
+              "dc": 12.9618,
+              "power": 2.38484,
+              "transient": 10.3823
+            },
+            "temp_c": -40,
+            "vdd": 1.98,
+            "vddio": 2.7
+          }
+        },
+        "cell": "/tmp/ddr1-tune-cge2rhwc/cell.spice",
+        "dc_solver": "default",
+        "license": "Apache-2.0 (SkyWater PDK Authors); 2.5 V operating point UNCHARACTERIZED",
+        "pdk": "/home/yanlu/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A",
+        "process": "sky130",
+        "signoff": false,
+        "simulator": "xyce",
+        "status": "custom_netlist",
+        "vtt_offset_mv": -40
+      },
+      "status": "electrical_pass",
+      "vtt_offset_mv": -40
+    },
+    "failures": [],
+    "knobs": {
+      "xrbias_l_um": 6,
+      "xrdriver_w_um": 40
+    },
+    "metrics": {
+      "max_abs_bias_or_tx_io_peak_current_a": 0.04042965,
+      "max_rx_tx_propagation_s": 5.854117e-10,
+      "per_measurement_max_abs_current_a": {
+        "rx_core_bias": 0.0005912371,
+        "rx_io_bias": 0.0007300235,
+        "tx_io_peak": 0.04042965
+      },
+      "per_measurement_max_delay_s": {
+        "rx_fall": 4.072495e-10,
+        "rx_rise": 3.958697e-10,
+        "tx_fall": 5.589237e-10,
+        "tx_rise": 5.854117e-10
+      }
+    },
+    "status": "pass"
+  },
+  "method": {
+    "description": "Enumerate the configured discrete Cartesian grid with the source baseline first. Require all characterizer hard limits at every development case; then minimize maximum measured RX/TX propagation, using maximum absolute measured bias/TX-I/O current as a tie-breaker. Run the holdout only for the development winner.",
+    "development_cases": [
+      {
+        "case": "tt",
+        "id": "tt_vtt_0mv",
+        "vtt_offset_mv": 0
+      },
+      {
+        "case": "ss_low",
+        "id": "ss_low_vtt_plus40mv",
+        "vtt_offset_mv": 40
+      }
+    ],
+    "grid_size": 4,
+    "holdout_case": {
+      "case": "ff_high",
+      "id": "ff_high_vtt_minus40mv",
+      "vtt_offset_mv": -40
+    },
+    "limits_source": "the registered characterizer JSON failures; no thresholds are duplicated here",
+    "sampler": "deterministic_grid",
+    "trials_requested": 1
+  },
+  "provenance": {
+    "adapter": "/grid/ddr-phy/generator/ddr1_sky130_backend.py",
+    "adapter_sha256": "b0e4f463131eda661b5e8fc24f07edffc7a825a7bbf2012e472cb2043fb9c17e",
+    "backend_spec": "/grid/ddr-phy/specs/ddr1/sky130-sstl2.yaml",
+    "backend_spec_sha256": "b9626249b0a52a3d3d7775d13818672cdfcf09a8e188f7719b486073c4fac1e9",
+    "characterizer": "/grid/ddr-phy/generator/char_ddr1_sky130.py",
+    "characterizer_sha256": "2ed50319edcb207f6403f6baabb8f7c84b154dfe8070414825cab7a3851c3bd5",
+    "pdk_root_override": null,
+    "source_netlist": "/grid/ddr-phy/sch/pads/sky130/sstl2_dq.spice",
+    "source_netlist_sha256": "d670731afd66779ecd6d6e6220759b2e41edab21096a50307bf0fa388efe7b9d"
+  },
+  "recommended": {
+    "holdout_case_id": "ff_high_vtt_minus40mv",
+    "knobs": {
+      "xrbias_l_um": 6,
+      "xrdriver_w_um": 40
+    },
+    "metrics": {
+      "max_abs_bias_or_tx_io_peak_current_a": 0.02525809,
+      "max_rx_tx_propagation_s": 1.352336e-09,
+      "per_measurement_max_abs_current_a": {
+        "rx_core_bias": 0.0005004147,
+        "rx_io_bias": 0.0004948659,
+        "tx_io_peak": 0.02525809
+      },
+      "per_measurement_max_delay_s": {
+        "rx_fall": 1.238543e-09,
+        "rx_rise": 8.329558e-10,
+        "tx_fall": 1.352336e-09,
+        "tx_rise": 1.337567e-09
+      }
+    },
+    "trial_id": "trial-01"
+  },
+  "reproduction": {
+    "command": "/usr/bin/python3 /grid/ddr-phy/generator/tune_ddr1.py --backend /grid/ddr-phy/specs/ddr1/sky130-sstl2.yaml --output /tmp/ddr1-final-checks.GZ6SpXZg/tune.json --sampler grid --max-trials 1",
+    "python": "3.13.5",
+    "sampler": "grid"
+  },
+  "schema_version": 1,
+  "selection": {
+    "ranked_trial_ids": [
+      "trial-01"
+    ],
+    "winner_trial_id": "trial-01"
+  },
+  "signoff": false,
+  "status": "pass",
+  "trials": [
+    {
+      "cases": {
+        "ss_low_vtt_plus40mv": {
+          "case": "ss_low",
+          "exit_code": 0,
+          "id": "ss_low_vtt_plus40mv",
+          "report": {
+            "cases": {
+              "ss_low": {
+                "failures": {},
+                "measurements_si": {
+                  "guard_off_h": 2.096661e-09,
+                  "guard_off_l": 2.053694e-09,
+                  "hiz_ah_22": -5.662355e-09,
+                  "hiz_ah_8": 2.607201e-11,
+                  "hiz_al_22": 6.898427e-09,
+                  "hiz_al_8": -5.910511e-12,
+                  "hiz_bh_22": -2.297738e-09,
+                  "hiz_bh_8": -1.397926e-08,
+                  "hiz_bl_22": 6.897343e-09,
+                  "hiz_bl_8": 6.657255e-09,
+                  "leak_h_max": 7.545994e-09,
+                  "leak_h_min": -3.012257e-10,
+                  "leak_l_max": 7.545994e-09,
+                  "leak_l_min": -3.012257e-10,
+                  "oe_off_h": 2.243049e-09,
+                  "oe_off_l": 2.199987e-09,
+                  "oe_on_h": 1.682795e-09,
+                  "oe_on_l": 1.57107e-09,
+                  "offset_hi": 0.001124836,
+                  "offset_lo": -0.001000002,
+                  "offset_mid": 0.000999998,
+                  "ramp_ah_max": 3.470897e-07,
+                  "ramp_ah_min": -0.0001463603,
+                  "ramp_al_max": 6.136227e-05,
+                  "ramp_al_min": -2.615982e-06,
+                  "ramp_bh_max": 1.527834e-07,
+                  "ramp_bh_min": -0.0001379928,
+                  "ramp_bl_max": 9.010043e-05,
+                  "ramp_bl_min": -2.541004e-06,
+                  "rx_core_bias": -0.0003859151,
+                  "rx_fall": 1.238543e-09,
+                  "rx_high_hi": 1.62,
+                  "rx_high_lo": 1.62,
+                  "rx_high_mid": 1.62,
+                  "rx_io_bias": -0.0003105627,
+                  "rx_level_max": 1.654467,
+                  "rx_level_min": 0.4603022,
+                  "rx_low_hi": 2.290119e-06,
+                  "rx_low_lo": 2.290119e-06,
+                  "rx_low_mid": 2.290119e-06,
+                  "rx_rise": 8.329558e-10,
+                  "tx_enable_high": 1.683953,
+                  "tx_fall": 1.352336e-09,
+                  "tx_high": 1.683953,
+                  "tx_io_peak": -0.01474646,
+                  "tx_low": 0.6025242,
+                  "tx_rise": 1.337567e-09
+                },
+                "mos": "ss",
+                "res": "wcs",
+                "simulator_elapsed_s": {
+                  "dc": 2.52357,
+                  "power": 2.4026,
+                  "transient": 8.40476
+                },
+                "temp_c": 125,
+                "vdd": 1.62,
+                "vddio": 2.3
+              }
+            },
+            "cell": "/tmp/ddr1-tune-ffmkagay/cell.spice",
+            "dc_solver": "default",
+            "license": "Apache-2.0 (SkyWater PDK Authors); 2.5 V operating point UNCHARACTERIZED",
+            "pdk": "/home/yanlu/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A",
+            "process": "sky130",
+            "signoff": false,
+            "simulator": "xyce",
+            "status": "custom_netlist",
+            "vtt_offset_mv": 40
+          },
+          "status": "electrical_pass",
+          "vtt_offset_mv": 40
+        },
+        "tt_vtt_0mv": {
+          "case": "tt",
+          "exit_code": 0,
+          "id": "tt_vtt_0mv",
+          "report": {
+            "cases": {
+              "tt": {
+                "failures": {},
+                "measurements_si": {
+                  "guard_off_h": 1.604556e-09,
+                  "guard_off_l": 1.591802e-09,
+                  "hiz_ah_22": -3.686515e-09,
+                  "hiz_ah_8": -5.519441e-13,
+                  "hiz_al_22": 1.47426e-10,
+                  "hiz_al_8": -2.235212e-13,
+                  "hiz_bh_22": -2.66427e-09,
+                  "hiz_bh_8": -5.357184e-09,
+                  "hiz_bl_22": 2.254032e-10,
+                  "hiz_bl_8": 2.326605e-10,
+                  "leak_h_max": 2.734624e-10,
+                  "leak_h_min": -1.825853e-10,
+                  "leak_l_max": 2.734624e-10,
+                  "leak_l_min": -1.825853e-10,
+                  "oe_off_h": 1.681362e-09,
+                  "oe_off_l": 1.668721e-09,
+                  "oe_on_h": 1.020778e-09,
+                  "oe_on_l": 9.148064e-10,
+                  "offset_hi": 0.005,
+                  "offset_lo": 0.003,
+                  "offset_mid": 0.003,
+                  "ramp_ah_max": 1.663668e-05,
+                  "ramp_ah_min": -0.0001521662,
+                  "ramp_al_max": 7.860939e-05,
+                  "ramp_al_min": -2.427159e-06,
+                  "ramp_bh_max": 1.91116e-07,
+                  "ramp_bh_min": -0.0001379037,
+                  "ramp_bl_max": 0.0001142493,
+                  "ramp_bl_min": -1.93339e-06,
+                  "rx_core_bias": -0.0005004147,
+                  "rx_fall": 6.579439e-10,
+                  "rx_high_hi": 1.8,
+                  "rx_high_lo": 1.8,
+                  "rx_high_mid": 1.8,
+                  "rx_io_bias": -0.0004948659,
+                  "rx_level_max": 1.859005,
+                  "rx_level_min": 0.3079782,
+                  "rx_low_hi": 1.281868e-07,
+                  "rx_low_lo": 1.281868e-07,
+                  "rx_low_mid": 1.281868e-07,
+                  "rx_rise": 5.555029e-10,
+                  "tx_enable_high": 1.914379,
+                  "tx_fall": 8.329395e-10,
+                  "tx_high": 1.914379,
+                  "tx_io_peak": -0.02525809,
+                  "tx_low": 0.5084674,
+                  "tx_rise": 8.640626e-10
+                },
+                "mos": "tt",
+                "res": "typ",
+                "simulator_elapsed_s": {
+                  "dc": 2.43661,
+                  "power": 2.36022,
+                  "transient": 8.31315
+                },
+                "temp_c": 27,
+                "vdd": 1.8,
+                "vddio": 2.5
+              }
+            },
+            "cell": "/tmp/ddr1-tune-ffmkagay/cell.spice",
+            "dc_solver": "default",
+            "license": "Apache-2.0 (SkyWater PDK Authors); 2.5 V operating point UNCHARACTERIZED",
+            "pdk": "/home/yanlu/.ciel/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71/sky130A",
+            "process": "sky130",
+            "signoff": false,
+            "simulator": "xyce",
+            "status": "custom_netlist",
+            "vtt_offset_mv": 0
+          },
+          "status": "electrical_pass",
+          "vtt_offset_mv": 0
+        }
+      },
+      "classification": "feasible",
+      "failures": [],
+      "hard_limits_pass": true,
+      "knobs": {
+        "xrbias_l_um": 6,
+        "xrdriver_w_um": 40
+      },
+      "metrics": {
+        "max_abs_bias_or_tx_io_peak_current_a": 0.02525809,
+        "max_rx_tx_propagation_s": 1.352336e-09,
+        "per_measurement_max_abs_current_a": {
+          "rx_core_bias": 0.0005004147,
+          "rx_io_bias": 0.0004948659,
+          "tx_io_peak": 0.02525809
+        },
+        "per_measurement_max_delay_s": {
+          "rx_fall": 1.238543e-09,
+          "rx_rise": 8.329558e-10,
+          "tx_fall": 1.352336e-09,
+          "tx_rise": 1.337567e-09
+        }
+      },
+      "normalized_violation_unavailable_for_no_cross": false,
+      "trial_id": "trial-01",
+      "trial_index": 1,
+      "worst_normalized_violation": null
+    }
+  ],
+  "winner": {
+    "development_classification": "feasible",
+    "development_metrics": {
+      "max_abs_bias_or_tx_io_peak_current_a": 0.02525809,
+      "max_rx_tx_propagation_s": 1.352336e-09,
+      "per_measurement_max_abs_current_a": {
+        "rx_core_bias": 0.0005004147,
+        "rx_io_bias": 0.0004948659,
+        "tx_io_peak": 0.02525809
+      },
+      "per_measurement_max_delay_s": {
+        "rx_fall": 1.238543e-09,
+        "rx_rise": 8.329558e-10,
+        "tx_fall": 1.352336e-09,
+        "tx_rise": 1.337567e-09
+      }
+    },
+    "holdout_passed": true,
+    "knobs": {
+      "xrbias_l_um": 6,
+      "xrdriver_w_um": 40
+    },
+    "recommended": true,
+    "trial_id": "trial-01"
+  }
+}

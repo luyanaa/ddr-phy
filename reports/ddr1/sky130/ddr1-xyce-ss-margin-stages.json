@@ -1,0 +1,110 @@
+{
+  "description": "Baseline ss_low TX stage crossing delays from OUT/data edge; same source netlist, BinnedPad model, original transient stimulus, Xyce settings, and timing measurements.",
+  "signoff": false,
+  "case": "ss_low",
+  "temperature_c": 125,
+  "vdd_v": 1.62,
+  "vddio_v": 2.3,
+  "vtt_offset_mv": 0,
+  "simulator_elapsed_s": 8.94314,
+  "original_tx_rise_s": 1.495937e-09,
+  "original_tx_fall_s": 1.474335e-09,
+  "input_out_crossing_time_s": {
+    "rise": 1.415e-08,
+    "fall": 1.915e-08
+  },
+  "stages": {
+    "r": {
+      "out_delay_s": 0.0,
+      "out_crossing_time_s": 1.415e-08,
+      "node_delay_from_out_s": {
+        "data_h": 5.288706e-10,
+        "data_l": 1.214921e-10,
+        "p_b": 7.563499e-10,
+        "n_b": 7.716178e-10,
+        "p1": 9.890215e-10,
+        "pg": 1.154797e-09,
+        "ng": 1.070487e-09,
+        "driver": 1.266994e-09,
+        "pad_tx": 1.495937e-09
+      },
+      "node_crossing_time_s": {
+        "data_h": 1.4678870599999999e-08,
+        "data_l": 1.4271492099999999e-08,
+        "p_b": 1.49063499e-08,
+        "n_b": 1.49216178e-08,
+        "p1": 1.51390215e-08,
+        "pg": 1.5304797e-08,
+        "ng": 1.5220487e-08,
+        "driver": 1.5416994e-08,
+        "pad_tx": 1.5645937e-08
+      },
+      "active_path_interval_s": {
+        "out_to_data_h": 5.288706e-10,
+        "data_h_to_p_b": 2.274793e-10,
+        "p_b_to_p1": 2.3267159999999998e-10,
+        "p1_to_pg": 1.6577550000000003e-10,
+        "pg_to_driver": 1.1219699999999996e-10,
+        "driver_to_pad_tx": 2.2894299999999996e-10
+      }
+    },
+    "f": {
+      "out_delay_s": 0.0,
+      "out_crossing_time_s": 1.915e-08,
+      "node_delay_from_out_s": {
+        "data_h": 1.844746e-10,
+        "data_l": 6.079146e-10,
+        "p_b": 5.216742e-10,
+        "n_b": 9.303269e-10,
+        "p1": 7.672059e-10,
+        "pg": 1.176929e-09,
+        "ng": 1.162154e-09,
+        "driver": 1.270995e-09,
+        "pad_tx": 1.474335e-09
+      },
+      "node_crossing_time_s": {
+        "data_h": 1.93344746e-08,
+        "data_l": 1.97579146e-08,
+        "p_b": 1.9671674199999998e-08,
+        "n_b": 2.00803269e-08,
+        "p1": 1.99172059e-08,
+        "pg": 2.0326929e-08,
+        "ng": 2.0312154e-08,
+        "driver": 2.0420995e-08,
+        "pad_tx": 2.0624335e-08
+      },
+      "active_path_interval_s": {
+        "out_to_data_l": 6.079146e-10,
+        "data_l_to_n_b": 3.2241229999999993e-10,
+        "n_b_to_ng": 2.3182710000000002e-10,
+        "ng_to_driver": 1.0884099999999991e-10,
+        "driver_to_pad_tx": 2.0334000000000004e-10
+      }
+    }
+  },
+  "measurements_si": {
+    "rx_rise": 8.323171e-10,
+    "rx_fall": 1.339242e-09,
+    "tx_rise": 1.495937e-09,
+    "tx_fall": 1.474335e-09,
+    "oe_on_l": 1.753906e-09,
+    "oe_on_h": 1.868485e-09,
+    "oe_off_l": 2.257083e-09,
+    "oe_off_h": 2.256683e-09,
+    "guard_off_h": 2.135691e-09,
+    "guard_off_l": 2.136126e-09,
+    "tx_low": 0.5799739,
+    "tx_high": 1.659553,
+    "tx_enable_high": 1.659553,
+    "rx_io_bias": -0.0003105625,
+    "rx_core_bias": -0.0003859151,
+    "tx_io_peak": -0.01473952,
+    "rx_level_min": 0.4601788,
+    "rx_level_max": 1.652806
+  },
+  "artifacts": {
+    "deck": "/tmp/sky130-tx-margin/baseline-tx-trace.spice",
+    "binned_pad": "/tmp/sky130-tx-margin/baseline-binned-pad.inc",
+    "mt0": "/tmp/sky130-tx-margin/baseline-tx-trace.spice.mt0"
+  }
+}

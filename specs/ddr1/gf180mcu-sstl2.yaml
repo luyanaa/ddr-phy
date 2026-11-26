@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: Apache-2.0
+# gf180mcu DDR1 backend. EXPERIMENTAL + PHYSICAL NO-GO: 2.3-2.7 V SSTL-2
+# operation with nfet_03v3/pfet_03v3 is not foundry-characterized.
+# Witness-point study only. signoff=false always.
+schema_version: 1
+name: gf180mcu-sstl2
+adapter: generator/ddr1_gf180mcu_backend.py
+characterization:
+  script: generator/char_ddr1_gf180mcu.py
+  source_netlist: sch/pads/gf180mcu/sstl2_dq.spice
+search:
+  sampler: grid
+  max_trials: 4
+  knobs:
+    - id: xrdriver_w_um
+      default: 8
+      values: [8, 12]
+      unit: um
+      description: XRDRIVER ppolyf_u r_width
+    - id: xrbias_l_um
+      default: 13
+      values: [13, 10]
+      unit: um
+      description: XRBIAS ppolyf_u r_length
+  development:
+    - id: tt_vtt_0mv
+      case: tt
+      vtt_offset_mv: 0
+    - id: ss_low_vtt_plus40mv
+      case: ss_low
+      vtt_offset_mv: 40
+  holdout:
+    id: ff_high_vtt_minus40mv
+    case: ff_high
+    vtt_offset_mv: -40

@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: Apache-2.0
+# Process-characterization backend for the DDR1 digital/profile generator.
+# sky130 lane: EXPERIMENTAL, 2.5 V is not a characterized sky130 IO library.
+# This file describes a bounded sizing experiment, not a JEDEC profile.
+schema_version: 1
+name: sky130-sstl2
+adapter: generator/ddr1_sky130_backend.py
+characterization:
+  script: generator/char_ddr1_sky130.py
+  source_netlist: sch/pads/sky130/sstl2_dq.spice
+search:
+  sampler: grid
+  max_trials: 4
+  # The baseline is explicitly included and evaluated first.
+  knobs:
+    - id: xrdriver_w_um
+      default: 40
+      values: [40, 32]
+      unit: um
+      description: XRDRIVER res_high_po total width
+    - id: xrbias_l_um
+      default: 6
+      values: [6, 4]
+      unit: um
+      description: XRBIAS res_high_po length
+  development:
+    - id: tt_vtt_0mv
+      case: tt
+      vtt_offset_mv: 0
+    - id: ss_low_vtt_plus40mv
+      case: ss_low
+      vtt_offset_mv: 40
+  # Distinct termination offset and untrained process witness; only the
+  # development winner is characterized at this holdout.
+  holdout:
+    id: ff_high_vtt_minus40mv
+    case: ff_high
+    vtt_offset_mv: -40
