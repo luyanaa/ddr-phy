@@ -1,110 +1,112 @@
 # ddr-phy
 
-面向 [LiteDRAM](https://github.com/enjoy-digital/litedram) 控制器的外部 DRAM ASIC PHY，覆盖四套开源 PDK：**sky130、gf180mcu、IHP SG13G2（130 nm）、ICsprout 55**。控制器沿用 LiteDRAM，不改它的调度、刷新和交叉；本仓库做可综合的数字 PHY 和手工 I/O pad。四套工艺共用同一套数字 PHY 和同一张 pad 原理图，换的是器件和电源，不是四套架构。
+An external-DRAM ASIC PHY for the [LiteDRAM](https://github.com/enjoy-digital/litedram) controller, covering four open PDKs: **sky130, gf180mcu, IHP SG13G2 (130 nm), and ICsprout 55**. The controller stays LiteDRAM, with its scheduling, refresh and interleaving unchanged; this repository provides a synthesizable digital PHY and hand-made I/O pads. All four processes share one digital PHY and one pad schematic. Only the devices and supplies change, not the architecture.
 
-设计决策、证据边界和分期计划的权威记录在 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+The authoritative record of design decisions, evidence boundaries and the phased plan is [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## 设计分类
+> 中文版：[`README.zh-cn.md`](README.zh-cn.md)
 
-| 类 | 存储器 | 接口 | 工艺 | VDDIO | 状态 |
+## Design classes
+
+| Class | Memory | Interface | Processes | VDDIO | Status |
 |---|---|---|---|---|---|
-| S | SDR SDRAM | 与 `GENSDRPHY` 相同的 DFI，1:1 | 四套全做 | 3.3 V | 数字核已实现并通过多层验证 |
-| D | DDR1 | 新写的 1:2 DFI | sky130、IHP、ics55 | 2.5 V | 规划中，RTL 未开始 |
-| D2 | DDR2 | LiteDRAM DDR2 DFI，1:2，带 ODT | 仅 55 nm（需自研 SSTL_18 IO） | 1.8 V | 远期 |
+| S | SDR SDRAM | Same DFI as `GENSDRPHY`, 1:1 | All four | 3.3 V | Digital core implemented, passes multi-level verification |
+| D | DDR1 | New 1:2 DFI | sky130, IHP, ics55 | 2.5 V | Planned, RTL not started |
+| D2 | DDR2 | LiteDRAM DDR2 DFI, 1:2, with ODT | 55 nm only (needs an in-house SSTL_18 IO) | 1.8 V | Long term |
 
-第一版硅目标是点对点一颗 x8，SDR 的 CK = 100 MHz。不做 DIMM、fly-by、写电平；SPD 和 ECC 不在 PHY 里。
+The first silicon target is a single point-to-point x8 device, SDR at CK = 100 MHz. No DIMM, fly-by or write leveling; SPD and ECC are outside the PHY.
 
-## 当前进展（P0）
+## Current progress (P0)
 
-Class S 数字侧已经有的东西：
+What exists on the Class S digital side:
 
-- `rtl/sdr_phy.sv` — 1:1 SDR PHY，`GENSDRPHY` 的可综合翻译：写延迟 0，读延迟 CL+1，命令/DQ/DM 各一级寄存器，三态驱动留给 pad。
-- `rtl/sdram_phy_top.sv` — 集成顶层：CK 走 `clock_forward` 专用路径，DQ 走 `dq_turnaround` + `phy_io_adapter`，读捕获第一级 FF 由 `read_capture_ctrl` 的 `cap_clk` 时钟。
-- `rtl/sdr_ctrl.sv` — 闭环用的 1:1 控制器（不是 LiteDRAM 网表），抄 `GENSDRPHY` 的 DFI 时序和初始化命令顺序；WRITE 受 PHY `turnaround_busy` 门控；可选 tREFI 刷新。
-- `rtl/sdr_bist.sv` — PRBS-8 写读比对 BIST，可选 `phase_sel` 扫描。诊断辅助，不是时序签核，也不实现 DRAM 训练。
-- `rtl/read_capture_cdc.sv`、`rtl/dq_turnaround.sv`、`rtl/clock_forward.sv`、`rtl/phy_io_adapter.sv` — 读捕获 CDC、读写转向守护、时钟转发、pad 适配。
+- `rtl/sdr_phy.sv` — 1:1 SDR PHY, a synthesizable translation of `GENSDRPHY`: write latency 0, read latency CL+1, one register stage each for command/DQ/DM, tristate drive left to the pad.
+- `rtl/sdram_phy_top.sv` — integration top: CK takes the dedicated `clock_forward` path, DQ goes through `dq_turnaround` + `phy_io_adapter`, and the first read-capture FF is clocked by `cap_clk` from `read_capture_ctrl`.
+- `rtl/sdr_ctrl.sv` — a 1:1 controller for closed-loop testing (not the LiteDRAM netlist), copying `GENSDRPHY`'s DFI timing and initialization command sequence; WRITE is gated by the PHY's `turnaround_busy`; optional tREFI refresh.
+- `rtl/sdr_bist.sv` — PRBS-8 write/read-compare BIST with optional `phase_sel` sweep. A diagnostic aid, not timing signoff, and it does not implement DRAM training.
+- `rtl/read_capture_cdc.sv`, `rtl/dq_turnaround.sv`, `rtl/clock_forward.sv`, `rtl/phy_io_adapter.sv` — read-capture CDC, read/write turnaround guard, clock forwarding, pad adapter.
 
-验证与实现证据（分层，不越级）：
+Verification and implementation evidence (layered; no level is claimed from a lower one):
 
-1. **DFI 行为**：`tb/tb_sdr_phy.sv`，CL 2/3 × x8/x16 通过。
-2. **引脚级闭环**：`sim/sdram_model.sv` + `tb/tb_sdr_loop.sv`，行命中、换 bank、换行、掩码写、BL 2/4/8 突发通过。模型只报命令顺序错误，不测 tRCD/tRP/tRAS/tRFC。
-3. **命令间隔**：`sim/sdram_checker.sv`，按 Micron 256Mb SDR -75 档（tCK = 10 ns）数时钟，每条规则一个实例。
-4. **时序感知读捕获**：`sim/sdram_timing_model.sv` + `sim/read_capture.sv`，相位扫描与负向测试（`sim/sweep.sh`）；静态 phase 0/1/2 测试（`tb/tb_read_capture_phase.sv`）。
-5. **门级功能**：`sim/gate.sh` 把 `sdr_phy` 映到 sky130 HD 跑功能仿真。无 SDF、无线延迟、无 pad——不是时序仿真，更不是签核。
-6. **物理实现**：`flow/` LibreLane，sky130 控制组 80/80 跑通；草稿 SDC 故意未接入（见 `docs/STA_PLAN.md` §5）。
-7. **pad**：`generator/` 产出四套工艺的拓扑模板（`sch/pads/`），gf180mcuD / sky130 / IHP 已绑定器件并生成；已有预驱动+输出级/接收器切片和 ESD 反向泄漏的 ngspice 仿真，标为 `design_assumption`。ics55 缺 3.3 V ESD 二极管 SPICE 卡（`docs/ICS55_ESD_3V3.md`）。尺寸未签核。
-8. **可选差分**：`sim/micron_diff.sh` 对 Micron MT48LC16M16A2 行为模型做差分测试；模型本地获取、不随仓库分发，缺席时自动跳过。
+1. **DFI behavior**: `tb/tb_sdr_phy.sv`, CL 2/3 × x8/x16 pass.
+2. **Pin-level closed loop**: `sim/sdram_model.sv` + `tb/tb_sdr_loop.sv`; row hit, bank change, row change, masked write, BL 2/4/8 bursts pass. The model reports only command-order errors; it does not check tRCD/tRP/tRAS/tRFC.
+3. **Command spacing**: `sim/sdram_checker.sv` counts clocks against the Micron 256Mb SDR -75 grade (tCK = 10 ns), one instance per rule.
+4. **Timing-aware read capture**: `sim/sdram_timing_model.sv` + `sim/read_capture.sv`, phase sweep and negative tests (`sim/sweep.sh`); static phase 0/1/2 tests (`tb/tb_read_capture_phase.sv`).
+5. **Gate-level function**: `sim/gate.sh` maps `sdr_phy` to sky130 HD and runs functional simulation. No SDF, no wire delay, no pads: not timing simulation, let alone signoff.
+6. **Physical implementation**: `flow/` LibreLane; the sky130 control group runs 80/80 steps clean. The draft SDC is intentionally not wired in (see `docs/STA_PLAN.md` §5).
+7. **Pads**: `generator/` produces topology templates for all four processes (`sch/pads/`); gf180mcuD / sky130 / IHP have devices bound and generated. There are ngspice simulations of the pre-driver + output stage / receiver slices and of ESD reverse leakage, tagged `design_assumption`. ics55 lacks a 3.3 V ESD diode SPICE card (`docs/ICS55_ESD_3V3.md`). Sizing is not signed off.
+8. **Optional differential test**: `sim/micron_diff.sh` diffs against the Micron MT48LC16M16A2 behavioral model; the model is fetched locally, not distributed with the repo, and the test is skipped when it is absent.
 
-CI（`.github/workflows/ci.yml`）跑生成器检查、产物一致性、全部 RTL/模型回归、退出码变异测试（`sim/mutation.sh`，证明 FAIL 的测试台真的返回非零）和可选 Micron 差分。
+CI (`.github/workflows/ci.yml`) runs the generator checks, artifact consistency, all RTL/model regressions, exit-code mutation tests (`sim/mutation.sh`, proving that a failing testbench really returns non-zero) and the optional Micron diff.
 
-## 目录结构
+## Directory layout
 
 ```text
-rtl/            可综合 SystemVerilog：PHY、控制器、BIST、读捕获、转向、时钟转发、pad 适配
-tb/             测试台（Icarus Verilog，-g2012）
-sim/            行为/时序模型、检查器、回归脚本、门级网表壳
-generator/      Python 生成器与证据检查：pad 拓扑、器件抽取、PDK 规则、时序、封装
-specs/          接口契约（interface.yaml）、时序契约（timing_contract.yaml）、器件与 pad 规格
-sch/pads/       生成器产出的 pad 拓扑模板与封装 profile 闭合产物
-backends/       各 PDK 后端配置（sky130 / gf180mcu / ihp130 / ics55 / generic_sim）
-flow/           LibreLane 硬化流程（run.sh、config、SDC 草稿）
-docs/           架构与专题文档（中文）
-third_party/    litedram（submodule，不改）；reference/（本地评估模型，不分发）
-results/        物理实现产物（gitignore）
+rtl/            synthesizable SystemVerilog: PHY, controller, BIST, read capture, turnaround, clock forwarding, pad adapter
+tb/             testbenches (Icarus Verilog, -g2012)
+sim/            behavioral/timing models, checkers, regression scripts, gate-level netlist shells
+generator/      Python generators and evidence checks: pad topology, device extraction, PDK rules, timing, packaging
+specs/          interface contract (interface.yaml), timing contract (timing_contract.yaml), device and pad specs
+sch/pads/       generator output: pad topology templates and packaging-profile closure artifacts
+backends/       per-PDK backend configs (sky130 / gf180mcu / ihp130 / ics55 / generic_sim)
+flow/           LibreLane hardening flow (run.sh, config, draft SDC)
+docs/           architecture and topic documents (Chinese)
+third_party/    litedram (submodule, unmodified); reference/ (local evaluation models, not distributed)
+results/        physical implementation outputs (gitignored)
 ```
 
-## 快速开始
+## Quick start
 
-依赖：Icarus Verilog、Yosys、Python 3 + PyYAML。物理流程另需 LibreLane 环境（脚本会自动进 `/opt/librelane` 的 nix-shell）和对应 PDK。
+Dependencies: Icarus Verilog, Yosys, Python 3 + PyYAML. The physical flow additionally needs a LibreLane environment (the script enters the `/opt/librelane` nix-shell automatically) and the corresponding PDK.
 
 ```sh
-# 基础回归：DFI 行为、引脚级模型、控制器闭环、命令间隔检查
+# Base regression: DFI behavior, pin-level model, controller closed loop, command-spacing checks
 sh sim/run.sh
 
-# 增强 PHY 模块、DQM 读掩码、BIST 闭环（x8 / x16）
+# Enhanced PHY modules, DQM read masking, BIST closed loop (x8 / x16)
 sh sim/phy.sh
 
-# pad 能力报告 + pad 适配契约测试
+# Pad capability report + pad adapter contract tests
 sh sim/pad.sh
 
-# 时序感知读捕获相位扫描 + 负向测试
+# Timing-aware read-capture phase sweep + negative tests
 sh sim/sweep.sh
 
-# 退出码变异测试：注入错误必须让仿真器非零退出
+# Exit-code mutation tests: injected errors must make the simulator exit non-zero
 sh sim/mutation.sh
 
-# 可选：Micron 参考模型差分（模型缺席时跳过，获取方式见 docs/DRAM_MODEL_REFERENCES.md）
+# Optional: Micron reference model diff (skipped if the model is absent; see docs/DRAM_MODEL_REFERENCES.md)
 sh sim/micron_diff.sh
 
-# sky130 HD 功能门级（无 SDF）
+# sky130 HD functional gate level (no SDF)
 sh sim/gate.sh
 
-# 生成器与证据检查
+# Generator and evidence checks
 python3 generator/check_pads.py
 python3 generator/check_capabilities.py
 python3 generator/check_timing.py
 
-# LibreLane 硬化：sky130（默认）/ ihp130 / ics55 / gf180-as-7t3v3
+# LibreLane hardening: sky130 (default) / ihp130 / ics55 / gf180-as-7t3v3
 sh flow/run.sh sky130
 ```
 
-gf180 必须用 3.3 V AS 标准单元视图（先在 `./pdks/gf180mcuD` 组好）；foundry 的 5 V 单元库不是本 PHY 的规格。
+gf180 must use the 3.3 V AS standard-cell view (assemble it first under `./pdks/gf180mcuD`); the foundry 5 V cell library is not this PHY's spec.
 
-## 文档
+## Documents
 
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) — 架构决策、DFI 契约、手工 I/O 分工、验证分层、分期与缺口
-- [PHY_RTL_GAPS.md](docs/PHY_RTL_GAPS.md) — RTL 已知缺口
-- [STA_PLAN.md](docs/STA_PLAN.md) / [TIMING_BUDGET.md](docs/TIMING_BUDGET.md) / [TIMING_SWEEP.md](docs/TIMING_SWEEP.md) — 时序约束与预算
-- [PAD_GENERATOR.md](docs/PAD_GENERATOR.md) / [PAD_ADAPTER.md](docs/PAD_ADAPTER.md) — pad 生成器与适配契约
-- [ESD_STRESS_PLAN.md](docs/ESD_STRESS_PLAN.md) / [ICS55_ESD_3V3.md](docs/ICS55_ESD_3V3.md) — ESD 计划与 ics55 3.3 V 缺口
-- [DRAM_MODEL_REFERENCES.md](docs/DRAM_MODEL_REFERENCES.md) — DRAM 参考模型的来源与许可边界
-- [SI_PI_PACKAGE_PCB.md](docs/SI_PI_PACKAGE_PCB.md) / [PACKAGING_PROFILES.md](docs/PACKAGING_PROFILES.md) — 封装与板级
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) — architecture decisions, DFI contract, hand-made I/O split, verification layers, phases and gaps
+- [PHY_RTL_GAPS.md](docs/PHY_RTL_GAPS.md) — known RTL gaps
+- [STA_PLAN.md](docs/STA_PLAN.md) / [TIMING_BUDGET.md](docs/TIMING_BUDGET.md) / [TIMING_SWEEP.md](docs/TIMING_SWEEP.md) — timing constraints and budget
+- [PAD_GENERATOR.md](docs/PAD_GENERATOR.md) / [PAD_ADAPTER.md](docs/PAD_ADAPTER.md) — pad generator and adapter contract
+- [ESD_STRESS_PLAN.md](docs/ESD_STRESS_PLAN.md) / [ICS55_ESD_3V3.md](docs/ICS55_ESD_3V3.md) — ESD plan and the ics55 3.3 V gap
+- [DRAM_MODEL_REFERENCES.md](docs/DRAM_MODEL_REFERENCES.md) — sources and license boundaries of DRAM reference models
+- [SI_PI_PACKAGE_PCB.md](docs/SI_PI_PACKAGE_PCB.md) / [PACKAGING_PROFILES.md](docs/PACKAGING_PROFILES.md) — package and board level
 
-## 许可
+## License
 
-本仓库源码采用 **Apache-2.0**（见 [LICENSE](LICENSE)，源文件带 SPDX 头）。第三方材料各有边界：
+Source code in this repository is **Apache-2.0** (see [LICENSE](LICENSE); source files carry SPDX headers). Third-party material has its own boundaries:
 
-- `third_party/litedram` 是 submodule，BSD 许可（EnjoyDigital），本仓库不修改它。
-- Micron MT48LC16M16A2 行为模型为 "All rights reserved"，**不随仓库分发**，仅本地评估使用（已 gitignore）。
-- ICsprout 55 foundry SPICE 模型是厂商数据，不在 Apache-2.0 之内，只供教学和研究评估；用它做的仿真不构成签核，也不能当可再发布的 PDK 附件。
-- JEDEC 标准正文不在本仓库；时序默认值来自公开的颗粒数据手册二次资料，出处见架构文档。
+- `third_party/litedram` is a submodule under the BSD license (EnjoyDigital); this repository does not modify it.
+- The Micron MT48LC16M16A2 behavioral model is "All rights reserved" and is **not distributed** with this repository; it is for local evaluation only (gitignored).
+- The ICsprout 55 foundry SPICE models are vendor data, not covered by Apache-2.0, and are for teaching and research evaluation only; simulations using them are not signoff and cannot be treated as a redistributable PDK attachment.
+- JEDEC standard text is not in this repository; default timing values come from secondary sources of public device datasheets, cited in the architecture document.
