@@ -79,7 +79,7 @@ parameter_classes:
       - {id: BL, value: 1, unit: beats, src: RTL, status: fixed, note: "model supports BL 1/2/4/8 writes (tb/tb_burst.sv); controller/PHY default remains BL=1"}
       - {id: nphases, value: 1, unit: phases, src: RTL, status: fixed}
       - {id: write_latency, value: 0, unit: cycles, src: RTL, status: fixed}
-      - {id: read_latency, value: "CL+1", unit: cycles, src: RTL, status: fixed, note: "CL cycles belong to the DRAM; +1 is the DQ input register and round trip"}
+      - {id: read_latency, value: "CL+1", unit: cycles, src: RTL, status: fixed, note: "Standalone sdr_phy. Integrated sdram_phy_top uses CL-2+CDC_LATENCY+1 (measured 7 at CL=2, CDC=6); see interface.yaml and reports/litedram_cosim.log."}
 
   timing:
     owner: "PHY + board"
@@ -106,7 +106,7 @@ parameter_classes:
       - {id: tDQ_tx_max, value: 2.711, unit: ns, src: STA_SPICE, status: known, note: "FF -> pad_dq max over tt/ss/ff; the limiting term at ss"}
       - {id: tRX_setup, value: 0.0, unit: ns, src: STA, status: known, note: "capture FF setup is inside the tDQ_return slack"}
       - {id: tRX_hold, value: 0.0, unit: ns, src: STA, status: known, note: "capture FF hold is inside the tDQ_return slack"}
-      - {id: t_uncertainty, value: 0.60, unit: ns, src: ASSUMPTION, status: conservative, note: "CONSERVATIVE BOUND, not measured: 0.25 ns jitter/DCD + 0.20 ns OCV/PVT + 0.10 ns SSN + 0.05 ns pad skew (6 % of tCK). Must be replaced by a measured value before signoff."}
+      - {id: t_uncertainty, value: 0.60, unit: ns, src: ASSUMPTION, status: conservative, note: "CONSERVATIVE BOUND, not measured: 0.25 ns jitter/DCD + 0.20 ns OCV/PVT + 0.10 ns SSN + 0.05 ns pad skew (6 % of tCK). Must be replaced by a measured value before signoff. User decision 2026-11-27: held at 0.60 ns for now, to be resolved separately."}
       - {id: tOE_on, value: 0.608, unit: ns, src: SPICE, status: known, note: "max over the 5 P1-1 PVT points"}
       - {id: tOE_off, value: 3.299, unit: ns, src: SPICE, status: known, note: "max over the 5 P1-1 PVT points"}
       - {id: dq_bit_skew, value: 0.0055, unit: ns, src: ASSUMPTION, status: conservative, note: "1 mm matched-length tolerance x 5.5 ps/mm (P1-4 fixture); not measured on hardware"}
@@ -184,7 +184,8 @@ signoff_gates:
     note: "reports/p1_3_margins.json has the per-corner min/max pairing; reports/timing_margin.json remains the P0-2 ideal-ceiling study."
   - id: S3
     rule: "Each operating point is classified fixed-phase-feasible / infeasible / needs-lower-frequency."
-    status: open
+    status: deferred
+    note: "Deferred by user decision on 2026-11-27: t_uncertainty stays at 0.60 ns and the user will replace it later. Recompute the operating-point classes when the measured uncertainty is available."
   - id: S4
     rule: "SDC paths (CMD TX, Write DQ TX, Read DQ RX, OE turnaround) exist and close at all PVT corners."
     status: partial

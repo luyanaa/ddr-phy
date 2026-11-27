@@ -1,0 +1,29 @@
+  [126638] CMD ras=0 cas=1 we=0 a=0400 ba=0 dm=0 dq=zz
+  [156638] CMD ras=0 cas=0 we=0 a=0120 ba=0 dm=0 dq=zz
+  [206638] CMD ras=0 cas=1 we=0 a=0400 ba=0 dm=0 dq=zz
+  [236638] CMD ras=0 cas=0 we=1 a=0000 ba=0 dm=0 dq=zz
+  [316638] CMD ras=0 cas=0 we=1 a=0000 ba=0 dm=0 dq=zz
+  [396638] CMD ras=0 cas=0 we=0 a=0020 ba=0 dm=0 dq=zz
+  [476638] CMD ras=0 cas=1 we=1 a=0001 ba=0 dm=0 dq=zz
+  [506638] CMD ras=1 cas=0 we=0 a=0003 ba=0 dm=0 dq=a5
+  [526638] CMD ras=1 cas=0 we=1 a=0003 ba=0 dm=0 dq=zz
+  [616638] CMD ras=1 cas=0 we=0 a=0004 ba=0 dm=0 dq=5a
+  [636638] CMD ras=1 cas=0 we=1 a=0004 ba=0 dm=0 dq=zz
+  [726638] CMD ras=1 cas=0 we=0 a=0003 ba=0 dm=1 dq=3c
+  [746638] CMD ras=1 cas=0 we=1 a=0003 ba=0 dm=0 dq=zz
+  [836638] CMD ras=0 cas=1 we=0 a=0400 ba=0 dm=0 dq=zz
+  [866638] CMD ras=0 cas=0 we=1 a=0000 ba=0 dm=0 dq=zz
+  [1286638] CMD ras=0 cas=1 we=0 a=0400 ba=0 dm=0 dq=zz
+  [1316638] CMD ras=0 cas=0 we=1 a=0000 ba=0 dm=0 dq=zz
+  [1736638] CMD ras=0 cas=1 we=0 a=0400 ba=0 dm=0 dq=zz
+  [1766638] CMD ras=0 cas=0 we=1 a=0000 ba=0 dm=0 dq=zz
+  [2046638] CMD ras=0 cas=1 we=1 a=0001 ba=0 dm=0 dq=zz
+  [2076638] CMD ras=1 cas=0 we=1 a=0003 ba=0 dm=0 dq=zz
+  [2166638] CMD ras=1 cas=0 we=1 a=0004 ba=0 dm=0 dq=zz
+  [2256638] CMD ras=0 cas=1 we=0 a=0400 ba=0 dm=0 dq=zz
+  [2286638] CMD ras=0 cas=0 we=1 a=0000 ba=0 dm=0 dq=zz
+  [2386638] CMD ras=0 cas=1 we=1 a=0001 ba=0 dm=0 dq=zz
+  [2416638] CMD ras=1 cas=0 we=0 a=0004 ba=0 dm=0 dq=c3
+  [2436638] CMD ras=1 cas=0 we=1 a=0004 ba=0 dm=0 dq=zz
+PASS phy_top_sdf speed=/grid/ddr-phy/flow/runs/gf180-as-7t3v3-sdram_phy_core/final/sdf/max_ss_125C_3v00/sdram_phy_core__max_ss_125C_3v00.sdf
+tb/tb_phy_top_sdf.sv:247: $finish called at 2530000 (1ps)

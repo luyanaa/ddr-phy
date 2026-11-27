@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-// Integration-top smoke test: CK comes from the dedicated forwarding path,
-// cap_clk falls back to clk with no backend phase, turnaround gates OE,
-// and a DFI write reaches the pad DQ bus.
+// Check DQ and DQM against the actual forwarded WRITE CK edge, including
+// setup/hold, consecutive writes and a rejected write during turnaround.
 
 `timescale 1ns/1ps
 `default_nettype none
 module tb_phy_top;
     localparam integer AB=13, BB=2, DB=8, CMD=21;
+    localparam [3:0] NOP = 4'b1111, READ = 4'b0101, WRITE = 4'b0100;
+    localparam real T_DS = 1.5, T_DH = 0.8; // Micron -75, ns
     reg clk=0, rst=1;
     always #5 clk = ~clk;
 
@@ -45,7 +46,7 @@ module tb_phy_top;
         .pad_cmd(pad_cmd), .pad_dq(pad_dq), .pad_ck(pad_ck),
         .cap_clk(cap_clk), .capture_ready(capture_ready),
         .turnaround_busy(turnaround_busy), .pad_ready(pad_ready),
-        .contention(contention), .ck_active(ck_active)
+        .contention(contention), .ck_active(ck_active), .read_latency_error()
     );
 
     integer errors=0;
@@ -56,9 +57,35 @@ module tb_phy_top;
         end
     endtask
 
+    task automatic drive(input [3:0] cmd, input [DB-1:0] data, input mask);
+        @(negedge clk); #1;
+        {dfi_cs, dfi_ras, dfi_cas, dfi_we} = cmd;
+        dfi_wren = (cmd == WRITE);
+        dfi_rden = (cmd == READ);
+        dfi_wrdata = data;
+        dfi_wrmask = mask;
+    endtask
+
+    integer writes = 0;
+    reg [DB:0] expected_write;
+    realtime pins_changed = 0;
+    always @(pad_dq or pad_cmd[0]) pins_changed = $realtime;
+
+    always @(posedge pad_ck) begin
+        if ({pad_cmd[2], pad_cmd[5:3]} === WRITE) begin
+            chk(writes < 2, "no extra WRITE reached the SDRAM");
+            expected_write = (writes == 0) ? {1'b0, 8'hA5} : {1'b1, 8'h3C};
+            chk({pad_cmd[0], pad_dq} === expected_write, "WRITE CK samples matching DQM and DQ");
+            chk($realtime - pins_changed >= T_DS, "DQM and DQ meet tDS before WRITE CK");
+            #(T_DH);
+            chk({pad_cmd[0], pad_dq} === expected_write, "DQM and DQ still driven at tDH");
+            writes = writes + 1;
+        end
+    end
+
     initial begin
         repeat (3) @(posedge clk);
-        rst = 1'b0;
+        @(negedge clk); #1; rst = 1'b0;
         chk(pad_ck === 1'b0 && ck_active === 1'b0, "top: CK held low before io power ok");
         chk(cap_clk === clk, "top: cap_clk falls back to clk without backend phase");
         chk(capture_ready === 1'b0, "top: capture_ready reflects backend");
@@ -67,22 +94,28 @@ module tb_phy_top;
         chk(pad_ready === 1'b1 && ck_active === 1'b1, "top: pad ready after power ok");
         chk(pad_ck === clk, "top: pad_ck from dedicated forwarding path");
 
-        // DFI write reaches pad DQ through turnaround guard + adapter.
-        @(negedge clk);
-        dfi_wrdata = 8'hA5; dfi_wren = 1'b1;
+        // An early WRITE during the read guard must reach neither CMD nor DQ.
+        drive(READ, 0, 0);
         @(posedge clk); #1;
-        chk(pad_dq === 8'hA5, "top: DFI write visible on pad DQ");
-        chk(contention === 1'b0, "top: no contention in single-driver write");
-        @(negedge clk); dfi_wren = 1'b0;
+        chk(turnaround_busy === 1'b1, "read asserts turnaround_busy");
+        drive(WRITE, 8'hFF, 1);
+        @(negedge clk); #1;
+        chk(pad_dq === {DB{1'bz}}, "blocked write leaves DQ undriven");
+        drive(NOP, 0, 0);
+        repeat (2) @(posedge clk);
+        #1;
+        chk(writes == 0, "blocked write never reached the SDRAM");
+        chk(turnaround_busy === 1'b0, "turnaround clears after the read tail");
 
-        // A read asserts turnaround_busy and gates OE.
-        @(negedge clk); dfi_rden = 1'b1;
-        @(posedge clk); #1;
-        chk(turnaround_busy === 1'b1, "top: read asserts turnaround_busy");
-        @(negedge clk); dfi_rden = 1'b0; dfi_wren = 1'b1;
-        @(posedge clk); #1;
-        chk(pad_dq === {DB{1'bz}}, "top: OE gated during turnaround guard");
-        @(negedge clk); dfi_wren = 1'b0;
+        // Opposite masks and unrelated data catch stale or shifted beats.
+        drive(WRITE, 8'hA5, 0);
+        drive(WRITE, 8'h3C, 1);
+        drive(NOP, 0, 0);
+        repeat (2) @(negedge clk);
+        #1;
+        chk(writes == 2, "both consecutive writes reached the SDRAM");
+        chk(pad_dq === {DB{1'bz}}, "DQ released after the final rising-edge hold window");
+        chk(contention === 1'b0, "no contention");
 
         #20;
         `ifdef MUTATE

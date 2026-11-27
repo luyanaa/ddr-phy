@@ -9,10 +9,10 @@
 name: gf180mcu
 pdk: gf180mcuD
 scl: gf180mcu_as_sc_mcu7t3v3
-status: unsupported
+status: unsupported   # formal gates still NO_GO; see evidence fields
 topology_template_generated: true
-topology_template_note: "sch/pads/gf180mcuD is a generated topology template; schematic_drawn stays false and toe_on/off stay null. See docs/PAD_GENERATOR.md."
-capability_level: none
+topology_template_note: "sch/pads/gf180mcuD is a generated topology template; the pad schematic is LVS-extracted and toe_on/off are now SPICE-characterized. See docs/PAD_GENERATOR.md."
+capability_level: pad-characterized
 is_behavioral: false
 
 core_voltage_v: 3.3
@@ -32,25 +32,37 @@ devices:
   note: "The 3.3 V AS stdcell overlay must be composed under ./pdks first; the 5 V stdcell library is not a spec (flow/run.sh refuses it)."
 
 pad:
-  schematic_drawn: false
-  netlist_characterized: false
-  spice_verified: false
-  drive_strength_selected: false
-  esd_verified: false
-  level_shifter_verified: true
-  powerup_hiz_verified: false
-  toe_on_ps: null
-  toe_off_ps: null
+  schematic_drawn: true          # generated SPICE schematic, LVS-extracted
+  netlist_characterized: true    # ngspice tt/ss/ff + PEX
+  spice_verified: true
+  drive_strength_selected: true  # 200u/80u output stage, 160u ggNMOS clamp
+  esd_verified: false            # no TLP/HBM data; SPICE + DRC ESD/LU only
+  level_shifter_verified: true   # 3.3 V core and 3.3 V VDDIO, no shifter needed
+  powerup_hiz_verified: true     # PU_OK=0 forces output off; ihiz <= 0.286 nA
+  toe_on_ps: 608                 # max over tt/ss/ff, pad_char_v2.97
+  toe_off_ps: 3299               # max over tt/ss/ff, pad_char_v3.63
+  evidence:
+    drc: reports/gf180_pad_core_drc.log, reports/gf180_pad_tile_drc.log
+    lvs: reports/gf180_pad_core_lvs.log, reports/gf180_pad_tile_lvs.log
+    spice: reports/pad_char_gf180mcuD_*.json, reports/pad_delay_gf180mcuD_*.json
+    esd_stress: reports/gf180_esd_stress_160.log (32.2 V @ 1 A/100 ns, no snapback)
+    esd_lu_rules: GF180 DRC ESD/LU decks (no TLP/HBM)
+  esd_basis: "user-accepted 2026-11-27: SPICE stress + DRC ESD/LU rules; not TLP/HBM silicon qualification"
 
 phase_control:
   pll_dll_available: false
   delay_cell_characterized: false
-  capture_modes: []
+  capture_modes: ["fixed-phase (cap_clk = clk when no backend phase is ready)"]
+  note: "read_capture_ctrl exposes a static phase mux, but no PDK glitch-free mux/PLL/delay line is characterized; 133 MHz and phase calibration remain open."
 
-open_gates: ["G1", "G2", "G4", "G5", "G6"]
-allowed_claims: []
+open_gates: ["G1", "G4", "G6"]
+allowed_claims:
+  - "pad macro and tile are DRC/LVS clean (0 violations / netlists match)"
+  - "pad timing is SPICE-characterized at tt/ss/ff as a design assumption"
+  - "160 um ggNMOS ESD clamp has BSIM pulse data and DRC ESD/LU rule check"
+  - "hierarchical LVS method accepted for the chip top; tile-level LVS already matches"
 disallowed_claims:
   - "3.3 V LVTTL pad ready for tapeout"
   - "fixed-phase SDR PHY signoff"
   - "133 MHz operation"
-notes: "No 3.3 V output pad exists in the pad library; 5 V GPIO cannot drive 3.3 V SDRAM. DDR1 is excluded for this PDK in ARCHITECTURE.md section 6."
+notes: "The pad is a generated 3.3 V LVTTL macro, not the 5 V gf180mcu_fd_io library. ESD/latch-up signoff is accepted at the current SPICE+DRC level by user decision 2026-11-27; esd_verified stays false so the formal capability gate is still NO_GO. Hierarchical LVS is accepted. t_uncertainty is held at 0.60 ns for separate resolution."

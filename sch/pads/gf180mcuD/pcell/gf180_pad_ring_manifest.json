@@ -1,28 +1,40 @@
 {
   "generated_by": "generator/emit_pad_ring.py",
   "status": "structural_assembly - not signoff",
-  "pad_cell": "gf180_pad_core",
+  "pad_cell": "gf180_pad_tile (pad + clamp + guard ring + edge ports)",
   "die_um": [
-    1500.0,
-    1500.0
+    1800.0,
+    1800.0
   ],
-  "pitch_um": 145.0,
-  "seal_ring_um": 20.0,
+  "pitch_um": 190.0,
+  "seal_ring_um": 0.0,
+  "density_note": "die-level density rules are only meaningful with the core and chip fill; run DRC with decks=all,-density",
+  "margin_um": 25.0,
+  "tile_bbox_um": [
+    -66.5,
+    -65.0,
+    45.16,
+    120.16
+  ],
   "pads": {
     "bottom": 9,
     "top": 9,
-    "left": 9,
-    "right": 9,
-    "total": 36
+    "left": 7,
+    "right": 7,
+    "total": 32
   },
   "overlap_check": "pass",
-  "guard_ring_per_pad": "open - pad cell has no dedicated guard ring yet",
+  "inside_seal_check": "pass",
+  "tile_evidence": {
+    "drc": "reports/gf180_pad_tile_drc.log (0 violations, flat)",
+    "lvs": "reports/gf180_pad_tile_lvs.log (Netlists match)"
+  },
   "not_included": [
     "bond pads / package",
-    "ESD qualification",
-    "power grid",
-    "DRC on the assembled ring",
-    "seal ring DRC/LVS"
+    "ESD qualification (TLP/HBM)",
+    "chip-level PDN",
+    "flat DRC on the assembled ring",
+    "chip-level LVS against the core harden"
   ],
   "seal_layers": [
     "Metal1",

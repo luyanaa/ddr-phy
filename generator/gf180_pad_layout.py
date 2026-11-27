@@ -646,9 +646,12 @@ class PadLayout:
         self.rect("Metal3", 33200, 8900, 34400, 9900)
         self.rect("Via3", 33650, 9180, 33910, 9440)
         self.rect("Metal4", 33200, 8900, 35600, 10500)
-        self.rect("Metal4", 35000, 9500, 35600, 72500)
-        self.rect("Metal4", 35000, 71500, 36800, 72500)
+        # Extend the VSSIO lane to the top cell edge so the pad tile can
+        # drop a guard ring on it without crossing dummy fill (DM4.3).
+        self.rect("Metal4", 35000, 9500, 35600, 86300)
+        self.rect("Metal4", 34400, 85700, 36500, 86300)
         self.label("Metal4_label", "VSSIO", 36500, 72000)
+        self.label("Metal4_label", "VSSIO", 35300, 86000)
 
     def dummy_density_fill(self):
         """Top up layer coverage so the die-level density rules pass.

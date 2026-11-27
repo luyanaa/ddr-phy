@@ -16,7 +16,9 @@ mkdir -p sim/obj
 for cl in 2 3; do
     iverilog -g2012 -I third_party/reference -DINIT_CLEAR_MEM_BANKS -DCL=$cl \
         -o sim/obj/tb_micron_diff_cl$cl \
-        rtl/sdr_ctrl.sv rtl/sdr_phy.sv rtl/dq_turnaround.sv sim/sdram_model.sv "$MODEL" \
+        rtl/sdr_ctrl.sv rtl/sdr_phy.sv rtl/clock_forward.sv rtl/read_capture_ctrl.sv \
+        rtl/read_capture_cdc.sv rtl/dq_turnaround.sv rtl/phy_io_adapter.sv \
+        sim/pad_cell_generic.sv rtl/sdram_phy_top.sv sim/sdram_model.sv "$MODEL" \
         tb/tb_micron_diff.sv
     vvp sim/obj/tb_micron_diff_cl$cl > sim/obj/micron_diff_cl$cl.log 2>&1 || {
         cat sim/obj/micron_diff_cl$cl.log >&2

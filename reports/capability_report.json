@@ -51,48 +51,52 @@
       "pdk": "gf180mcuD",
       "scl": "gf180mcu_as_sc_mcu7t3v3",
       "status": "unsupported",
-      "capability_level": "none",
+      "capability_level": "pad-characterized",
       "decision": "NO_GO",
       "open_gates": [
         "G1",
-        "G2",
         "G4",
-        "G5",
         "G6"
       ],
       "blockers": [
         "open gate G1: 3.3 V bidirectional LVTTL pad with ESD, level shifter and power-up Hi-Z",
-        "open gate G2: no backend may fall back to a core standard cell to drive external DQ",
         "open gate G4: no characterized delay/phase cell -> fixed-phase only (here: none)",
-        "open gate G5: pad timing (tOE_on/off, slew, input threshold) characterized",
         "open gate G6: clock forwarding path and read capture phase from characterized delay/PLL",
-        "pad.schematic_drawn is not true",
-        "pad.netlist_characterized is not true",
-        "pad.spice_verified is not true",
-        "pad.drive_strength_selected is not true",
-        "pad.esd_verified is not true",
-        "pad.powerup_hiz_verified is not true",
-        "pad.toe_on_ps is null (uncharacterized)",
-        "pad.toe_off_ps is null (uncharacterized)",
-        "phase_control.capture_modes is empty"
+        "pad.esd_verified is not true"
       ],
       "pad": {
-        "schematic_drawn": false,
-        "netlist_characterized": false,
-        "spice_verified": false,
-        "drive_strength_selected": false,
+        "schematic_drawn": true,
+        "netlist_characterized": true,
+        "spice_verified": true,
+        "drive_strength_selected": true,
         "esd_verified": false,
         "level_shifter_verified": true,
-        "powerup_hiz_verified": false,
-        "toe_on_ps": null,
-        "toe_off_ps": null
+        "powerup_hiz_verified": true,
+        "toe_on_ps": 608,
+        "toe_off_ps": 3299,
+        "evidence": {
+          "drc": "reports/gf180_pad_core_drc.log, reports/gf180_pad_tile_drc.log",
+          "lvs": "reports/gf180_pad_core_lvs.log, reports/gf180_pad_tile_lvs.log",
+          "spice": "reports/pad_char_gf180mcuD_*.json, reports/pad_delay_gf180mcuD_*.json",
+          "esd_stress": "reports/gf180_esd_stress_160.log (32.2 V @ 1 A/100 ns, no snapback)",
+          "esd_lu_rules": "GF180 DRC ESD/LU decks (no TLP/HBM)"
+        },
+        "esd_basis": "user-accepted 2026-11-27: SPICE stress + DRC ESD/LU rules; not TLP/HBM silicon qualification"
       },
       "phase_control": {
         "pll_dll_available": false,
         "delay_cell_characterized": false,
-        "capture_modes": []
+        "capture_modes": [
+          "fixed-phase (cap_clk = clk when no backend phase is ready)"
+        ],
+        "note": "read_capture_ctrl exposes a static phase mux, but no PDK glitch-free mux/PLL/delay line is characterized; 133 MHz and phase calibration remain open."
       },
-      "allowed_claims": []
+      "allowed_claims": [
+        "pad macro and tile are DRC/LVS clean (0 violations / netlists match)",
+        "pad timing is SPICE-characterized at tt/ss/ff as a design assumption",
+        "160 um ggNMOS ESD clamp has BSIM pulse data and DRC ESD/LU rule check",
+        "hierarchical LVS is accepted: pad tile + black-box core at chip top"
+      ]
     },
     {
       "name": "ics55",

@@ -5,9 +5,8 @@
 // gitignored). It is Micron -7E / PC133 CL2, not the project's -75 CL2/CL3
 // contract; a pass here is behavioural evidence only, not timing signoff.
 //
-// Two PHYs receive the same DFI traffic: one drives the in-repo
-// sim/sdram_model.sv, the other drives the Micron mt48lc16m16a2 (x16, lower
-// byte used with DQM[0]). Read data and valid are compared cycle by cycle.
+// Compare the bare PHY with the in-tree model to the integrated PHY with
+// the Micron mt48lc16m16a2 (lower byte). Align the different DFI latencies.
 
 `timescale 1ns/1ps
 `default_nettype none
@@ -24,6 +23,7 @@ module tb_micron_diff;
     localparam integer RB = 4;
     localparam integer CB = 4;
     localparam integer UB = CB + RB + BB;
+    localparam integer REF_PIPE = 3; // (CL + 4) - (CL + 1)
 
     reg clk = 1'b0;
     reg rst = 1'b1;
@@ -48,18 +48,23 @@ module tb_micron_diff;
     wire [DB-1:0] dfi_rddata_own, dfi_rddata_ref;
     wire dfi_rdvalid_own, dfi_rdvalid_ref;
 
-    wire [DB-1:0] dq_own, dq_ref_lo;
+    wire [DB-1:0] dq_own;
     wire [15:0] dq_ref;
     wire [DB-1:0] dq_o_own, dq_i_own;
     wire dq_oe_own;
     wire [AB-1:0] a_own;
     wire [BB-1:0] ba_own;
     wire ras_own, cas_own, we_own, cs_own, cke_own, dm_own;
-    wire [DB-1:0] dq_o_ref, dq_i_ref;
-    wire dq_oe_ref;
+    wire [AB+BB+6-1:0] pad_cmd_ref;
+    wire pad_ck_ref, ref_error, ref_contention;
+    wire [AB-1:0] a_ref;
+    wire [BB-1:0] ba_ref;
+    wire ras_ref, cas_ref, we_ref, cs_ref, cke_ref, dm_ref;
     wire fault_own;
     wire [2:0] fault_code_own;
-    wire turnaround_busy, dq_oe_gated;
+    wire turnaround_busy;
+    reg [REF_PIPE-1:0] expected_valid = '0;
+    reg [DB-1:0] expected_data [0:REF_PIPE-1];
 
     integer errors = 0;
     integer guard;
@@ -104,18 +109,8 @@ module tb_micron_diff;
         .dq_o(dq_o_own), .dq_oe(dq_oe_own), .dq_i(dq_i_own), .ck()
     );
 
-    // The command and DQ pins are shared; only the data path is duplicated.
-    assign dq_own = (dq_oe_own && dq_oe_gated) ? dq_o_own : {DB{1'bz}};
+    assign dq_own = dq_oe_own ? dq_o_own : {DB{1'bz}};
     assign dq_i_own = dq_own;
-
-    dq_turnaround #(
-        .GUARD_CYCLES(2), .READ_TAIL_CYCLES(1),
-        .DQM_OFF_CYCLES(0), .T_OE_OFF_CYCLES(0)
-    ) turn (
-        .clk(clk), .rst(rst),
-        .wrdata_en(dfi_wren), .rddata_en(dfi_rden),
-        .dq_oe_gated(dq_oe_gated), .turnaround_busy(turnaround_busy)
-    );
 
     sdram_model #(
         .ADDR_BITS(AB), .BANK_BITS(BB), .DATA_BITS(DB),
@@ -127,7 +122,7 @@ module tb_micron_diff;
         .fault_code(fault_code_own)
     );
 
-    sdr_phy #(.ADDR_BITS(AB), .BANK_BITS(BB), .DATA_BITS(DB), .RANKS(1), .CL(CL)) phy_ref (
+    sdram_phy_top #(.ADDR_BITS(AB), .BANK_BITS(BB), .DATA_BITS(DB), .RANKS(1), .CL(CL)) phy_ref (
         .clk(clk), .rst(rst),
         .dfi_address(dfi_a), .dfi_bank(dfi_ba),
         .dfi_ras_n(dfi_ras), .dfi_cas_n(dfi_cas), .dfi_we_n(dfi_we),
@@ -136,32 +131,44 @@ module tb_micron_diff;
         .dfi_wrdata(dfi_wrdata), .dfi_wrdata_en(dfi_wren),
         .dfi_wrdata_mask(dfi_wrmask), .dfi_rddata_en(dfi_rden),
         .dfi_rddata(dfi_rddata_ref), .dfi_rddata_valid(dfi_rdvalid_ref),
-        .a(), .ba(), .ras_n(), .cas_n(), .we_n(), .cs_n(), .cke(), .dm(),
-        .dq_o(dq_o_ref), .dq_oe(dq_oe_ref), .dq_i(dq_i_ref), .ck()
+        .io_power_ok(1'b1), .pad_config(8'b0),
+        .phase_clks(4'b0), .phase_clocks_ready(1'b0),
+        .phase_sel(2'b0), .phase_sel_valid(1'b0),
+        .ck_phase_clks(4'b0), .ck_phase_clocks_ready(1'b0), .ck_phase_sel(2'b0),
+        .pad_cmd(pad_cmd_ref), .pad_dq(dq_ref[7:0]), .pad_ck(pad_ck_ref),
+        .turnaround_busy(turnaround_busy), .read_latency_error(ref_error),
+        .contention(ref_contention)
     );
 
-    assign dq_ref[7:0]  = (dq_oe_ref && dq_oe_gated) ? dq_o_ref : 8'bz;
     assign dq_ref[15:8] = 8'bz;
-    assign dq_i_ref = dq_ref[7:0];
+    assign {a_ref, ba_ref, ras_ref, cas_ref, we_ref, cs_ref, cke_ref, dm_ref} = pad_cmd_ref;
 
     mt48lc16m16a2 micron (
-        .Dq(dq_ref), .Addr(a_own), .Ba(ba_own), .Clk(clk),
-        .Cke(cke_own), .Cs_n(cs_own), .Ras_n(ras_own), .Cas_n(cas_own),
-        .We_n(we_own), .Dqm({1'b0, dm_own})
+        .Dq(dq_ref), .Addr(a_ref), .Ba(ba_ref), .Clk(pad_ck_ref),
+        .Cke(cke_ref), .Cs_n(cs_ref), .Ras_n(ras_ref), .Cas_n(cas_ref),
+        .We_n(we_ref), .Dqm({1'b0, dm_ref})
     );
 
-    // Cycle-by-cycle differential check.
     always @(posedge clk) begin
+        expected_valid <= rst ? '0 : {expected_valid[REF_PIPE-2:0], dfi_rdvalid_own};
+        expected_data[0] <= dfi_rddata_own;
+        for (integer i = 1; i < REF_PIPE; i = i + 1)
+            expected_data[i] <= expected_data[i-1];
+
         #1;
-        if (!rst && (dfi_rdvalid_own !== dfi_rdvalid_ref)) begin
-            $display("FAIL micron_diff: valid mismatch own=%b ref=%b", dfi_rdvalid_own, dfi_rdvalid_ref);
-            errors = errors + 1;
-        end
-        if (!rst && dfi_rdvalid_own && dfi_rdvalid_ref &&
-            (dfi_rddata_own !== dfi_rddata_ref)) begin
-            $display("FAIL micron_diff: data mismatch own=%h ref=%h",
-                     dfi_rddata_own, dfi_rddata_ref);
-            errors = errors + 1;
+        if (!rst) begin
+            `CHECK(ref_error === 1'b0)
+            `CHECK(ref_contention === 1'b0)
+            if (dfi_rdvalid_ref !== expected_valid[REF_PIPE-1]) begin
+                $display("FAIL micron_diff: valid mismatch expected=%b ref=%b",
+                         expected_valid[REF_PIPE-1], dfi_rdvalid_ref);
+                errors = errors + 1;
+            end
+            if (expected_valid[REF_PIPE-1] && dfi_rddata_ref !== expected_data[REF_PIPE-1]) begin
+                $display("FAIL micron_diff: data mismatch expected=%h ref=%h",
+                         expected_data[REF_PIPE-1], dfi_rddata_ref);
+                errors = errors + 1;
+            end
         end
     end
 
@@ -244,7 +251,7 @@ module tb_micron_diff;
         read_word (2'd0, 4'd1, 4'd4, 8'hC3);
         `CHECK(fault_own === 1'b0)
 
-        #20;
+        repeat (REF_PIPE + 1) @(negedge clk);
         `ifdef MUTATE
         errors = errors + 1;
         $display("MUTATION: injected failure for exit-code test");

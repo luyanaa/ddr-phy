@@ -1,0 +1,76 @@
+VERSION 5.8 ;
+BUSBITCHARS ";" ;
+DIVIDERCHAR "/" ;
+MACRO gf180_pad_tile
+  CLASS PAD ;
+  FOREIGN gf180_pad_tile ;
+  ORIGIN 0 0 ;
+  SIZE 111.500 BY 185.000 ;
+  PIN OUT
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal2 ;
+        RECT -66.500 54.500 -64.500 56.500 ;
+    END
+  END OUT
+  PIN OE_N
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal2 ;
+        RECT -63.500 57.500 -61.500 59.500 ;
+    END
+  END OE_N
+  PIN PU_OK
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal2 ;
+        RECT -60.500 60.500 -58.500 62.500 ;
+    END
+  END PU_OK
+  PIN IN
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal2 ;
+        RECT -10.750 -64.230 -10.350 -51.630 ;
+    END
+  END IN
+  PIN PAD
+    DIRECTION INOUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER MetalTop ;
+        RECT -32.000 -32.000 32.000 32.000 ;
+      LAYER Metal3 ;
+        RECT 33.000 21.000 33.600 72.500 ;
+      LAYER Metal3 ;
+        RECT 33.000 71.500 36.800 72.500 ;
+    END
+  END PAD
+  PIN VDDIO
+    DIRECTION INOUT ;
+    USE POWER ;
+    PORT
+      LAYER Metal2 ;
+        RECT -58.300 -39.500 -57.300 -38.500 ;
+      LAYER Metal3 ;
+        RECT -57.900 -65.000 -57.500 -39.600 ;
+    END
+  END VDDIO
+  PIN VSSIO
+    DIRECTION INOUT ;
+    USE GROUND ;
+    PORT
+      LAYER Metal4 ;
+        RECT 35.000 9.500 35.600 86.300 ;
+      LAYER Metal4 ;
+        RECT 35.000 85.000 35.600 91.200 ;
+      LAYER Metal2 ;
+        RECT -50.000 90.000 45.000 92.000 ;
+    END
+  END VSSIO
+END gf180_pad_tile
+END LIBRARY

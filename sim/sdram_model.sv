@@ -14,9 +14,9 @@
 //
 // Sampling matches a register-to-register connection. The PHY launches
 // a command on edge T; this model sees it on edge T+1. A read accepted
-// then is driven CL-1 model clocks later, which is the beat `sdr_phy`
-// captures on its `dfi_rddata_valid` edge (read_latency = CL+1 from the
-// DFI cycle that issued the read). Bytes with DM high are left alone.
+// then is driven CL-1 model clocks later and captured by sdr_phy on the
+// next edge. Once the last beat is sampled, the bus returns to Hi-Z.
+// Bytes with DM high are left alone.
 
 `default_nettype none
 
@@ -43,7 +43,7 @@ module sdram_model #(
 
     localparam integer BANKS     = 1 << BANK_BITS;
     localparam integer WORDS     = BANKS * (1 << ROW_BITS) * (1 << COL_BITS);
-    localparam integer PIPE      = 16;
+    localparam integer PIPE      = 9; // CL3 data offset plus eight beats
     localparam integer DM_BITS   = DATA_BITS / 8;
 
     localparam [2:0] OK         = 3'd0;
@@ -97,7 +97,6 @@ module sdram_model #(
 
     integer i;
     integer beat;
-    integer h;
     integer col;
     integer word;
     integer slot;
@@ -233,8 +232,8 @@ module sdram_model #(
                             wr_beat   <= 4'd1;
                         end
                     end else begin
-                        // READ: schedule all burst beats into the read
-                        // pipeline (BL 1/2/4/8, sequential, wrapped).
+                        // READ: schedule BL 1/2/4/8 beats. Non-beat slots
+                        // stay disabled, including after the last beat.
                         for (beat = 0; beat < 8; beat = beat + 1) begin
                             if (beat < burst_len) begin
                                 col  = wrap_col(a[COL_BITS-1:0], beat, burst_len);
@@ -242,17 +241,6 @@ module sdram_model #(
                                 slot = (cas_lat - 2) + beat;
                                 nxt_d[slot]  = mem[word];
                                 nxt_oe[slot] = 1'b1;
-                                // Hold the last beat a few cycles: a real
-                                // SDRAM keeps the data until the next command,
-                                // and the PHY captures one edge after the beat
-                                // appears (P1-3 path B pipelines the command).
-                                for (h = 1; h <= 5; h = h + 1) begin
-                                    if (beat == burst_len - 1 &&
-                                        slot + h < PIPE) begin
-                                        nxt_d[slot + h]  = mem[word];
-                                        nxt_oe[slot + h] = 1'b1;
-                                    end
-                                end
                             end
                         end
                     end

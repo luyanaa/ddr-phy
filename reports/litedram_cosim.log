@@ -1,0 +1,79 @@
+wrote /grid/ddr-phy/sim/litedram_ctrl.v (CL=2 read_latency=7)
+start t=0
+-Info: tb/tb_litedram_cosim.sv:204: $dumpvar ignored, as Verilated without --trace
+  DFI CMD t=5000 ras=0 cas=0 we=0 a=0000 ba=0
+  [0 t=5000] cmd_valid=0 ready=1 dfi_cs=0 ras=0 cas=0 we=0 a=0000
+  [10 t=105000] cmd_valid=0 ready=1 dfi_cs=1 ras=1 cas=1 we=1 a=0000
+out of reset t=195000
+  [20 t=205000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+  [30 t=305000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+wr start addr=000000 t=395000
+  [40 t=405000] cmd_valid=1 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+wr accepted t=410000
+  DFI CMD t=455000 ras=0 cas=1 we=1 a=0000 ba=0
+  [50 t=505000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+  WRDATA t=545000 d=a5 mask=0 we=1 oe=0 cmd_dq=00
+  DFI CMD t=545000 ras=1 cas=0 we=0 a=0000 ba=0
+  RDEN t=595000 oe=0 cmd_dq=a5 pad=00
+  DFI CMD t=595000 ras=1 cas=0 we=1 a=0000 ba=0
+  [60 t=605000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+rd addr=000000 data=a5 t=665000
+wr start addr=000200 t=665000
+  RDVALID t=665000 d=a5
+wr accepted t=680000
+  [70 t=705000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+  DFI CMD t=725000 ras=0 cas=1 we=0 a=0000 ba=0
+  DFI CMD t=745000 ras=0 cas=1 we=1 a=0001 ba=0
+  [80 t=805000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+  WRDATA t=835000 d=5a mask=0 we=1 oe=0 cmd_dq=00
+  DFI CMD t=835000 ras=1 cas=0 we=0 a=0000 ba=0
+  RDEN t=885000 oe=0 cmd_dq=5a pad=00
+  DFI CMD t=885000 ras=1 cas=0 we=1 a=0000 ba=0
+  [90 t=905000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+rd addr=000200 data=5a t=955000
+wr start addr=000000 t=955000
+  RDVALID t=955000 d=5a
+wr accepted t=970000
+T1000 reached
+  [100 t=1005000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+  DFI CMD t=1015000 ras=0 cas=1 we=0 a=0000 ba=0
+  DFI CMD t=1035000 ras=0 cas=1 we=1 a=0000 ba=0
+  [110 t=1105000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+  WRDATA t=1125000 d=3c mask=1 we=0 oe=0 cmd_dq=00
+  DFI CMD t=1125000 ras=1 cas=0 we=0 a=0000 ba=0
+  RDEN t=1175000 oe=0 cmd_dq=3c pad=00
+  DFI CMD t=1175000 ras=1 cas=0 we=1 a=0000 ba=0
+  [120 t=1205000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+rd addr=000000 data=a5 t=1245000
+  RDVALID t=1245000 d=a5
+  DFI CMD t=1305000 ras=0 cas=1 we=0 a=0000 ba=0
+  [130 t=1305000] cmd_valid=0 ready=1 dfi_cs=0 ras=0 cas=1 we=0 a=0000
+  DFI CMD t=1325000 ras=0 cas=1 we=1 a=0001 ba=0
+  RDEN t=1345000 oe=0 cmd_dq=3c pad=00
+  DFI CMD t=1345000 ras=1 cas=0 we=1 a=0000 ba=0
+  [140 t=1405000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+rd addr=000200 data=5a t=1415000
+wr start addr=000200 t=1415000
+  RDVALID t=1415000 d=5a
+wr accepted t=1430000
+  [150 t=1505000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+  WRDATA t=1535000 d=c3 mask=0 we=1 oe=0 cmd_dq=00
+  DFI CMD t=1535000 ras=1 cas=0 we=0 a=0000 ba=0
+  RDEN t=1585000 oe=0 cmd_dq=c3 pad=00
+  DFI CMD t=1585000 ras=1 cas=0 we=1 a=0000 ba=0
+  [160 t=1605000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+rd addr=000200 data=c3 t=1655000
+  RDVALID t=1655000 d=c3
+  [170 t=1705000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+  [180 t=1805000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+  [190 t=1905000] cmd_valid=0 ready=1 dfi_cs=0 ras=1 cas=1 we=1 a=0000
+  RDEN t=9705000 oe=0 cmd_dq=c3 pad=00
+  DFI CMD t=9705000 ras=1 cas=0 we=1 a=0000 ba=0
+rd addr=000200 data=c3 t=9775000
+MEASURED rd_latency=7
+PASS litedram_cosim
+- tb/tb_litedram_cosim.sv:244: Verilog $finish
+  RDVALID t=9775000 d=c3
+- S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
+- Verilator: $finish at 10us; walltime 0.003 s; speed 2.965 ms/s
+- Verilator: cpu 0.003 s on 1 threads; alloced 73 MB

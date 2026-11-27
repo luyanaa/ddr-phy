@@ -20,7 +20,7 @@ module tb_sdr_phy;
     localparam integer ADDR_BITS = 13;
     localparam integer BANK_BITS = 2;
     localparam integer DM_BITS   = DATA_BITS / 8;
-    localparam integer READ_LATENCY = CL + 2;  // P1-3 path B
+    localparam integer READ_LATENCY = CL + 1;
 
     reg                          clk;
     reg                          rst;
@@ -208,8 +208,7 @@ module tb_sdr_phy;
         check_nop_pads();
         `CHECK(cke === 1'b1)
 
-        // READ. valid is CL+1 edges after this enabling edge.
-        // dq_i is junk until the sampling edge, and must not raise valid.
+        // READ. Supply the known pattern only during the capture cycle.
         @(negedge clk);
         dfi_cs_n = 1'b0;
         dfi_ras_n = 1'b1;
@@ -233,7 +232,7 @@ module tb_sdr_phy;
         @(negedge clk);
         idle_dfi();
 
-        for (k = 1; k <= CL + 1; k = k + 1) begin
+        for (k = 1; k < READ_LATENCY; k = k + 1) begin
             dq_i = {DATA_BITS{1'b0}};
             @(posedge clk);
             #1;

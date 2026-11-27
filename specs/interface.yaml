@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # Digital interface contract between Controller and PHY.
-# Derived from rtl/sdr_phy.sv:20-58. This describes what exists today,
-# it is not a proposal.
+# SDR contract first; see ddr1_single_lane for the half-rate DDR1 port.
 
 meta:
   version: 1
@@ -14,14 +13,47 @@ timing:
   rdphase: 0
   wrphase: 0
   write_latency: 0
-  read_latency: "CL+2"
-  # P1-3 path B: the pin command is pipelined one cycle inside sdr_phy so
-  # DQ/DM/OE can launch on the falling edge of the DFI cycle. Write data is
-  # still presented with dfi_wrdata_en; the pin command appears one cycle
-  # later, which is why the read latency is CL+2 instead of CL+1.
+  read_latency: "CL+1"
+  # One command register plus the device's CAS latency. DQ appears tAC
+  # after the (CL-1)th clock following the SDRAM command edge.
   dfi_databits: DATA_BITS
-  sys_to_ck: "1:1, assign ck = clk (rtl/sdr_phy.sv:77)"
-  note: "One register on command, DQ and DM. rddata_en shifts through a CL+1 bit register."
+  sys_to_ck: "1:1, assign ck = clk (rtl/sdr_phy.sv)"
+  note: "The command is registered; DQ/DQM/OE launch on the falling edge before the SDRAM samples WRITE."
+
+integrated_top:
+  module: sdram_phy_top
+  read_capture_cycle: "N + CL + 1 on cap_clk; N is the clk edge that samples READ and dfi_rddata_en"
+  read_latency: "CL - 2 + CDC_LATENCY + 1 clk cycles from N to assertion of dfi_rddata_valid"
+  read_latency_measured: "7 cycles at CL=2, CDC_LATENCY=6, verified in reports/litedram_cosim.log"
+  default_cdc_latency: 6
+  min_cdc_latency: 6
+  throughput: "One read beat per clk cycle; each request must have a corresponding beat in the scheduled DQ window."
+  cap_clk: "Static 1:1 phase of clk, with one capture edge between the surrounding falling clk edges and timing margin to both. Select before traffic."
+  read_latency_error: "Sticky on a missed response deadline or FIFO overflow; suppresses read-valid until reset. Stop traffic and reset the capture path before resuming."
+  turnaround: "The controller must not issue WRITE while turnaround_busy is asserted. The PHY deselects blocked WRITE commands and does not queue them."
+  turnaround_default_cycles: "CL + 2 clk cycles after the last DFI read, assuming BL1; budget actual SDRAM release and board/pad timing before use."
+  controller: "Configure the controller's fixed read latency from this contract. Stock GENSDRPHY settings (CL+1) are not compatible with this top; the LiteDRAM co-sim uses 7."
+
+ddr1_single_lane:
+  module: ddr1_top
+  device_profile: "specs/ddr1/mt46v32m8-75e.yaml — x8, 4 banks, 13 row bits, 10 column bits"
+  generation: "generator/emit_ddr1.py renders ddr1_controller.v (LiteDRAM TimingSettings), ddr1_timing.vh, ddr1_init_params.vh and ddr1_init_steps.vh per CK period; rtl/ddr1_top.sv + ddr1_init.sv + ddr1_phy.sv are copied unchanged into the bundle"
+  native_port:
+    signals: {clk: sys_clk, rst, cmd_valid, cmd_we, cmd_addr, cmd_ready, w_data, w_we, w_ready, r_valid, r_data, init_done, read_error}
+    fixed_schedule: "No backpressure on reads: r_valid arrives at the controller latency. No write-valid: write data must be present when w_ready fires; the controller treats w_ready as the acceptance edge."
+    init_gating: "cmd_ready/w_ready/r_valid are all zero until init_done; commands issued before init_done are not observed at the device."
+    addressing: "Linear byte address bits [22:0]: {row[12:0], bank[1:0], column byte offset} per LiteDRAM colbits+bankbits+rowbits geometry; the TB walks cross-bank and cross-row boundaries."
+  mode: "single rank, sequential BL4, CL2, nominal write latency 1 CK"
+  phy_settings: {memtype: DDR, nphases: 2, dfi_databits: 16, rdphase: 1, wrphase: 1, cl: 2, cwl: 1, read_latency: 5, write_latency: 1}
+  clocking: "sys_clk = CK/2 with both transitions aligned to alternate rising CK edges; ck90 = CK lagged by T/4. CK period is a generation parameter (regression covers 10/11/12 ns), not fixed at 100 MHz. No live phase changes."
+  packing: "Phase 0 in the low slice. Within each 16-bit phase the low byte is first. Write masks use the same order and are active high."
+  commands: "After sampling DFI at sys edge N, phase 0 appears one CK later, phase 1 two CK later. CAS and matching enables must use phase 1; RAS/PRE/MRS/REF use phase 0 (the generator adds the phase-crossing margin when it converts ps timings to sys-cycle gaps)."
+  initialization: "ddr1_init issues power-up wait (device 200us), CKE high, PRECHARGE ALL, EMRS enable DLL, MRS reset DLL, 200-CK DLL lock wait, PRECHARGE ALL, 2x AUTO REFRESH, MRS normal (BL4/CL2). Intervals come from generated ddr1_init_steps.vh; the pin checker verifies tMRD/tRFC/tRP spacing and the device model enforces DLL-reset-before-refresh and data-before-200us rules."
+  write: "Sample the DFI word at N+1; first write DQS rising edge one CK after the pin WRITE. DQ and DM use both edges of ck90; DQS uses both edges of CK. The device model checks that every DQS edge aligns to a CK edge +/-1 ps and that each edge carries a captured write beat."
+  read: "The backend supplies center-delayed DQS. Exactly two rising and two falling edges must fit in the N+2 sys frame. Return both DFI phases at N+4 (LiteDRAM latency 5 from DFI launch). Regression sweeps tDQSCK = -750/0/+750 ps (the -75E spec window) against the fixed capture window; the device model launches DQS at CL*CK + offset with per-beat tDQSQ skew on DQ."
+  errors: "read_error and dfi_error are sticky to reset. Bad read frames suppress read-valid; LiteDRAM native valid is scheduled independently, so the system must treat a PHY fault as invalidating the transaction and reset/reinitialize."
+  pin_timing: "sim/ddr1_timing_checker.sv passively monitors every pin command: tRCD/tRAS/tRP/tRC/tRRD/tRFC/tMRD (ps), tCCD/tWTR/tRTP (CK), write recovery anchored at cmd + (CWL+BL/2)*TCK + tWR. A violation latches fault and drops evidence."
+  pads: "Logic-only CK/CK# and split DQ/DQS input, output and enables. DDR1 SSTL-2, receiver delay and clock/power supervision belong to the backend."
 
 signals:
   clock_reset:

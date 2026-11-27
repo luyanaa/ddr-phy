@@ -84,6 +84,10 @@ module tb_burst;
             end else
                 $display("PASS BL=%0d write+read burst", bl);
             step(NOP, 0, 0, 0, 0, 0);
+            if (dq !== {DB{1'bz}}) begin
+                $display("FAIL BL=%0d SDRAM still driving after final beat: %h", bl, dq);
+                errors = errors + 1;
+            end
         end
         #20;
         `ifdef MUTATE

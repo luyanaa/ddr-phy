@@ -1,115 +1,94 @@
-# Pad ring assembly (structural first pass)
+# Pad ring assembly — GF180MCU (2026-11-27)
 
-**Status: structural assembly, not signoff.** The pad cell is unchanged and
-carries no dedicated guard ring yet; the ring adds the tile-out and a seal
-ring. No DRC/LVS has been run on the assembled ring.
+**Status: 1a closed at tile and ring-structure level; chip-top assembly (1b)
+and ESD/latch-up qualification (1c) remain open.**
+
+The earlier note that the pad's dense M2 mesh had no accessible PAD/VSSIO
+port is obsolete.  `generator/gf180_pad_layout.py` now carries explicit
+M3/M4 corridors, an internal 160 µm ggNMOS clamp and a VSSIO Metal4 lane
+that reaches the top cell edge.  `generator/emit_pad_tile.py` adds the
+VSSIO guard-ring strip and via stack, so one `gf180_pad_tile` is the
+DRC/LVS-clean unit that the ring places.
 
 ## 1. Artifacts
 
 | file | use |
 |---|---|
-| `generator/emit_pad_ring.py` | KLayout `pya` ring assembler |
-| `sch/pads/gf180mcuD/pcell/gf180_pad_ring.gds` | assembled ring |
-| `sch/pads/gf180mcuD/pcell/gf180_pad_ring_manifest.json` | parameters / status |
+| `generator/gf180_pad_layout.py` | pad macro + M3/M4 corridor + edge port |
+| `generator/emit_pad_tile.py` | pad + VSSIO guard ring + via stack |
+| `generator/emit_pad_ring.py` | ring assembler (tiles only, no seal) |
+| `generator/emit_pad_lef_lib.py` | LEF + Liberty views for the tile |
+| `sch/pads/gf180mcuD/pcell/gf180_pad_core.gds` | pad macro, 111.5 × 151.3 µm |
+| `sch/pads/gf180mcuD/pcell/gf180_pad_tile.gds` | pad + ring, 111.5 × 185 µm |
+| `sch/pads/gf180mcuD/pcell/gf180_pad_ring.gds` | 32-tile ring, 1800 × 1800 µm |
+| `sch/pads/gf180mcuD/pcell/gf180_pad_tile.lef` / `.lib` | PnR and STA views |
 
-## 2. Result
+## 2. Evidence
+
+| check | result | log |
+|---|---|---|
+| pad core flat DRC | **0 violations** | `reports/gf180_pad_core_drc.log` |
+| pad core LVS | **netlists match** (34 devices) | `reports/gf180_pad_core_lvs.log` |
+| pad tile flat DRC | **0 violations** | `reports/gf180_pad_tile_drc.log` |
+| pad tile LVS (wrapper `gf180_pad_tile` + `gf180_pad_core`) | **netlists match** | `reports/gf180_pad_tile_lvs.log` |
+| ring flat DRC, `decks=all,-density` | **0 violations** | `reports/gf180_pad_ring_drc.log` |
+
+The ring DRC excludes the die-level density deck on purpose: density is
+computed over the whole die, and an empty 1.8 mm ring with no core and no
+chip fill cannot meet 25–30 % coverage.  Density must be re-run on the
+complete chip top once the core and fill exist.  That is part of 1b.
+
+## 3. Ring parameters
 
 ```text
-python3 generator/emit_pad_ring.py --die-um 1500 1500 --pitch-um 145
-  wrote .../gf180_pad_ring.gds (36 pads, 1500 x 1500 um die)
-  pads per side: bottom/top 9, left/right 9
-  overlap check: pass
+python3 generator/emit_pad_ring.py
+  wrote .../gf180_pad_ring.gds (32 tiles, 1800 x 1800 um die)
+  tiles per side: bottom/top 9, left/right 7
+  overlap / inside-seal checks: pass
 ```
 
-GDS check (`klayout -b -r` probe):
+* pitch 190 µm, tile height 185 µm, 5 µm corner clearance (DCF.4/DPF.4).
+* tile bbox `(-66.5,-65) .. (45,120)` µm; pad origin is not the bbox corner.
+* 32 signal/power positions.  The 30 PHY signals (21 cmd + 8 dq + 1 ck)
+  plus 2 power positions fit; corners are deliberately empty.
+* no seal ring in this GDS: a chip-level seal is drawn at assembly.  The
+  seal frames that were present in the first pass were removed because a
+  20 µm-wide contact/via frame violated CO.1/V1.1 and the metal frames
+  violated the density deck.
 
-| item | value |
-|---|---|
-| top cell | `gf180_pad_ring` |
-| instances | **36** |
-| bbox | (-65, -65) .. (1565, 1565) um |
-| Comp / Nwell / Pplus seal frame | present |
-| Metal1..MetalTop + Via1..Via5 frame | present |
+## 4. Pad tile views (1b prerequisite)
 
-Rotation: bottom pads R0, top R180, left R270, right R90, so the pad stack
-sits on the die edge and the core side faces inward. The die interior is
-1.5 x 1.5 mm with a 20 um seal ring.
+`gf180_pad_tile.lef` / `gf180_pad_tile.lib` are generated from the same pin
+table as the GDS:
 
-## 3. Guard ring and ESD clamp cells
+| pin | direction | layer / note |
+|---|---|---|
+| OUT, OE_N, PU_OK | input | Metal2 pads on the core side |
+| IN | output | Metal2 receiver output |
+| PAD | inout | MetalTop 64 µm bond pad + Metal3 corridor |
+| VDDIO | power | Metal2/Metal3 |
+| VSSIO | ground | Metal4 edge lane + Metal2 guard-ring bar |
 
-Both are delivered as **standalone, DRC/LVS-verified cells** and instanced in
-every pad slot (108 instances total: 36 pads + 36 guard rings + 36 clamps).
+Liberty timing is the SPICE characterization already in
+`reports/pad_char_gf180mcuD_*.json` and `reports/pad_delay_gf180mcuD_*.json`
+(out→pad 0.441 ns max, pad→in 0.096 ns max, OE on 0.608 ns, OE off
+3.299 ns).  It is a design-assumption model: no IBIS, no package, no ESD
+qualification.
 
-### Guard ring (`generator/emit_guard_ring.py`)
+## 5. Open items and user decisions (2026-11-27)
 
-| layer | geometry |
-|---|---|
-| Comp | 1.0 um band |
-| Pplus | Comp + 0.16 um each side |
-| Contact | 0.22 um squares at 0.5 um pitch (CO.2a = 0.25) |
-| Metal1 | Comp + 0.07 um each side |
-| Via1 | 0.26 um squares at 0.6 um pitch (V1.2a = 0.26) |
-| Metal2 | Comp + 0.07 um each side |
-
-`sh sim/gf180_guard_ring.sh` -> **PASS full DRC (0 violations)**.
-
-### ESD clamp (`generator/emit_esd_clamp.py`)
-
-Grounded-gate NMOS, 40 fingers x 2 um = 80 um channel, gate/source/bulk on
-VSSIO, drain on PAD, with its own Metal2 channel so it cannot cross the
-output stage's buses.
-
-`sh sim/gf180_esd_clamp.sh`:
-```text
-PASS gf180_esd_clamp DRC (geometry clean; 5 die-level density only)
-PASS gf180_esd_clamp LVS (Netlists match)
-```
-
-The extracted device is `M$1 PAD VSSIO VSSIO VSSIO nfet_03v3 W=80U` - the
-gate, source and bulk are one net, which is what the earlier in-cell
-attempts failed to achieve.
-
-The five density violations are die-level (DCF.1b, PL.8, M1.4/M3.4/M4.4/
-M5.4/MT.3): a clamp cell is instanced inside a die that carries the fill,
-so they do not apply to the cell.
-
-## 4. What is and is not covered
-
-Covered:
-- pad tile-out on four sides with a non-overlapping placement check,
-- a seal ring frame (Comp / Nwell / Pplus / Contact, Metal1..MetalTop,
-  Via1..Via5),
-- a DRC-verified guard ring in every pad slot,
-- a DRC/LVS-verified ggNMOS ESD clamp in every pad slot.
-
-Not covered - and this is now a **measured architectural constraint**, not
-an unfinished task:
-
-- **the pad cell cannot host a clamp connection inside its own bbox.**
-  `generator/emit_pad_tile.py` builds one pad site (pad + clamp + wiring)
-  and the full decks show why:
-  - the pad's Metal2 is a single dense mesh (one merged polygon spanning
-    x -62800..45000, y -49200..48430), so any Metal2 strap shorted PAD to
-    VSSIO - measured: the whole pad M2 collapsed into one net and the clamp
-    extracted as `W=245U` with PAD|VSSIO merged;
-  - Metal1/M2/M3/M4 fill inside the pad bbox is 31.3 / 30.3 / 27.9 / 26.7 %,
-    so a Metal4 escape bar also merged into the pad's own M4 island;
-  - routing the clamp from outside the bbox clears the collisions (tile
-    DRC settles at the six die-level density rules only) but the PAD and
-    VSSIO connections still cannot be made without crossing the pad's
-    metal islands.
-
-  Closing this needs a **pad cell with a dedicated routing channel**
-  (reserved M3/M4 corridor and a PAD/VSSIO port on the cell edge), which
-  means changing the pad generator, not the ring. The clamp itself is
-  verified: `sim/gf180_esd_clamp_160.sh` -> geometry clean, LVS match,
-  Magic PEX, 28.4 V.
-- the assembled ring has not passed flat DRC/LVS: the 1.5 mm die with 108
-  instances exceeds the DRC run budget (the flat deck timed out at 30 min),
-  so ring-level checking needs a hierarchical or tiled flow;
-- DRC/LVS on the assembled ring, pad-to-pad spacing rules, the die core
-  power grid, bond pads / package,
-- ESD qualification: the clamp's effect is measured on the pad macro
-  (`reports/p1_4_channel.md` section 6), not on the ring.
-
-`reports/capability_report.md` stays `NO_GO`.
+1. **Chip top (1b)**: **hierarchical LVS is the accepted method** (pad tile
+   + black-box `sdram_phy_core` at the top).  Still to build: place the
+   hardened core (274 × 292 µm) inside the ring, assign the 30 signal pads,
+   add VDDIO/VSSIO and core PDN, route pad pins to core pins, then run
+   hierarchical DRC/LVS.  The ring GDS and tile/core LEFs are ready; the
+   top-level route is the remaining work.
+2. **ESD/latch-up (1c)**: **user accepted the current evidence** — BSIM
+   pulse stress (32.2 V @ 1 A/100 ns, no snapback) plus GF180 DRC ESD/LU
+   rules.  This is not TLP/HBM silicon qualification, so `esd_verified`
+   remains false and the formal capability decision remains **NO_GO**.
+3. **Density**: rerun `gf180mcu.drc` without `-density` exclusion on the
+   finished chip top.
+4. **Timing**: `t_uncertainty = 0.60 ns` is **held by user decision**; S3 is
+   `deferred` until the measured value is supplied.  Do not change the SDC
+   for this item.

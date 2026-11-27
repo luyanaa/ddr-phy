@@ -238,8 +238,8 @@ module tb_sdram_model;
         step();
         `CHECK(fault === 1'b0)
 
-        // READ column 3. P1-3 path B pipelines the pin command by one
-        // cycle, so valid is CL+2 launching edges later, once.
+        // READ column 3. The command register adds one cycle to the
+        // SDRAM's CAS latency, so valid is CL+1 edges after the DFI READ.
         dfi_cs_n = 1'b0;
         dfi_ras_n = 1'b1;
         dfi_cas_n = 1'b0;
@@ -255,7 +255,7 @@ module tb_sdram_model;
             step();
             if (dfi_rddata_valid) begin
                 saw_valid = saw_valid + 1;
-                `CHECK(wait_n == CL + 2)
+                `CHECK(wait_n == CL + 1)
                 `CHECK(dfi_rddata === 8'hA5)
             end
         end

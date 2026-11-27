@@ -1,27 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
-// Integration top for the Class S SDR PHY.
+// RTL / simulation wrapper around sdram_phy_core.
 //
-// This is the wiring that P0-4 left open: the external CK pin is driven by
-// clock_forward (a dedicated, power-gated, phase-selectable path), NOT by
-// rtl/sdr_phy.sv:77 'assign ck = clk'. The DQ pins go through
-// dq_turnaround and phy_io_adapter; the command bus is packed into one
-// flat CMD bus.
-//
-// cap_clk from read_capture_ctrl now clocks a real first-stage capture FF
-// on the pad input; sdr_phy then registers that captured value on clk.
-// This makes phase_sel change the effective sampling point for a phase that
-// LEADS the core edge. A late phase, a Read FIFO/CDC and the resulting
-// latency change are still TBD; phase selection must be static during
-// traffic. The phase source itself is still a backend obligation (G6).
-//
-// turnaround_busy MUST be consumed by the controller as a write-accept
-// condition; rtl/sdr_ctrl.sv does so via phy_turnaround_busy. Without that
-// connection the controller can issue WRITE while the PHY is still guarding
-// a READ->WRITE turnaround.
-//
-// The sdr_phy .ck output is deliberately left unconnected: the pad-side
-// clock comes from clock_forward through the adapter.
-
+// The harden is sdram_phy_core: it stops at the core-side pins
+// (cmd_o / dq_o / dq_oe / dq_i / ck_o).  This wrapper adds the behavioral
+// generic pad so the RTL regressions keep a pin-level DUT.  It is NOT
+// synthesizable (pad_cell_generic uses fork/join_none); the silicon chip
+// top instantiates gf180_pad_core instead.
 `default_nettype none
 module sdram_phy_top #(
     parameter integer ADDR_BITS     = 13,
@@ -32,20 +16,20 @@ module sdram_phy_top #(
     parameter integer NPHASES       = 4,
     parameter integer SEL_W         = 2,
     parameter integer GUARD_CYCLES  = 1,
-    parameter integer READ_TAIL_CYCLES = 0,
+    parameter integer READ_TAIL_CYCLES = CL + 1,
     parameter integer DQM_OFF_CYCLES = 0,
     parameter integer T_OE_OFF_CYCLES = 0,
     parameter integer CDC_LATENCY   = 6,
     parameter integer BACKEND       = 0,
     parameter integer T_OE_ON_PS    = 0,
     parameter integer T_OE_OFF_PS   = 0,
+    parameter integer T_IN_PS       = 0,
     parameter integer DM_BITS       = DATA_BITS / 8,
     parameter integer CMD_BITS      = ADDR_BITS + BANK_BITS + 3 + 2*RANKS + DM_BITS
 )(
     input  wire                        clk,
     input  wire                        rst,
 
-    // DFI (pass-through to sdr_phy)
     input  wire [ADDR_BITS-1:0]        dfi_address,
     input  wire [BANK_BITS-1:0]        dfi_bank,
     input  wire                        dfi_ras_n,
@@ -63,7 +47,6 @@ module sdram_phy_top #(
     output wire [DATA_BITS-1:0]        dfi_rddata,
     output wire                        dfi_rddata_valid,
 
-    // Backend / power configuration
     input  wire                        io_power_ok,
     input  wire [7:0]                  pad_config,
     input  wire [NPHASES-1:0]          phase_clks,
@@ -74,35 +57,31 @@ module sdram_phy_top #(
     input  wire                        ck_phase_clocks_ready,
     input  wire [SEL_W-1:0]            ck_phase_sel,
 
-    // Pad side
     output wire [CMD_BITS-1:0]         pad_cmd,
     inout  wire [DATA_BITS-1:0]        pad_dq,
     output wire                        pad_ck,
 
-    // Status / coordination
     output wire                        cap_clk,
     output wire                        capture_ready,
     output wire                        turnaround_busy,
     output wire                        pad_ready,
     output wire                        contention,
-    output wire                        ck_active
+    output wire                        ck_active,
+    output wire                        read_latency_error
 );
-    wire [ADDR_BITS-1:0]     a;
-    wire [BANK_BITS-1:0]     ba;
-    wire                     ras_n, cas_n, we_n, ck_unused;
-    wire [RANKS-1:0]         cs_n, cke;
-    wire [DM_BITS-1:0]       dm;
-    wire [DATA_BITS-1:0]     dq_o, dq_pad_i;
-    wire [DATA_BITS-1:0]     rddata_unused;
-    wire                     rdvalid_unused;
-    wire                     dq_oe, dq_oe_gated;
-    wire                     ck_fwd;
+    wire [DATA_BITS-1:0] dq_o_core;
+    wire                 dq_oe_core;
+    wire [DATA_BITS-1:0] dq_i_core;
 
-    wire [CMD_BITS-1:0] core_cmd = {a, ba, ras_n, cas_n, we_n, cs_n, cke, dm};
-
-    sdr_phy #(
+    sdram_phy_core #(
         .ADDR_BITS(ADDR_BITS), .BANK_BITS(BANK_BITS),
-        .DATA_BITS(DATA_BITS), .RANKS(RANKS), .CL(CL)
+        .DATA_BITS(DATA_BITS), .RANKS(RANKS), .CL(CL),
+        .NPHASES(NPHASES), .SEL_W(SEL_W),
+        .GUARD_CYCLES(GUARD_CYCLES),
+        .READ_TAIL_CYCLES(READ_TAIL_CYCLES),
+        .DQM_OFF_CYCLES(DQM_OFF_CYCLES),
+        .T_OE_OFF_CYCLES(T_OE_OFF_CYCLES),
+        .CDC_LATENCY(CDC_LATENCY)
     ) u_core (
         .clk(clk), .rst(rst),
         .dfi_address(dfi_address), .dfi_bank(dfi_bank),
@@ -111,83 +90,30 @@ module sdram_phy_top #(
         .dfi_odt(dfi_odt), .dfi_reset_n(dfi_reset_n), .dfi_act_n(dfi_act_n),
         .dfi_wrdata(dfi_wrdata), .dfi_wrdata_en(dfi_wrdata_en),
         .dfi_wrdata_mask(dfi_wrdata_mask), .dfi_rddata_en(dfi_rddata_en),
-        .dfi_rddata(rddata_unused), .dfi_rddata_valid(rdvalid_unused),
-        .a(a), .ba(ba), .ras_n(ras_n), .cas_n(cas_n), .we_n(we_n),
-        .cs_n(cs_n), .cke(cke), .dm(dm), .dq_o(dq_o), .dq_oe(dq_oe),
-        .dq_i(dq_pad_i), .ck(ck_unused)
-    );
-    wire _ck_unused = ck_unused;
-
-    // Dedicated forwarded clock. ck_active / pad_ck are power gated.
-    clock_forward #(.NPHASES(NPHASES), .SEL_W(SEL_W)) u_ckfwd (
-        .clk(clk), .rst(rst),
+        .dfi_rddata(dfi_rddata), .dfi_rddata_valid(dfi_rddata_valid),
+        .io_power_ok(io_power_ok), .pad_config(pad_config),
+        .phase_clks(phase_clks), .phase_clocks_ready(phase_clocks_ready),
+        .phase_sel(phase_sel), .phase_sel_valid(phase_sel_valid),
         .ck_phase_clks(ck_phase_clks),
         .ck_phase_clocks_ready(ck_phase_clocks_ready),
         .ck_phase_sel(ck_phase_sel),
-        .io_power_ok(io_power_ok),
-        .ck_o(ck_fwd), .ck_active(ck_active),
-        .using_backend_phase()
+        .cmd_o(pad_cmd), .dq_o(dq_o_core), .dq_oe(dq_oe_core),
+        .dq_i(dq_i_core), .ck_o(pad_ck),
+        .cap_clk(cap_clk), .capture_ready(capture_ready),
+        .turnaround_busy(turnaround_busy), .pad_ready(pad_ready),
+        .contention(contention), .ck_active(ck_active),
+        .read_latency_error(read_latency_error)
     );
 
-    // Phase-adjustable capture reference (interface only; see header).
-    wire [SEL_W-1:0] cap_phase_status;
-    read_capture_ctrl #(.NPHASES(NPHASES), .SEL_W(SEL_W)) u_cap (
-        .clk(clk), .rst(rst),
-        .phase_clks(phase_clks), .phase_clocks_ready(phase_clocks_ready),
-        .phase_sel(phase_sel), .phase_sel_valid(phase_sel_valid),
-        .cap_clk(cap_clk), .phase_sel_status(cap_phase_status),
-        .capture_ready(capture_ready)
-    );
-
-    // Read-capture CDC: one outstanding read. capture_req is a one-cycle
-    // pulse in the clk domain, generated CAPTURE_REQ_DELAY cycles after
-    // dfi_rddata_en; the CDC captures dq_pad_i in cap_clk and returns data
-    // plus a one-cycle valid in the clk domain. The total read latency is
-    // therefore CL+1 plus the CDC handshake; the controller waits for
-    // dfi_rddata_valid, so it does not assume the old CL+1 timing.
-    // Phase selection must be static during traffic.
-    localparam integer CAPTURE_REQ_DELAY = (CL >= 2) ? (CL - 2) : 0;
-    reg [1:0] req_pipe;
-    wire req_pulse = (CAPTURE_REQ_DELAY == 0) ? dfi_rddata_en :
-                     (CAPTURE_REQ_DELAY == 1) ? req_pipe[0] : req_pipe[1];
-    always @(posedge clk) begin
-        if (rst) req_pipe <= 2'd0;
-        else     req_pipe <= {req_pipe[0], dfi_rddata_en};
-    end
-
-    wire [DATA_BITS-1:0] cdc_rddata;
-    wire                 cdc_rdvalid, cdc_latency_error;
-    read_capture_cdc #(.DATA_BITS(DATA_BITS), .LATENCY(CDC_LATENCY)) u_cdc (
-        .clk(clk), .rst(rst), .cap_clk(cap_clk),
-        .capture_req(req_pulse), .dq_i(dq_pad_i),
-        .rddata(cdc_rddata), .rddata_valid(cdc_rdvalid),
-        .latency_error(cdc_latency_error)
-    );
-    assign dfi_rddata       = cdc_rddata;
-    assign dfi_rddata_valid = cdc_rdvalid;
-
-    // READ->WRITE turnaround guard on the PHY's own output enable.
-    dq_turnaround #(
-        .GUARD_CYCLES(GUARD_CYCLES),
-        .READ_TAIL_CYCLES(READ_TAIL_CYCLES),
-        .DQM_OFF_CYCLES(DQM_OFF_CYCLES),
-        .T_OE_OFF_CYCLES(T_OE_OFF_CYCLES)
-    ) u_turn (
-        .clk(clk), .rst(rst),
-        .wrdata_en(dfi_wrdata_en), .rddata_en(dfi_rddata_en),
-        .dq_oe_gated(dq_oe_gated), .turnaround_busy(turnaround_busy)
-    );
-
-    phy_io_adapter #(
-        .DATA_BITS(DATA_BITS), .CMD_BITS(CMD_BITS), .BACKEND(BACKEND),
-        .T_OE_ON_PS(T_OE_ON_PS), .T_OE_OFF_PS(T_OE_OFF_PS)
-    ) u_pad (
-        .core_cmd(core_cmd),
-        .core_dq_o(dq_o), .core_dq_oe(dq_oe_gated), .core_dq_i(dq_pad_i),
-        .core_ck(ck_fwd),
-        .pad_cmd(pad_cmd), .pad_dq(pad_dq), .pad_ck(pad_ck),
-        .io_power_ok(io_power_ok), .pad_config(pad_config),
-        .pad_ready(pad_ready), .contention(contention)
+    pad_cell_generic #(
+        .DATA_BITS(DATA_BITS),
+        .T_OE_ON_PS(T_OE_ON_PS),
+        .T_OE_OFF_PS(T_OE_OFF_PS),
+        .T_IN_PS(T_IN_PS)
+    ) u_dq (
+        .core_out(dq_o_core), .core_oe(dq_oe_core),
+        .core_in(dq_i_core), .pad(pad_dq),
+        .power_ok(io_power_ok), .driving(), .contention()
     );
 endmodule
 `default_nettype wire

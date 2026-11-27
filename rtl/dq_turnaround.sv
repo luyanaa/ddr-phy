@@ -1,16 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 // DQ bus turnaround guard.
 //
-// READ->WRITE is where an ideal inout hides contention: the SDRAM may
-// still be driving DQ (tHZ) when the PHY enables its own output. This
-// module blocks the PHY's OE for GUARD_CYCLES after any read and exposes
-// turnaround_busy so the controller can hold off column commands.
-//
-// It deliberately does NOT insert NOPs on the pins by itself. Per
-// checklist 4.4 the guard must be coordinated with controller scheduling;
-// turnaround_busy is that coordination signal. GUARD_CYCLES is a design
-// parameter, not a characterized tHZ: the real number needs pad timing
-// (capability gate G5).
+// The controller may not issue a write while turnaround_busy is high.
+// Qualify the command and its DQ enable together before their launch stages;
+// never use this guard to change pad OE after a write has been accepted.
+// The guard counts are interface timing parameters, not pad characterization.
 
 `default_nettype none
 module dq_turnaround #(
@@ -24,25 +18,20 @@ module dq_turnaround #(
 )(
     input  wire clk,
     input  wire rst,
-    input  wire wrdata_en,
     input  wire rddata_en,
-    output reg  dq_oe_gated,
-    output reg  turnaround_busy
+    output wire turnaround_busy
 );
     localparam integer TOTAL_GUARD = GUARD_CYCLES + READ_TAIL_CYCLES +
                                      DQM_OFF_CYCLES + T_OE_OFF_CYCLES;
-    reg [7:0] dead;
+    localparam integer COUNT_W = (TOTAL_GUARD > 0) ? $clog2(TOTAL_GUARD + 1) : 1;
+    reg [COUNT_W-1:0] dead;
+
+    assign turnaround_busy = rst || rddata_en || (dead != '0);
+
     always @(posedge clk) begin
-        if (rst) begin
-            dead            <= 8'd0;
-            dq_oe_gated     <= 1'b0;
-            turnaround_busy <= 1'b0;
-        end else begin
-            if (rddata_en)          dead <= TOTAL_GUARD[7:0];
-            else if (dead != 8'd0)  dead <= dead - 8'd1;
-            turnaround_busy <= (dead != 8'd0) || rddata_en;
-            dq_oe_gated     <= wrdata_en && (dead == 8'd0) && !rddata_en;
-        end
+        if (rst)          dead <= '0;
+        else if (rddata_en) dead <= COUNT_W'(TOTAL_GUARD);
+        else if (dead != '0) dead <= dead - 1'b1;
     end
 endmodule
 `default_nettype wire

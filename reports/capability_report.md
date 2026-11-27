@@ -8,7 +8,7 @@ The only usable backend today is generic_sim, which is verification-only.
 | Backend | PDK | status | level | open gates | decision |
 |---|---|---|---|---|---|
 | generic_sim | none | simulation_only | sim_only | G5, G6 | **SIM_ONLY** |
-| gf180mcu | gf180mcuD | unsupported | none | G1, G2, G4, G5, G6 | **NO_GO** |
+| gf180mcu | gf180mcuD | unsupported | pad-characterized | G1, G4, G6 | **NO_GO** |
 | ics55 | icsprout55-pdk | unsupported | none | G1, G2, G4, G5, G6 | **NO_GO** |
 | ihp130 | ihp-sg13g2 | unsupported | none | G1, G2, G4, G5, G6 | **NO_GO** |
 | sky130 | sky130A | unsupported | none | G1, G2, G4, G5, G6 | **NO_GO** |
@@ -35,20 +35,10 @@ The only usable backend today is generic_sim, which is verification-only.
 ### gf180mcu — NO_GO
 
 - open gate G1: 3.3 V bidirectional LVTTL pad with ESD, level shifter and power-up Hi-Z
-- open gate G2: no backend may fall back to a core standard cell to drive external DQ
 - open gate G4: no characterized delay/phase cell -> fixed-phase only (here: none)
-- open gate G5: pad timing (tOE_on/off, slew, input threshold) characterized
 - open gate G6: clock forwarding path and read capture phase from characterized delay/PLL
-- pad.schematic_drawn is not true
-- pad.netlist_characterized is not true
-- pad.spice_verified is not true
-- pad.drive_strength_selected is not true
 - pad.esd_verified is not true
-- pad.powerup_hiz_verified is not true
-- pad.toe_on_ps is null (uncharacterized)
-- pad.toe_off_ps is null (uncharacterized)
-- phase_control.capture_modes is empty
-- Note: No 3.3 V output pad exists in the pad library; 5 V GPIO cannot drive 3.3 V SDRAM. DDR1 is excluded for this PDK in ARCHITECTURE.md section 6.
+- Note: The pad is a generated 3.3 V LVTTL macro, not the 5 V gf180mcu_fd_io library. ESD/latch-up signoff is accepted at the current SPICE+DRC level by user decision 2026-11-27; esd_verified stays false so the formal capability gate is still NO_GO. Hierarchical LVS is accepted. t_uncertainty is held at 0.60 ns for separate resolution.
 - Existing IO library: gf180mcu_fd_io (structural reference only - existing IO is 4.5-5.5 V nominal 5 V, unusable for 3.3 V SDRAM)
 - Core 3.3 V / VDDIO 3.3 V, level shifter required: False
 - Disallowed claims: 3.3 V LVTTL pad ready for tapeout, fixed-phase SDR PHY signoff, 133 MHz operation
@@ -121,11 +111,14 @@ The only usable backend today is generic_sim, which is verification-only.
 
 ## What this report does not claim
 
-- No backend has a hand-drawn pad schematic, a characterized pad netlist,
-  or measured tOE_on / tOE_off. Those numbers are deliberately null.
+- No backend has TLP/HBM ESD qualification. The gf180 pad has BSIM
+  pulse stress and GF180 DRC ESD/LU rule checks only; `esd_verified`
+  therefore stays false and the formal decision stays NO_GO.
+- The gf180 pad schematic is generated and LVS-extracted; its tOE_on/off
+  and delay numbers are SPICE design assumptions, not silicon measurements.
 - Existing GPIO libraries are structural references only; per
   docs/ARCHITECTURE.md they are not this design's pads.
 - No phase-control resource (PLL/DLL/characterized delay cell) is available,
   so even a fixed-phase claim is withheld (gate G4).
-- No PEX, SPICE, IBIS, SI/PI or PVT signoff has been run.
+- No IBIS, package/PCB SI/PI or full PVT signoff has been run.
 

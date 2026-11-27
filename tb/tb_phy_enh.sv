@@ -43,11 +43,11 @@ module tb_phy_enh;
     );
 
     // ---- dq_turnaround ----
-    reg        dt_rst = 1, dt_wr = 0, dt_rd = 0;
-    wire       dt_oe, dt_busy;
+    reg        dt_rst = 1, dt_rd = 0;
+    wire       dt_busy;
     dq_turnaround #(.GUARD_CYCLES(1)) u_dt (
-        .clk(clk), .rst(dt_rst), .wrdata_en(dt_wr), .rddata_en(dt_rd),
-        .dq_oe_gated(dt_oe), .turnaround_busy(dt_busy)
+        .clk(clk), .rst(dt_rst), .rddata_en(dt_rd),
+        .turnaround_busy(dt_busy)
     );
 
     // ---- sdram_model DQM read mask ----
@@ -120,16 +120,14 @@ module tb_phy_enh;
         chk(cf_ck === 1'b0, "clock_forward: CK held low until io power ok");
 
         // --- DQ turnaround ---
-        dt_rd = 1'b1; dt_wr = 1'b0;
+        dt_rd = 1'b1;
         @(posedge clk); #1;
         chk(dt_busy === 1'b1, "turnaround: busy asserted on read");
-        dt_rd = 1'b0; dt_wr = 1'b1;
+        dt_rd = 1'b0;
+        @(negedge clk); #1;
+        chk(dt_busy === 1'b1, "turnaround: following write edge is guarded");
         @(posedge clk); #1;
-        chk(dt_oe === 1'b0, "turnaround: OE gated during guard cycle");
-        chk(dt_busy === 1'b1, "turnaround: busy held during guard");
-        @(posedge clk); #1;
-        chk(dt_oe === 1'b1 && dt_busy === 1'b0, "turnaround: OE released after guard");
-        dt_wr = 1'b0;
+        chk(dt_busy === 1'b0, "turnaround: busy clears after guard cycle");
 
         // --- SDRAM read DQM masking (CL=2, BL=1) ---
         // Data-out edge for a READ at edge R is R+1; DQM at R-1 masks it.

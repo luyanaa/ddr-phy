@@ -1,13 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-// 1:1 SDR PHY. Same DFI geometry and latency as LiteDRAM's GENSDRPHY
-// (litedram/phy/gensdrphy.py): one phase, write_latency 0, read_latency
-// CL+1. The CL cycles belong to the DRAM; the extra cycle is this
-// module's DQ input register.
-//
-// Command, DQ and DM each go through one flip-flop, so a DFI value stable
-// before an edge is on the pads after that edge. rddata_en shifts through
-// a CL+1 bit register; rddata_valid is the bit that shifts out, and
-// dfi_rddata is dq_i sampled on that same edge.
+// 1:1 SDR PHY with the GENSDRPHY single-phase DFI geometry. Write latency
+// is zero at DFI; the pin command is registered and DQ/DQM/OE launch half
+// a cycle before the SDRAM samples it. Standalone read latency is CL+1.
 //
 // The output tristate is not in this netlist. A standard-cell core cannot
 // be the pad driver. dq_o / dq_oe / dq_i are the core side of a later pad.
@@ -58,9 +52,9 @@ module sdr_phy #(
     output wire                          ck
 );
 
-    // P1-3 path B: the pin command is pipelined by one cycle (see below), so
-    // the DRAM returns read data one cycle later than the DFI command.
-    localparam integer READ_LATENCY = CL + 2;
+    // The SDRAM samples the registered command at N+1. Its first beat is
+    // valid by the CL-th edge after that command, so capture at N+CL+1.
+    localparam integer READ_LATENCY = CL + 1;
     localparam integer DM_BITS      = DATA_BITS / 8;
 
     generate
@@ -75,9 +69,8 @@ module sdr_phy #(
         end
     endgenerate
 
-    // LSB is the newest rddata_en sample. valid is the oldest bit, consumed
-    // on the same edge that shifts it out, which is CL+1 edges after the
-    // enabling sample.
+    // LSB is the newest rddata_en sample. The oldest bit identifies the
+    // cycle that samples dq_i at the standalone PHY's fixed read latency.
     reg [READ_LATENCY-1:0] rd_en_sr;
 
     assign ck = clk;
@@ -98,13 +91,11 @@ module sdr_phy #(
     //
     // Instead the command/address/control are pipelined by one cycle and
     // DQ/DM/OE are launched on the falling edge of the cycle in which the
-    // controller presents them. The DRAM then sees the data half a period
-    // plus a full period ahead of the command edge, which is set by tCK, not
-    // by a matched delay line, so it holds at every PVT corner.
+    // the controller presents them. With a matched forwarded CK, DQ is
+    // driven half a cycle before and after the SDRAM samples WRITE.
     //
     // Contract: dfi_wrdata/dfi_wrdata_mask are sampled on the same edge as
-    // dfi_wrdata_en (unchanged); the pin command appears one cycle later, so
-    // the DFI read latency becomes CL+2.
+    // dfi_wrdata_en; the SDRAM samples the pin command one cycle later.
     // Asynchronous reset throughout: a ternary inside a synchronous always
     // block makes yosys emit dfxtp cells, which have no reset pin, so the
     // gate-level netlist starts at X and never clears. Every register here

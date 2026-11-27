@@ -1,32 +1,30 @@
 // SPDX-License-Identifier: Apache-2.0
-// First-stage read-capture phase test.
-//
-// A real capture FF in sdram_phy_top samples the pad input on cap_clk
-// before the core edge. With phase 0 (cap_clk = clk) the path bypasses the
-// capture FF; with phase 1 (cap_clk leads clk by 2 ns) the FF captures the
-// earlier value. The test drives the pad through an external model and
-// changes it between the early edge and the core edge, so the two phases
-// must return different data.
-//
-// This is a static-phase slice. It does not test a late phase, a Read
-// FIFO/CDC, or dynamic phase changes during traffic.
+// Check integrated SDR capture against the pin-level READ command and
+// datasheet-sized data window, not against a value held across every edge.
+// Exercise a single read and sustained one-beat-per-cycle reads with
+// fixed, leading and lagging capture phases.
 
 `timescale 1ns/1ps
 `default_nettype none
 
-module tb_read_capture_phase;
+module tb_read_capture_phase #(parameter integer CL = 2);
     localparam integer AB = 13;
     localparam integer BB = 2;
     localparam integer DB = 8;
     localparam integer CMD = 21;
+    localparam integer READ_LATENCY = CL + 4;
+    localparam integer DRAM_PIPE = CL - 1;
+    localparam real T_AC = (CL == 2) ? 6.0 : 5.4; // Micron -75, ns
+    localparam real T_OH = 3.0;
+    localparam [3:0] READ = 4'b0101;
 
     reg clk = 1'b0;
     reg clk_early = 1'b0;
     reg clk_late = 1'b0;
     reg rst = 1'b1;
     always #5 clk = ~clk;
-    initial begin #3; forever #5 clk_early = ~clk_early; end
-    initial begin #7; forever #5 clk_late = ~clk_late; end
+    initial begin #3; forever begin clk_early = 1; #5; clk_early = 0; #5; end end
+    initial begin #7; forever begin clk_late  = 1; #5; clk_late  = 0; #5; end end
 
     reg [AB-1:0] dfi_a = 0;
     reg [BB-1:0] dfi_ba = 0;
@@ -38,34 +36,58 @@ module tb_read_capture_phase;
     wire dfi_rdvalid;
     reg io_power_ok = 0;
     reg [7:0] pad_config = 0;
-    reg [3:0] phase_clks;
-    reg phase_ready = 1, phase_valid = 1;
+    wire [3:0] phase_clks = {1'b0, clk_late, clk_early, clk};
+    reg phase_ready = 0, phase_valid = 1;
     reg [1:0] phase_sel = 0;
     reg [3:0] ck_phase_clks = 0;
     reg ck_phase_ready = 0;
     reg [1:0] ck_phase_sel = 0;
     wire [CMD-1:0] pad_cmd;
     wire [DB-1:0] pad_dq;
-    wire pad_ck, cap_clk, capture_ready, turnaround_busy, pad_ready, contention, ck_active;
+    wire pad_ck, cap_clk, capture_ready, turnaround_busy, pad_ready, contention;
+    wire read_latency_error;
 
-    reg [DB-1:0] ext_dq = 0;
-    reg ext_oe = 0;
-    assign pad_dq = ext_oe ? ext_dq : {DB{1'bz}};
+    wire dram_read = ({pad_cmd[2], pad_cmd[5:3]} === READ);
+    wire [AB-1:0] dram_addr = pad_cmd[CMD-1 -: AB];
+    reg [DRAM_PIPE-1:0] dram_valid = '0;
+    reg [DB-1:0] dram_data [0:DRAM_PIPE-1];
+    reg [DB-1:0] dram_dq = 'z;
+    assign pad_dq = dram_dq;
 
-    always @(*) phase_clks = {1'b0, clk_late, clk_early, clk};
+    // Micron SDR drives the first beat at tAC after the (CL-1)th CK
+    // after READ. After the last beat, keep it only through next CK + tOH.
+    always @(posedge pad_ck) begin
+        dram_valid <= (dram_valid << 1) | DRAM_PIPE'(dram_read);
+        dram_data[0] <= dram_addr[DB-1:0];
+        for (integer i = 1; i < DRAM_PIPE; i = i + 1)
+            dram_data[i] <= dram_data[i-1];
+        if (dram_valid[DRAM_PIPE-1]) dram_dq <= #(T_AC) dram_data[DRAM_PIPE-1];
+        else                  dram_dq <= #(T_OH) 'z;
+    end
 
-    integer errors = 0;
-    integer guard;
-    task automatic chk(input cond, input [8*64:1] name);
-        begin
-            if (cond) $display("PASS %0s", name);
-            else begin $display("FAIL %0s", name); errors = errors + 1; end
-        end
-    endtask
+    reg [READ_LATENCY-1:0] due_pipe = '0;
+    reg [DB-1:0] expected_pipe [0:READ_LATENCY-1];
+    reg due;
+    reg [DB-1:0] expected;
+    integer returned = 0;
+    always @(posedge clk) if (!rst) begin
+        due = due_pipe[READ_LATENCY-1];
+        expected = expected_pipe[READ_LATENCY-1];
+        due_pipe = {due_pipe[READ_LATENCY-2:0], dfi_rden};
+        for (integer i = READ_LATENCY - 1; i > 0; i = i - 1)
+            expected_pipe[i] = expected_pipe[i-1];
+        expected_pipe[0] = dfi_a[DB-1:0];
+        #0.001;
+        if (read_latency_error !== 1'b0 || dfi_rdvalid !== due ||
+            (due && dfi_rddata !== expected))
+            $fatal(1, "CL=%0d phase=%0d valid=%b expected_valid=%b DQ=%h expected=%h latency_error=%b",
+                   CL, phase_sel, dfi_rdvalid, due, dfi_rddata, expected, read_latency_error);
+        if (due) returned = returned + 1;
+    end
 
     sdram_phy_top #(
         .ADDR_BITS(AB), .BANK_BITS(BB), .DATA_BITS(DB), .RANKS(1),
-        .CL(2), .NPHASES(4), .SEL_W(2), .BACKEND(0)
+        .CL(CL), .NPHASES(4), .SEL_W(2), .BACKEND(0)
     ) u_top (
         .clk(clk), .rst(rst),
         .dfi_address(dfi_a), .dfi_bank(dfi_ba),
@@ -83,96 +105,63 @@ module tb_read_capture_phase;
         .pad_cmd(pad_cmd), .pad_dq(pad_dq), .pad_ck(pad_ck),
         .cap_clk(cap_clk), .capture_ready(capture_ready),
         .turnaround_busy(turnaround_busy), .pad_ready(pad_ready),
-        .contention(contention), .ck_active(ck_active)
+        .contention(contention), .ck_active(), .read_latency_error(read_latency_error)
     );
 
-    task automatic read_with_split;
-        input [DB-1:0] early_value;
-        input [DB-1:0] late_value;
-        output [DB-1:0] got;
-        begin
-            @(negedge clk);
-            ext_oe = 1'b1;
-            ext_dq = early_value;
-            dfi_rden = 1'b1;
-            @(posedge clk); #1;              // command edge
-            dfi_rden = 1'b0;
-            @(posedge clk); #1;              // one cycle before the capture
-            @(posedge clk_early); #1;        // first early edge
-            @(posedge clk_early); #1;        // capture edge for phase 1
-            ext_dq = late_value;
-            guard = 0;
-            while (!(dfi_rdvalid === 1'b1) && guard < 20) begin
-                @(posedge clk); #1;
-                guard = guard + 1;
-            end
-            got = dfi_rddata;
-            if (dfi_rdvalid !== 1'b1) begin
-                $display("FAIL read_capture_phase: rddata_valid missing");
-                errors = errors + 1;
-            end
-            @(posedge clk);
-        end
+    task automatic drive_read(input enable, input [DB-1:0] value);
+        @(negedge clk); #1;
+        dfi_a = {{(AB-DB){1'b0}}, value};
+        dfi_cs = !enable;
+        dfi_cas = !enable;
+        dfi_rden = enable;
     endtask
 
-    reg [DB-1:0] got0, got1, got2;
-
-    task automatic read_static;
-        input [DB-1:0] value;
-        output [DB-1:0] got;
-        begin
-            @(negedge clk);
-            ext_oe = 1'b1;
-            ext_dq = value;
-            dfi_rden = 1'b1;
-            @(posedge clk); #1;
-            dfi_rden = 1'b0;
-            guard = 0;
-            while (!(dfi_rdvalid === 1'b1) && guard < 20) begin
-                @(posedge clk); #1;
-                guard = guard + 1;
-            end
-            got = dfi_rddata;
-            if (dfi_rdvalid !== 1'b1) begin
-                $display("FAIL read_capture_phase: static rddata_valid missing");
-                errors = errors + 1;
-            end
-            @(posedge clk);
+    task automatic check_phase(input ready, input [1:0] sel);
+        integer start_count;
+        @(negedge clk); #1;
+        phase_ready = ready;
+        phase_sel = sel;
+        repeat (3) @(negedge clk);
+        if (sel == 1) begin
+            @(posedge clk_early); #0.001;
+            if (cap_clk !== 1'b1 || clk !== 1'b0) $fatal(1, "leading capture phase not selected");
+        end else if (sel == 2) begin
+            @(posedge clk); #0.001;
+            if (cap_clk !== 1'b0) $fatal(1, "lagging capture phase rose before its edge");
+            @(posedge clk_late); #0.001;
+            if (cap_clk !== 1'b1) $fatal(1, "lagging capture phase not selected");
         end
+        start_count = returned;
+
+        drive_read(1, 8'hA5);
+        drive_read(0, 0);
+        repeat (READ_LATENCY + 1) @(negedge clk);
+        if (returned != start_count + 1) $fatal(1, "single READ did not return");
+
+        // Go around both FIFO pointers several times without an idle cycle.
+        for (integer i = 0; i < 24; i = i + 1)
+            drive_read(1, 8'h5A ^ 8'(i));
+        drive_read(0, 0);
+        repeat (READ_LATENCY + 1) @(negedge clk);
+        if (returned != start_count + 25) $fatal(1, "pipelined READ lost data");
+        $display("PASS read capture CL=%0d phase=%0d: single + 24 consecutive reads", CL, sel);
     endtask
 
     initial begin
         repeat (3) @(posedge clk);
-        @(negedge clk); rst = 1'b0;
+        @(negedge clk); #1;
+        rst = 1'b0;
         io_power_ok = 1'b1;
-        phase_sel = 2'd0;
-        @(posedge clk); #1;
-        chk(cap_clk === clk, "phase: cap_clk = clk at phase 0");
-        chk(capture_ready === 1'b1, "phase: capture_ready high");
-
-        read_with_split(8'hA5, 8'h5A, got0);
-        chk(got0 === 8'h5A, "phase 0 captures the late value");
-
-        @(negedge clk); phase_sel = 2'd1;
-        @(posedge clk); #1;
-        chk(cap_clk === clk_early, "phase 1 selects the early clock");
-        read_with_split(8'hA5, 8'h5A, got1);
-        chk(got1 === 8'hA5, "phase 1 capture returns the early value");
-        chk(got1 !== got0, "phase selection changes captured data");
-
-        @(negedge clk); phase_sel = 2'd2;
-        @(posedge clk); #1;
-        chk(cap_clk === clk_late, "phase 2 selects the late clock");
-        read_static(8'h3C, got2);
-        chk(got2 === 8'h3C, "phase 2 capture returns held data");
+        dfi_cke = 1'b1;
+        check_phase(0, 0);
+        check_phase(1, 1);
+        check_phase(1, 2);
 
         #20;
         `ifdef MUTATE
-        errors = errors + 1;
-        $display("MUTATION: injected failure for exit-code test");
+        $fatal(1, "MUTATION: injected failure for exit-code test");
         `endif
-        if (errors == 0) $display("PASS read_capture_phase");
-        else             $fatal(1, "FAIL read_capture_phase errors=%0d", errors);
+        $display("PASS read_capture_phase");
         $finish;
     end
 endmodule

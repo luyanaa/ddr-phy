@@ -135,13 +135,16 @@ def main():
     md += [
         "## What this report does not claim",
         "",
-        "- No backend has a hand-drawn pad schematic, a characterized pad netlist,",
-        "  or measured tOE_on / tOE_off. Those numbers are deliberately null.",
+        "- No backend has TLP/HBM ESD qualification. The gf180 pad has BSIM",
+        "  pulse stress and GF180 DRC ESD/LU rule checks only; `esd_verified`",
+        "  therefore stays false and the formal decision stays NO_GO.",
+        "- The gf180 pad schematic is generated and LVS-extracted; its tOE_on/off",
+        "  and delay numbers are SPICE design assumptions, not silicon measurements.",
         "- Existing GPIO libraries are structural references only; per",
         "  docs/ARCHITECTURE.md they are not this design's pads.",
         "- No phase-control resource (PLL/DLL/characterized delay cell) is available,",
         "  so even a fixed-phase claim is withheld (gate G4).",
-        "- No PEX, SPICE, IBIS, SI/PI or PVT signoff has been run.",
+        "- No IBIS, package/PCB SI/PI or full PVT signoff has been run.",
         "",
     ]
     (REPORTS / "capability_report.md").write_text("\n".join(md) + "\n")

@@ -4,10 +4,8 @@
 //
 //   * DFI phase 0 timing of GENSDRPHY (litedram/phy/gensdrphy.py):
 //     write_latency 0, so the write data, enable and mask are presented on
-//     the same cycle as the WRITE command; read_latency CL+1, so
-//     dfi_rddata_en is asserted on the same cycle as the READ command and
-//     dfi_rddata is sampled when dfi_rddata_valid rises. This module adds
-//     no read-data delay of its own.
+//     the same cycle as the WRITE command. dfi_rddata_en accompanies READ;
+//     the controller waits for dfi_rddata_valid rather than counting cycles.
 //   * SDR init order of get_sdr_phy_init_sequence (litedram/init.py) with
 //     nphases=1, so BL=1 and the mode register is CL<<4. The 20000-cycle
 //     CKE pause and the 200-cycle MRS pause are shortened; the command
@@ -22,8 +20,8 @@
 // issues AUTO REFRESH and waits tRFC every T_REFI sys clocks after init.
 //
 // phy_turnaround_busy (from dq_turnaround) blocks WRITE acceptance and
-// WRITE issue; READ may proceed. This prevents the controller from issuing
-// a WRITE whose DQ OE the PHY would then gate during the guard window.
+// WRITE issue; READ may proceed. This avoids issuing a WRITE while the
+// PHY is still guarding the shared DQ bus.
 
 `default_nettype none
 

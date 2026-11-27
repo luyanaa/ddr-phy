@@ -1,0 +1,19 @@
+{
+  "generated_by": "generator/emit_pad_lef_lib.py",
+  "status": "design_assumption views (no IBIS, no ESD qualification)",
+  "macro": "gf180_pad_tile",
+  "size_um": [
+    111.5,
+    185.0
+  ],
+  "gds": "sch/pads/gf180mcuD/pcell/gf180_pad_tile.gds",
+  "lef": "sch/pads/gf180mcuD/pcell/gf180_pad_tile.lef",
+  "lib": "sch/pads/gf180mcuD/pcell/gf180_pad_tile.lib",
+  "timing_source": {
+    "out_to_pad_ns": 0.441,
+    "pad_to_in_ns": 0.096,
+    "oe_on_ns": 0.608,
+    "oe_off_ns": 3.299,
+    "note": "worst over reports/pad_char_gf180mcuD_*.json and reports/pad_delay_gf180mcuD_*.json"
+  }
+}
