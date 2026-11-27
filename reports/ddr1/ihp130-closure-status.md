@@ -126,14 +126,14 @@ PATH=/nix/var/nix/profiles/default/bin:$PATH TOP=ddr1_phy sh flow/run.sh ihp130
 
 ## 10. 封装/padring 第一轮（2026-11-27）
 
-新增 `docs/PACKAGE_PADFRAME_PLAN.md`、`results/ihp130/package/`、`generator/extract_qfn_rlc.py`、`spice/package/qfn40_pkg.spice`。
+新增 `docs/PACKAGE_PADFRAME_PLAN.md`、`reports/ddr1/qfn40-qfn48-package-study.md`、`results/ihp130/package/`、`generator/extract_qfn_rlc.py`、`generator/gen_qfn_padring_coupon.py`、`spice/package/qfn40_pkg.spice`。
 
 结论：
 
-- 全 x8 DDR1 的 32 根 signal + 7 根 power/reference 至少需要 QFN40 6x6；QFN24/28/32 不够。QFN48 7x7 是更稳的推荐。
-- 用 IHP AMS template 的 `run_bondplan.py` 在 2.0 mm × 2.0 mm、40 pad coupon 上生成 QFN40 bondplan：线长 1771–2459 µm，一阶 L 1.85–2.69 nH、R 0.094–0.128 Ω、C 0.1 pF；50 Ω 的 L/R 上界 37–54 ps。
+- 全 x8 DDR1 的 32 根 signal 至少需要 QFN40 6x6（39 used + 1 NC）；QFN24/28/32 不够。QFN48 7x7 用 32 signal + 16 power/ground，无 NC，bondplan 更干净，是更稳的版本。
+- 用 IHP AMS template 的 `run_bondplan.py` 做了两个 coupon：QFN40（2.0 mm、40 pad）线长 1771–2459 µm、L 1.85–2.69 nH、37–54 ps；QFN48（2.4 mm、48 pad）线长 2056–2735 µm、L 2.19–3.04 nH、44–61 ps。QFN48 的 min gap +67 µm、max skew 2.0°，QFN40 仍有 pin 29/30 的 -25 µm 告警。
 - IHP template 的 QFN32 参考线长 1296–1701 µm，L 1.31–1.77 nH，R 0.070–0.091 Ω。
 - Open-Padrings 32 的 pad→core SPEF 为 370–492 Ω / 0.050–0.086 pF；这是数字 padframe 的窄 route，不能直接拿来做 30 mA SSTL-2 padring。
-- 封装 + 参考 padring 的保守上界约 56–96 ps，仍小于 SS 10/11 ns 的 168 ps tDS 违规；当前失败主因仍是 pad TX/OE 与 DQS 捕获，不是封装。
+- 封装 + 参考 padring 的保守上界约 96–103 ps（QFN40/QFN48），仍小于 SS 10/11 ns 的 168 ps tDS 违规；当前失败主因仍是 pad TX/OE 与 DQS 捕获，不是封装。
 
-状态仍是 `signoff=false`。下一步是先冻结 QFN40/QFN48 与 pinout，再做 40-pad SSTL-2 ring 和真实 PEX。
+状态仍是 `signoff=false`。下一步是先冻结 QFN40/QFN48 与 pinout，再做对应 40/48-pad SSTL-2 ring 和真实 PEX。
