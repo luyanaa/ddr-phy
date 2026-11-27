@@ -89,7 +89,7 @@ LibreLane IHP130 `sg13g2_stdcell` 对 `ddr1_phy` 做独立 harden：综合、布
 2. **数字后端不是 signoff**：异步 clock group、占位 I/O delay、双沿捕获、无 pad ring、无封装/板级 SI/PI；setup 余量只有 7.8 ps。
 3. **颗粒模型不是厂商模型**：32 MiB 全阵列和读眼 knobs 已加，但没有 MT46V32M8 厂商模型差分；读 AC/jitter/SSO 仍是行为入口。
 4. **`adpll_gen` 需求已交维护者**，本轮没有实现 `ck90` 或 DQS 延迟线；`ddr_dqs_delay_adpll` 仍未实例化进 `ddr1_top`。
-5. **未 commit / push**：本轮新增和修改仍在工作区。
+5. **已提交/推送**：本轮 DDR1/IHP130 结果在 `036faa6`（分支 `ddr1-ihp130`）；封装/padring 新工作仍在工作区，见第 10 节。
 
 ## 8. 本轮涉及的文件
 
@@ -122,3 +122,18 @@ PAD_PROFILE=ss PYTHON=/tmp/litedram-venv/bin/python sh sim/ddr1_ihp130.sh
 PYTHON=/tmp/litedram-venv/bin/python sh sim/ddr1_read_eye.sh
 PATH=/nix/var/nix/profiles/default/bin:$PATH TOP=ddr1_phy sh flow/run.sh ihp130
 ```
+
+
+## 10. 封装/padring 第一轮（2026-11-27）
+
+新增 `docs/PACKAGE_PADFRAME_PLAN.md`、`results/ihp130/package/`、`generator/extract_qfn_rlc.py`、`spice/package/qfn40_pkg.spice`。
+
+结论：
+
+- 全 x8 DDR1 的 32 根 signal + 7 根 power/reference 至少需要 QFN40 6x6；QFN24/28/32 不够。QFN48 7x7 是更稳的推荐。
+- 用 IHP AMS template 的 `run_bondplan.py` 在 2.0 mm × 2.0 mm、40 pad coupon 上生成 QFN40 bondplan：线长 1771–2459 µm，一阶 L 1.85–2.69 nH、R 0.094–0.128 Ω、C 0.1 pF；50 Ω 的 L/R 上界 37–54 ps。
+- IHP template 的 QFN32 参考线长 1296–1701 µm，L 1.31–1.77 nH，R 0.070–0.091 Ω。
+- Open-Padrings 32 的 pad→core SPEF 为 370–492 Ω / 0.050–0.086 pF；这是数字 padframe 的窄 route，不能直接拿来做 30 mA SSTL-2 padring。
+- 封装 + 参考 padring 的保守上界约 56–96 ps，仍小于 SS 10/11 ns 的 168 ps tDS 违规；当前失败主因仍是 pad TX/OE 与 DQS 捕获，不是封装。
+
+状态仍是 `signoff=false`。下一步是先冻结 QFN40/QFN48 与 pinout，再做 40-pad SSTL-2 ring 和真实 PEX。
