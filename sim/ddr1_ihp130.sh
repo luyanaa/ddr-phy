@@ -6,9 +6,9 @@ cd "$(dirname "$0")/.."
 # IHP130 pad-boundary DDR1 loop regression.
 #
 # PAD_PROFILE=tt (default): TT PEX pad delays 1300/1300/1500 ps.
-# PAD_PROFILE=ss: SS PEX pad delays 1865/1615/2332 ps. The SS profile is
-# expected to expose the current write tDS failure; the script reports it and
-# exits non-zero, so it is evidence rather than a passing CI target.
+# PAD_PROFILE=ss: SS PEX pad delays 1865/1615/2332 ps. The SS profile exposes
+# the pad-induced write tDS loss; DQ_OE_PS can advance the DQ driver enable
+# relative to DQS, and DQS_CAPTURE_DELAY_PS trims the read capture point.
 python=${PYTHON:-python3}
 if ! "$python" -c 'import migen, litex' 2>/dev/null; then
     echo 'Install migen==0.9.2 and litex==2024.12 in the PYTHON environment.' >&2
@@ -17,6 +17,13 @@ fi
 export PYTHONDONTWRITEBYTECODE=1
 
 profile=${PAD_PROFILE:-tt}
+dq_oe_ps=${DQ_OE_PS:--1}
+dqs_oe_ps=${DQS_OE_PS:--1}
+cap_ps=${DQS_CAPTURE_DELAY_PS:-1500}
+dq_tx_ps=${DQ_TX_PS:--1}
+dq_rx_ps=${DQ_RX_PS:--1}
+dqs_tx_ps=${DQS_TX_PS:--1}
+dqs_rx_ps=${DQS_RX_PS:--1}
 case "$profile" in
     tt) pad_tx=1300; pad_rx=1300; pad_oe=1500 ;;
     ss) pad_tx=1865; pad_rx=1615; pad_oe=2332 ;;
@@ -46,6 +53,13 @@ for ck in 10000 11000 12000; do
         -Ptb_ddr1_ihp130_loop.PAD_TX_PS="$pad_tx" \
         -Ptb_ddr1_ihp130_loop.PAD_RX_PS="$pad_rx" \
         -Ptb_ddr1_ihp130_loop.PAD_OE_PS="$pad_oe" \
+        -Ptb_ddr1_ihp130_loop.DQ_OE_PS="$dq_oe_ps" \
+        -Ptb_ddr1_ihp130_loop.DQS_OE_PS="$dqs_oe_ps" \
+        -Ptb_ddr1_ihp130_loop.DQS_CAPTURE_DELAY_PS="$cap_ps" \
+        -Ptb_ddr1_ihp130_loop.DQ_TX_PS="$dq_tx_ps" \
+        -Ptb_ddr1_ihp130_loop.DQ_RX_PS="$dq_rx_ps" \
+        -Ptb_ddr1_ihp130_loop.DQS_TX_PS="$dqs_tx_ps" \
+        -Ptb_ddr1_ihp130_loop.DQS_RX_PS="$dqs_rx_ps" \
         -o "$work/ddr1_pad.vvp" \
         "$work/ddr1_controller_net.v" "$work/ddr1_top.sv" "$work/ddr1_init.sv" \
         "$work/ddr1_phy.sv" "$work/ddr_edge_out.sv" "$work/ddr_read_capture.sv" \

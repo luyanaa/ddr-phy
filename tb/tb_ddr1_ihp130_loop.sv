@@ -7,7 +7,13 @@ module tb_ddr1_ihp130_loop #(
     parameter integer PAD_TX_PS = 1300,
     parameter integer PAD_RX_PS = 1300,
     parameter integer PAD_OE_PS = 1500,
-    parameter integer DQS_CAPTURE_DELAY_PS = 1500
+    parameter integer DQS_CAPTURE_DELAY_PS = 1500,
+    parameter integer DQ_TX_PS = -1,
+    parameter integer DQ_RX_PS = -1,
+    parameter integer DQ_OE_PS = -1,
+    parameter integer DQS_TX_PS = -1,
+    parameter integer DQS_RX_PS = -1,
+    parameter integer DQS_OE_PS = -1
 );
     localparam integer CK_PS = `DDR1_TCK_PS;
     localparam integer STREAM = 16;
@@ -37,7 +43,9 @@ module tb_ddr1_ihp130_loop #(
 
     ddr1_ihp130_io #(
         .TRAIN_ENABLE(0), .PAD_TX_PS(PAD_TX_PS), .PAD_RX_PS(PAD_RX_PS),
-        .PAD_OE_PS(PAD_OE_PS), .DQS_CAPTURE_DELAY_PS(DQS_CAPTURE_DELAY_PS)
+        .PAD_OE_PS(PAD_OE_PS), .DQS_CAPTURE_DELAY_PS(DQS_CAPTURE_DELAY_PS),
+        .DQ_TX_PS(DQ_TX_PS), .DQ_RX_PS(DQ_RX_PS), .DQ_OE_PS(DQ_OE_PS),
+        .DQS_TX_PS(DQS_TX_PS), .DQS_RX_PS(DQS_RX_PS), .DQS_OE_PS(DQS_OE_PS)
     ) dut (
         .sys_clk(sys_clk), .ck(ck), .ck90(ck90), .rst(rst), .init_done(init_done),
         .cmd_valid(cmd_valid), .cmd_ready(cmd_ready), .cmd_we(cmd_we), .cmd_addr(cmd_addr),

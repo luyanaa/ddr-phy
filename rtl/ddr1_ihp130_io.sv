@@ -14,7 +14,14 @@ module ddr1_ihp130_io #(
     parameter integer PAD_TX_PS = 1300,
     parameter integer PAD_RX_PS = 1300,
     parameter integer PAD_OE_PS = 1500,
-    parameter integer DQS_CAPTURE_DELAY_PS = 1500
+    parameter integer DQS_CAPTURE_DELAY_PS = 1500,
+    // Per-lane overrides. -1 keeps the legacy single PAD_* value.
+    parameter integer DQ_TX_PS = -1,
+    parameter integer DQ_RX_PS = -1,
+    parameter integer DQ_OE_PS = -1,
+    parameter integer DQS_TX_PS = -1,
+    parameter integer DQS_RX_PS = -1,
+    parameter integer DQS_OE_PS = -1
 ) (
     input  wire        sys_clk, ck, ck90, rst,
     output wire        init_done, read_error, dfi_error,
@@ -50,6 +57,13 @@ module ddr1_ihp130_io #(
     output wire        DQS_OE,
     output wire        PAD_DQS_OE
 );
+    localparam integer DQ_TX_DLY = (DQ_TX_PS < 0) ? PAD_TX_PS : DQ_TX_PS;
+    localparam integer DQ_RX_DLY = (DQ_RX_PS < 0) ? PAD_RX_PS : DQ_RX_PS;
+    localparam integer DQ_OE_DLY = (DQ_OE_PS < 0) ? PAD_OE_PS : DQ_OE_PS;
+    localparam integer DQS_TX_DLY = (DQS_TX_PS < 0) ? PAD_TX_PS : DQS_TX_PS;
+    localparam integer DQS_RX_DLY = (DQS_RX_PS < 0) ? PAD_RX_PS : DQS_RX_PS;
+    localparam integer DQS_OE_DLY = (DQS_OE_PS < 0) ? PAD_OE_PS : DQS_OE_PS;
+
     wire [12:0] a_int;
     wire [1:0]  ba_int;
     wire        cke_int, cs_n_int, ras_n_int, cas_n_int, we_n_int;
@@ -82,7 +96,7 @@ module ddr1_ihp130_io #(
     generate
         for (i = 0; i < 8; i = i + 1) begin : g_dq_pad
             ihp130_sstl2_dq_model #(
-                .TX_PS(PAD_TX_PS), .RX_PS(PAD_RX_PS), .OE_PS(PAD_OE_PS)
+                .TX_PS(DQ_TX_DLY), .RX_PS(DQ_RX_DLY), .OE_PS(DQ_OE_DLY)
             ) dq_pad (
                 .PAD(PAD_DQ[i]), .DQ_O(dq_o_int[i]), .DQ_OE(dq_oe_int),
                 .VREF(VREF), .PU_OK(PU_OK), .DQ_I(dq_i_int[i])
@@ -91,7 +105,7 @@ module ddr1_ihp130_io #(
     endgenerate
 
     ihp130_sstl2_dq_model #(
-        .TX_PS(PAD_TX_PS), .RX_PS(PAD_RX_PS), .OE_PS(PAD_OE_PS)
+        .TX_PS(DQS_TX_DLY), .RX_PS(DQS_RX_DLY), .OE_PS(DQS_OE_DLY)
     ) dqs_pad (
         .PAD(PAD_DQS), .DQ_O(dqs_o_int), .DQ_OE(dqs_oe_int),
         .VREF(VREF), .PU_OK(PU_OK), .DQ_I(dqs_pad_i),

@@ -6,7 +6,7 @@
 
 ## 1. 结论摘要
 
-本轮把 DDR1 数字闭环、pad 边界行为闭环、IHP130 `ddr1_phy` 首次数字后端、32 MiB 颗粒模型和 CI 入口都推进到了可复跑状态。仍有三个明确的未闭合项：SS pad 在 10/11 ns 写 tDS 不通过；数字后端只是 bring-up harden，不是 DDR1 signoff；没有厂商 MT46V32M8 模型差分。
+本轮把 DDR1 数字闭环、pad 边界行为闭环、IHP130 `ddr1_phy` 首次数字后端、32 MiB 颗粒模型和 CI 入口都推进到了可复跑状态。SS 原始 PEX 参数在 10/11 ns 仍写 tDS 不通过；把 DQ OE 提前 400 ps、DQS 捕获延迟取 600 ps 后，SS 9 角可以 PASS，但这仍是行为 pad + 理想延迟，不是 signoff。数字后端只是 bring-up harden，不是 DDR1 signoff；没有厂商 MT46V32M8 模型差分。
 
 ## 2. Testbench 修复与 LiteDRAM 闭环
 
@@ -31,6 +31,7 @@
   - CK = 12 ns 的 3 个 offset 全部 `DDR1_LOOP_PASS`。
   - CK = 10/11 ns 的 6 个运行全部在第一次写 DQS 边沿报 `DDR1 write tDS violated`；10 ns 角 DQ 变化距 DQS 边沿只有 168 ps（202796865 ps）。
   - 这是当前 PEX SS pad/`ck90`/DQS OE 组合的真实边界，不是 TB 误报。
+- **SS 行为级补偿**：`DQ_OE_PS=1932`（比 DQS OE 2332 提前 400 ps）+ `DQS_CAPTURE_DELAY_PS=600` 后，CK 10/11/12 ns × offset -750/0/+750 ps 共 9 角全部 `DDR1_LOOP_PASS`。TT 用同一组值也 9/9 PASS。细节见 `reports/ddr1/ihp130-pad-timing-closure.md` 与 `reports/ddr1/ihp130_pad_timing_matrix.csv`。
 
 ## 4. IHP130 数字后端
 
@@ -80,16 +81,17 @@ LibreLane IHP130 `sg13g2_stdcell` 对 `ddr1_phy` 做独立 harden：综合、布
 - `.github/workflows/ci.yml` 工作区版本新增：
   - `sh sim/ddr1.sh`（原生 LiteDRAM 9 角 + training）。
   - `sh sim/ddr1_ihp130.sh`（pad 边界 TT 9 角）。
+  - `sh sim/ddr1_ihp130.sh`（`PAD_PROFILE=ss DQ_OE_PS=1932 DQS_CAPTURE_DELAY_PS=600`，SS 补偿后 9 角）。
   - `sh sim/ddr1_read_eye.sh`（读眼 jitter/skew/SSO）。
-- 提交版 `f35b33f` 仍没有 DDR1 job；本轮改动未提交。
+- 提交版 `f35b33f` 仍没有 DDR1 job；DDR1 CI step 随本轮改动进入工作区版本。
 
 ## 7. 未闭合项
 
-1. **SS pad 10/11 ns 不通过**：第一次写 DQS 边沿的 tDS 只有 168 ps。需要重画推荐尺寸 pad、或重新分配 `ck90`/DQS OE 相位；不能按当前 PEX SS 直接做 100 MHz x8。
+1. **SS 原始 pad 10/11 ns 不通过**：第一次写 DQS 边沿的 tDS 只有 168 ps。行为级用 `DQ_OE_PS=1932` + `DQS_CAPTURE_DELAY_PS=600` 可以过 9 角，但需要 SPICE/版图确认 OE 路径能提前 400 ps，不能按当前 PEX SS 直接做 100 MHz x8。
 2. **数字后端不是 signoff**：异步 clock group、占位 I/O delay、双沿捕获、无 pad ring、无封装/板级 SI/PI；setup 余量只有 7.8 ps。
 3. **颗粒模型不是厂商模型**：32 MiB 全阵列和读眼 knobs 已加，但没有 MT46V32M8 厂商模型差分；读 AC/jitter/SSO 仍是行为入口。
 4. **`adpll_gen` 需求已交维护者**，本轮没有实现 `ck90` 或 DQS 延迟线；`ddr_dqs_delay_adpll` 仍未实例化进 `ddr1_top`。
-5. **已提交/推送**：本轮 DDR1/IHP130 结果在 `036faa6`（分支 `ddr1-ihp130`）；封装/padring 新工作仍在工作区，见第 10 节。
+5. **已提交/推送**：IHP130 pad-in-loop 在 `036faa6`，QFN40/QFN48 封装研究在 `a393ecc`/`73a8566`（分支 `ddr1-ihp130`）；pad 时序闭环改动见第 11 节。
 
 ## 8. 本轮涉及的文件
 
@@ -118,7 +120,11 @@ LibreLane IHP130 `sg13g2_stdcell` 对 `ddr1_phy` 做独立 harden：综合、布
 cd /grid/ddr-phy
 PYTHON=/tmp/litedram-venv/bin/python sh sim/ddr1.sh
 PYTHON=/tmp/litedram-venv/bin/python sh sim/ddr1_ihp130.sh
+# SS 原始：仍失败，作为边界证据
 PAD_PROFILE=ss PYTHON=/tmp/litedram-venv/bin/python sh sim/ddr1_ihp130.sh
+# SS 补偿：9/9 PASS
+PAD_PROFILE=ss DQ_OE_PS=1932 DQS_CAPTURE_DELAY_PS=600 \
+  PYTHON=/tmp/litedram-venv/bin/python sh sim/ddr1_ihp130.sh
 PYTHON=/tmp/litedram-venv/bin/python sh sim/ddr1_read_eye.sh
 PATH=/nix/var/nix/profiles/default/bin:$PATH TOP=ddr1_phy sh flow/run.sh ihp130
 ```
@@ -126,14 +132,29 @@ PATH=/nix/var/nix/profiles/default/bin:$PATH TOP=ddr1_phy sh flow/run.sh ihp130
 
 ## 10. 封装/padring 第一轮（2026-11-27）
 
-新增 `docs/PACKAGE_PADFRAME_PLAN.md`、`results/ihp130/package/`、`generator/extract_qfn_rlc.py`、`spice/package/qfn40_pkg.spice`。
+新增 `docs/PACKAGE_PADFRAME_PLAN.md`、`reports/ddr1/qfn40-qfn48-package-study.md`、`results/ihp130/package/`、`generator/extract_qfn_rlc.py`、`generator/gen_qfn_padring_coupon.py`、`spice/package/qfn40_pkg.spice`。
 
 结论：
 
-- 全 x8 DDR1 的 32 根 signal + 7 根 power/reference 至少需要 QFN40 6x6；QFN24/28/32 不够。QFN48 7x7 是更稳的推荐。
-- 用 IHP AMS template 的 `run_bondplan.py` 在 2.0 mm × 2.0 mm、40 pad coupon 上生成 QFN40 bondplan：线长 1771–2459 µm，一阶 L 1.85–2.69 nH、R 0.094–0.128 Ω、C 0.1 pF；50 Ω 的 L/R 上界 37–54 ps。
+- 全 x8 DDR1 的 32 根 signal 至少需要 QFN40 6x6（39 used + 1 NC）；QFN24/28/32 不够。QFN48 7x7 用 32 signal + 16 power/ground，无 NC，bondplan 更干净，是更稳的版本。
+- 用 IHP AMS template 的 `run_bondplan.py` 做了两个 coupon：QFN40（2.0 mm、40 pad）线长 1771–2459 µm、L 1.85–2.69 nH、37–54 ps；QFN48（2.4 mm、48 pad）线长 2056–2735 µm、L 2.19–3.04 nH、44–61 ps。QFN48 的 min gap +67 µm、max skew 2.0°，QFN40 仍有 pin 29/30 的 -25 µm 告警。
 - IHP template 的 QFN32 参考线长 1296–1701 µm，L 1.31–1.77 nH，R 0.070–0.091 Ω。
 - Open-Padrings 32 的 pad→core SPEF 为 370–492 Ω / 0.050–0.086 pF；这是数字 padframe 的窄 route，不能直接拿来做 30 mA SSTL-2 padring。
-- 封装 + 参考 padring 的保守上界约 56–96 ps，仍小于 SS 10/11 ns 的 168 ps tDS 违规；当前失败主因仍是 pad TX/OE 与 DQS 捕获，不是封装。
+- 封装 + 参考 padring 的保守上界约 96–103 ps（QFN40/QFN48），仍小于 SS 10/11 ns 的 168 ps tDS 违规；当前失败主因仍是 pad TX/OE 与 DQS 捕获，不是封装。
 
-状态仍是 `signoff=false`。下一步是先冻结 QFN40/QFN48 与 pinout，再做 40-pad SSTL-2 ring 和真实 PEX。
+状态仍是 `signoff=false`。下一步是先冻结 QFN40/QFN48 与 pinout，再做对应 40/48-pad SSTL-2 ring 和真实 PEX。
+
+
+## 11. Pad 时序闭环第一轮（2026-11-27）
+
+新增 per-lane pad 延迟参数（`DQ_TX_PS/DQ_RX_PS/DQ_OE_PS`、`DQS_TX_PS/DQS_RX_PS/DQS_OE_PS`）和 `sim/ddr1_ihp130.sh` 的 `DQS_CAPTURE_DELAY_PS/DQ_RX_PS/DQS_RX_PS` 环境变量。
+
+结果：
+
+- SS 原始：CK=10/11 ns 的 6 个运行仍写 tDS 失败；CK=12 ns 3 个通过。
+- 写方向：`DQ_OE_PS=1932` 使 CK=10 ns corner 0 通过；`2032` 仍失败，`1832` 通过。把 DQS OE 往后推（2532–3132 ps）无效。
+- 读方向：CK=10 ns、`READ_CORNER=+750 ps` 下，capture 500–750 ps 通过，800 ps 起 `read_error`；0–400 ps 是字节错位。
+- 全 SS 9 角：`DQ_OE_PS=1932` + `DQS_CAPTURE_DELAY_PS=600` 全部 `DDR1_LOOP_PASS`。
+- TT 原始值和补偿值都 9/9 PASS；原生 `sim/ddr1.sh` 仍 9 角 + training 全 PASS。
+
+边界：`DQ_OE_PS=1932` 和 capture 600 ps 都是行为参数；`ddr_dqs_delay_adpll` 尚未实例化，`ck90` 仍为空，封装 RLC 未接入。

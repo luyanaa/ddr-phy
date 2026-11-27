@@ -50,6 +50,13 @@ jobs:
       - name: DDR1 IHP130 pad-boundary loop
         run: sh sim/ddr1_ihp130.sh
 
+      - name: DDR1 IHP130 SS pad timing closure
+        env:
+          PAD_PROFILE: ss
+          DQ_OE_PS: "1932"
+          DQS_CAPTURE_DELAY_PS: "600"
+        run: sh sim/ddr1_ihp130.sh
+
       - name: DDR1 read-eye jitter/skew/SSO
         run: sh sim/ddr1_read_eye.sh
 
