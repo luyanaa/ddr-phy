@@ -1,6 +1,6 @@
 # IHP130 DDR1 封装与 padring 方案（第一轮）
 
-状态：**QFN40 与 QFN48 两个 coupon 版本均已完成 bondplan + 一阶 RLC；仍未签核。**
+状态：**QFN40 与 QFN48 两个 coupon 版本均已完成 bondplan + 一阶 RLC；QFN64 只记录了 IHP 示例图，未做 bondplan/RLC；三个封装都未签核。**
 本文不改变 `signoff=false` / IHP130 NO_GO。它回答三件事：QFN 24/28/32 是否够、两个候选封装各是什么量级、封装寄生对当前 SS tDS 失败有多大影响。
 
 ## 1. 结论
@@ -46,6 +46,7 @@
 | QFN32 | 32 | 仅“32 signal + 0 power”或缩减到 x4/少地址；全 x8 不可行 |
 | QFN40 6x6 | 40 | 可行：39 used + 1 NC；最小标准封装 |
 | QFN48 7x7 | 48 | 可行：32 signal + 16 power/ground；无 NC，bondplan 更干净 |
+| QFN64 9x9 | 64 | 可行：32 signal + 32 power/ground/reference；IHP TO Sep2025 提供 64-pin 示例 bonding plan，尚未做本项目的 bondplan/RLC |
 
 ## 4. QFN40 / QFN48 coupon 与一阶寄生
 
@@ -117,6 +118,17 @@ QFN40 的 pin 29/30 bond 告警说明这个 pinout 必须重跑 `run_bondplan.py
 | N | 37–48 | DQ0, DQ1, DQ2, DQ3, DQS, DQ4, DQ5, DQ6, DQ7, DM, VSSIO, VDDIO |
 
 QFN48 没有 NC：多出来的 9 个 lead 全部给 VDDIO/VSSIO/VDD/VSS。代价是 DQ/DQS 在北边 10 个 pad 中被 VSSIO/VDDIO 占掉两个，DQ bus 的间距需要再核对。
+
+### 6.3 QFN64：IHP TO Sep2025 的 64-pin 示例 bonding plan
+
+IHP 的 `TO_Sep2025` 仓库提供了一个 64-pin QFN 的示例 bonding plan，可作为 QFN64 的几何起点：
+
+- 上游：`IHP-GmbH/TO_Sep2025` @ `113f1ab0426024b343a74071b34aee6d12de2b3e`，`drc/QFN64.svg`
+- 链接：`https://raw.githubusercontent.com/IHP-GmbH/TO_Sep2025/113f1ab0426024b343a74071b34aee6d12de2b3e/drc/QFN64.svg`
+- 本地副本：`docs/packages/ihp130_qfn64.svg`，预览：`docs/images/ihp130_qfn64.png`
+- 记录：`docs/packages/IHP130_QFN64.md`
+
+从图里能确认：64 lead、四边各 16、lead pitch 0.5 mm、图幅 12×13 mm、本体约 9×9 mm。它不是封装厂 datasheet，也没有本项目的 64-pad die bondplan 或 RLC；当前 QFN40/QFN48 的 `qfn*_pkg.spice` 不能直接套到 QFN64。
 
 两个分组都只优化了“DQ/DQS 同边、控制同边、电源靠近两边”，还没有做 lead 间耦合、地回流、bondwire crossing 和封装厂 rule check。
 

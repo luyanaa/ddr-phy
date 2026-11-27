@@ -84,6 +84,8 @@
 - 已接受的层次化 LVS、当前 ESD/latch-up、hold 的 `t_uncertainty` 不改变这些 formal flag；能力的正式状态仍是 NO_GO。
 - 提交版 CI 没有 DDR1 job；本地未提交的 CI 才加，且加进去会立刻暴露上面的训练 TB 失败。
 
+> **2026-11-27 更新**：本文件第 4 节“版图 XRDRIVER 仍是 8/0.6 µm”是历史状态。W12 实验版和 `ddr1_top` 真实 SDC 的中间结果见 `reports/ddr1/ihp130-w12-pad-sdc-20261127.md`；W12 仍未过 SS PEX 1.5 ns，`ddr1_top` setup 余量只到 +75.35 ps，不能按已闭合处理。
+
 ## 5. 建议的最小收口顺序
 
 1. 修 `tb_ddr1_train.sv` 的 include 和 init timeout，提交 CI 的 DDR1 job，让 `sim/ddr1.sh` 在远端变绿。
