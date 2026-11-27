@@ -18,9 +18,11 @@
   "FP_CORE_UTIL": 30,
   "PL_TARGET_DENSITY_PCT": 40,
   "RUN_CTS": true,
-  "PNR_SDC_FILE": "dir::ddr1_top.sdc",
-  "SIGNOFF_SDC_FILE": "dir::ddr1_top.sdc",
+  "PNR_SDC_FILE": "dir::ddr1_top_realio.sdc",
+  "SIGNOFF_SDC_FILE": "dir::ddr1_top_realio.sdc",
   "RUN_HEURISTIC_DIODE_INSERTION": false,
   "//": "IHP130 DDR1 full digital top: LiteDRAM controller + DDR1 init + PHY. Pads, level shifters and package are outside this harden. The generated bundle is produced by flow/prep_ddr1_top.sh; this is a visual/assembly bring-up harden, not a DDR1 signoff.",
-  "RUN_LINTER": false
+  "RUN_LINTER": false,
+  "CTS_SINK_CLUSTERING_SIZE": 8,
+  "MAX_FANOUT_CONSTRAINT": 8
 }

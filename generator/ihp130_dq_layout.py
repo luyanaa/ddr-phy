@@ -22,11 +22,14 @@ sys.path.insert(0, str(HERE))
 from ihp130_dq_devices import build_devices
 
 TOP = "ihp130_sstl2_dq"
-SCHEMATIC = HERE.parent / "sch/pads/ihp130/sstl2_dq.spice"
+SCHEMATIC = Path(os.environ.get(
+    "IHP_DQ_SCHEMATIC",
+    HERE.parent / "sch/pads/ihp130/sstl2_dq.spice",
+)).resolve()
 SCHEMATIC_PORTS = "OUT OE IN PAD VREF PU_OK VDD VSS VDDIO VSSIO".split()
 PORTS = [p for p in SCHEMATIC_PORTS if p != "VSS"]
 PORT_EDGE_TOP = {"PAD", "VSSIO", "VDDIO"}
-DRIVE_NETS = {"DRIVER", "PAD", "VDDIO", "VSSIO"}
+DRIVE_NETS = {"DRIVER", "PAD", "VDDIO", "VSSIO", "PG", "NG", "P_B", "N_B", "P1", "EN"}
 DRIVE_ROWS = {"XDRVH", "XESDHI"}
 RX_LOCAL = {"RX_LEVEL", "SENSE", "MIRROR", "DEC_B"}
 WIDE_RISER = 1260
@@ -165,7 +168,8 @@ def grid(n):
 
 
 def wide(net):
-    return {"VSSIO": 2800, "VDDIO": 2200, "VDD": 1200, "PAD": 1800, "DRIVER": 1800}.get(net, 520)
+    return {"VSSIO": 2800, "VDDIO": 2200, "VDD": 1200, "PAD": 1800, "DRIVER": 1800,
+            "PG": 1800, "NG": 1800, "P_B": 1400, "N_B": 1400}.get(net, 520)
 
 
 def channel_width(net, drive_row):
@@ -284,10 +288,20 @@ def device_access(drawing, dev, shape, dx, dy):
             _, x, y = pick(pins[term], x_out)
             pt = pya.Point(x - dx, y - dy)
             b = next(r.bbox() for r in rails if r.inside(pt)).moved(dx, dy)
-            drawing.box(METAL[2], min(b.left, x_out - 150), min(b.bottom, y - 150),
-                        max(b.right, x_out + 150), max(b.top, y + 150))
-            drawing.cut(2, x_out, y)
-            access[term] = x_out, y, 380
+            if heavy and term == "G":
+                # Keep the gate pickup inside the S/D rail gap, but spread
+                # it along X and use three vias plus a 700 nm M3 riser.
+                # A full-width M2 gate bus violates M2.b against the 1.44 um
+                # source/drain rails; this is the DRC-clean compromise.
+                drawing.box(METAL[2], min(b.left, x_out - 500), min(b.bottom, y - 150),
+                            max(b.right, x_out + 500), max(b.top, y + 150))
+                drawing.cut_array(2, x_out, y, 3, 1)
+                access[term] = x_out, y, 700
+            else:
+                drawing.box(METAL[2], min(b.left, x_out - 150), min(b.bottom, y - 150),
+                            max(b.right, x_out + 150), max(b.top, y + 150))
+                drawing.cut(2, x_out, y)
+                access[term] = x_out, y, 380
         for t, direction in (("D", 1), ("S", -1)):
             width, riser = (1440, WIDE_RISER) if heavy else (300, 380)
             y = pins[t][0][2] + direction * (1080 if heavy else 300)

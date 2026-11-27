@@ -1,0 +1,75 @@
+* SPDX-License-Identifier: Apache-2.0
+* IHP SG13G2, pre-layout DDR1 SSTL-2 DQ pad, 1.2 V core / 2.5 V I/O.
+* Active-high OE is core-domain. PU_OK is a 2.5 V supervisor input: hold
+* low until both supplies are valid, and drop it before either rail falls.
+* PAD must remain within the I/O rails; this is not an unpowered fail-safe pad.
+* VREF is the distributed board reference, after its separate entry pad.
+* IO MOS w is total width, ng divides that width into fingers.
+
+.subckt ihp_sstl2_io_inv A Y VP VN params: wn=2.4u wp=4.8u fingers=2
+XN Y A VN VN sg13_hv_nmos w={wn} l=0.45u ng={fingers}
+XP Y A VP VP sg13_hv_pmos w={wp} l=0.40u ng={fingers}
+.ends ihp_sstl2_io_inv
+
+.subckt ihp_sstl2_io_nand A B Y VP VN wn=4.8u wp=4.8u
+XNA Y A N VN sg13_hv_nmos w={wn} l=0.45u ng=2
+XNB N B VN VN sg13_hv_nmos w={wn} l=0.45u ng=2
+XPA Y A VP VP sg13_hv_pmos w={wp} l=0.40u ng=2
+XPB Y B VP VP sg13_hv_pmos w={wp} l=0.40u ng=2
+.ends ihp_sstl2_io_nand
+
+.subckt ihp_sstl2_core_inv A Y VDD VSS wn=3u wp=6u
+XN Y A VSS VSS sg13_lv_nmos w={wn} l=0.13u ng=2
+XP Y A VDD VDD sg13_lv_pmos w={wp} l=0.13u ng=3
+.ends ihp_sstl2_core_inv
+
+* Only the HV pull-down gates see the core voltage. The core complement
+* driver is entirely inside the low-voltage domain; its drain never sees IO.
+* Size the ratioed latch for the slow 1.08 V core drive, not nominal only.
+.subckt ihp_sstl2_up A Y YB VDD VSS VDDIO VSSIO
+XCINV A AB VDD VSS ihp_sstl2_core_inv wn=5u wp=15u
+XNA YB A  VSSIO VSSIO sg13_hv_nmos w=40u l=0.45u ng=10
+XNB Y  AB VSSIO VSSIO sg13_hv_nmos w=40u l=0.45u ng=10
+XPA Y  YB VDDIO VDDIO sg13_hv_pmos w=5u l=0.50u ng=2
+XPB YB Y  VDDIO VDDIO sg13_hv_pmos w=5u l=0.50u ng=2
+.ends ihp_sstl2_up
+
+.subckt ihp130_sstl2_dq OUT OE IN PAD VREF PU_OK VDD VSS VDDIO VSSIO
+* RX: resistively fed current mirror, NMOS input pair, PMOS mirror load.
+* PAD > VREF raises SENSE. The NAND inverts and qualifies the decision.
+XRBIAS VDDIO BIAS VSSIO rhigh w=1.2u l=13u
+XBIAS BIAS BIAS VSSIO VSSIO sg13_hv_nmos w=6u l=0.65u ng=2
+XTAIL TAIL BIAS VSSIO VSSIO sg13_hv_nmos w=6u l=0.65u ng=2
+XRP MIRROR PAD  TAIL VSSIO sg13_hv_nmos w=10u l=0.55u ng=2
+XRR SENSE  VREF TAIL VSSIO sg13_hv_nmos w=10u l=0.55u ng=2
+XLP MIRROR MIRROR VDDIO VDDIO sg13_hv_pmos w=8u l=0.55u ng=2
+XLR SENSE  MIRROR VDDIO VDDIO sg13_hv_pmos w=8u l=0.55u ng=2
+XDET SENSE PU_OK DEC_B VDDIO VSSIO ihp_sstl2_io_nand
+* Resistively loaded HV pull-down translates DEC_B without a 2.5 V gate
+* on any oxide in the core inverter. The only core-facing RX_LEVEL node
+* is pulled up to the 1.2 V rail. This draws core current for a low read.
+XRDOWN VDD RX_LEVEL VSS rhigh w=1.2u l=5u
+XDOWN RX_LEVEL DEC_B VSS VSS sg13_hv_nmos w=10u l=0.45u ng=2
+XRXB0 RX_LEVEL RX_B VDD VSS ihp_sstl2_core_inv wn=6u wp=12u
+XRXB1 RX_B IN VDD VSS ihp_sstl2_core_inv wn=6u wp=12u
+
+* TX: independently move data and core OE into the I/O domain. Qualify
+* OE after the shifter so PU_OK=0 dominates even if its latch is undefined.
+XDATA OUT DATA_H DATA_L VDD VSS VDDIO VSSIO ihp_sstl2_up
+XOE   OE  OE_H   OE_L   VDD VSS VDDIO VSSIO ihp_sstl2_up
+XGUARD OE_H PU_OK EN_B VDDIO VSSIO ihp_sstl2_io_nand wn=16u wp=19.2u
+XEN EN_B EN VDDIO VSSIO ihp_sstl2_io_inv wn=16u wp=19.2u fingers=4
+XUP DATA_H EN P_B VDDIO VSSIO ihp_sstl2_io_nand wn=10u wp=8u
+XDN DATA_L EN N_B VDDIO VSSIO ihp_sstl2_io_nand wn=8u wp=9.6u
+XPPRE P_B P1 VDDIO VSSIO ihp_sstl2_io_inv wn=11u wp=25u fingers=4
+XPG P1 PG VDDIO VSSIO ihp_sstl2_io_inv wn=50u wp=48u fingers=8
+XNG N_B NG VDDIO VSSIO ihp_sstl2_io_inv wn=36u wp=72u fingers=6
+XDRVH DRIVER PG VDDIO VDDIO sg13_hv_pmos w=400u l=0.40u ng=80
+XDRVL DRIVER NG VSSIO VSSIO sg13_hv_nmos w=240u l=0.45u ng=60
+XRDRIVER DRIVER PAD VSSIO rppd w=12u l=0.3u
+
+* PDK pad diodes for nominal loading/leakage, not qualified HBM/CDM or a
+* rail clamp. A separately validated rail clamp is a pad-ring obligation.
+XESDHI VDDIO PAD VSSIO diodevdd_2kv
+XESDLO VDDIO PAD VSSIO diodevss_2kv
+.ends ihp130_sstl2_dq
