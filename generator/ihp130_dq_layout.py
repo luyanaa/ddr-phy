@@ -29,7 +29,8 @@ SCHEMATIC = Path(os.environ.get(
 SCHEMATIC_PORTS = "OUT OE IN PAD VREF PU_OK VDD VSS VDDIO VSSIO".split()
 PORTS = [p for p in SCHEMATIC_PORTS if p != "VSS"]
 PORT_EDGE_TOP = {"PAD", "VSSIO", "VDDIO"}
-DRIVE_NETS = {"DRIVER", "PAD", "VDDIO", "VSSIO", "PG", "NG", "P_B", "N_B", "P1", "EN"}
+DRIVE_NETS = {"DRIVER", "PAD", "VDDIO", "VSSIO"}
+HEAVY_NETS = {"DRIVER", "VDDIO", "VSSIO"}
 DRIVE_ROWS = {"XDRVH", "XESDHI"}
 RX_LOCAL = {"RX_LEVEL", "SENSE", "MIRROR", "DEC_B"}
 WIDE_RISER = 1260
@@ -147,6 +148,27 @@ def physical_fingers(devices):
                            dev.nets)
 
 
+def bank_devices(devices, max_fingers=30):
+    """Split a wide MOS into parallel banks before physical placement.
+
+    The schematic keeps one W/L device; the layout uses 2-3 banks so each
+    gate/source/drain has its own local pickup. KLayout LVS combines the
+    parallel banks back to the schematic device.
+    """
+    for dev in devices:
+        model, width, length, fingers = dev.key
+        if not model.endswith("mos") or fingers <= max_fingers:
+            yield dev
+            continue
+        banks = (fingers + max_fingers - 1) // max_fingers
+        base, remainder = divmod(fingers, banks)
+        for i in range(banks):
+            n = base + (1 if i < remainder else 0)
+            yield Instance((*dev.path, f"bank{i}"),
+                           (model, width * n / fingers, length, n),
+                           dev.nets)
+
+
 def cdl_reference(devices):
     text = ["* Golden DQ schematic flattened to SG13G2 LVS device syntax.",
             "* VSS and VSSIO share the physical VSSIO port.",
@@ -168,13 +190,15 @@ def grid(n):
 
 
 def wide(net):
-    return {"VSSIO": 2800, "VDDIO": 2200, "VDD": 1200, "PAD": 1800, "DRIVER": 1800,
-            "PG": 1800, "NG": 1800, "P_B": 1400, "N_B": 1400}.get(net, 520)
+    return {"VSSIO": 2800, "VDDIO": 2200, "VDD": 1200, "PAD": 1200, "DRIVER": 1800,
+            "PG": 900, "NG": 900, "P_B": 600, "N_B": 600, "P1": 520, "EN": 520}.get(net, 520)
 
 
 def channel_width(net, drive_row):
-    if drive_row and net in DRIVE_NETS:
+    if drive_row and net in HEAVY_NETS:
         return 1960
+    if drive_row and net == "PAD":
+        return 1200
     return min(1100, wide(net))
 
 
@@ -340,6 +364,71 @@ def physical_layout(devices):
     return [[dev for name in row for dev in by_block[name]] for row in ROWS]
 
 
+def compute_x_positions(rows, shapes):
+    """Place local predrivers over their loads instead of left-aligning every row."""
+    widths = {dev: shapes[dev.key].cell.bbox().width() for dev in rows[0] + rows[1] + rows[2] + rows[3] + rows[4] + rows[5] + rows[6]}
+    positions = {}
+
+    def sequence(row, start=0):
+        cursor = start
+        for dev in row:
+            positions[dev] = grid(cursor)
+            cursor = grid(cursor + widths[dev] + 2400)
+        return cursor
+
+    def block_bounds(row, name):
+        xs = [positions[d] for d in row if d.path[0] == name]
+        ws = [widths[d] for d in row if d.path[0] == name]
+        return min(xs), max(x + w for x, w in zip(xs, ws))
+
+    # Rows 1/2/3/6 are plain left-to-right chains.
+    for ri in (1, 2, 3, 6):
+        sequence(rows[ri])
+
+    # Row 4 baseline: XPPRE, XPG, XNG; keep XPG over XDRVH.
+    sequence(rows[4])
+    xpg_left, xpg_right = block_bounds(rows[4], "XPG")
+    xpg_center = (xpg_left + xpg_right) / 2
+
+    # Row 5: banks sit side by side. Each bank has its own gate bus, and no
+    # bank has to route through the bank above it.
+    xdrvh = [d for d in rows[5] if d.path[0] == "XDRVH"]
+    xdrvh_width = sum(widths[d] for d in xdrvh) + 2400 * (len(xdrvh) - 1)
+    cursor = grid(xpg_center - xdrvh_width / 2)
+    for name in ("XDRVH", "XRDRIVER", "XDRVL"):
+        group = [d for d in rows[5] if d.path[0] == name]
+        start = cursor
+        for d in group:
+            positions[d] = cursor
+            cursor = grid(cursor + widths[d] + 2400)
+        if name == "XDRVL":
+            xdrvl_center = (start + cursor - 2400) / 2
+
+    # XNG sits directly under XDRVL, not at the far left of its row.
+    xng_left, xng_right = block_bounds(rows[4], "XNG")
+    shift = grid(xdrvl_center - (xng_left + xng_right) / 2)
+    for d in rows[4]:
+        if d.path[0] == "XNG":
+            positions[d] = grid(positions[d] + shift)
+
+    # Row 0: XDOWN directly under XDET; XRDOWN immediately to its left.
+    sequence(rows[0])
+    xdet_left, xdet_right = block_bounds(rows[1], "XDET")
+    xdet_center = (xdet_left + xdet_right) / 2
+    xdown = [d for d in rows[0] if d.path[0] == "XDOWN"]
+    xrdown = [d for d in rows[0] if d.path[0] == "XRDOWN"]
+    wdown = max(widths[d] for d in xdown)
+    pos = grid(xdet_center - wdown / 2)
+    for d in xdown:
+        positions[d] = pos
+    if xrdown:
+        wrdown = max(widths[d] for d in xrdown)
+        pos = grid(pos - 2400 - wrdown)
+        for d in xrdown:
+            positions[d] = pos
+    return positions
+
+
 def allocate_trunks(pad_rows):
     tracks = defaultdict(list)
     for row, pins in enumerate(pad_rows):
@@ -347,7 +436,11 @@ def allocate_trunks(pad_rows):
             tracks[net].append((row, [p[0] for p in pts]))
     result = {}
     spacing = 400
-    for net, rows in sorted(tracks.items(), key=lambda kv: (-wide(kv[0]), -len(kv[1]), kv[0])):
+    priority = {"PAD": 4, "PG": 3, "NG": 3, "DEC_B": 3,
+                "P_B": 2, "N_B": 2, "P1": 2, "EN": 2}
+    for net, rows in sorted(tracks.items(),
+                            key=lambda kv: (-priority.get(kv[0], 0), -wide(kv[0]),
+                                            -len(kv[1]), kv[0])):
         if len(rows) == 1 and net not in PORTS:
             continue
         x0 = grid(median(x for _, xs in rows for x in xs) / 100) * 100
@@ -365,7 +458,7 @@ def allocate_trunks(pad_rows):
 
 def build(out, pdk):
     devices = instances()
-    drawn = list(physical_fingers(devices))
+    drawn = list(physical_fingers(bank_devices(devices)))
     layout = pya.Layout()
     layout.dbu = .001
     top = layout.create_cell(TOP)
@@ -375,22 +468,24 @@ def build(out, pdk):
     channel_y = []
     drive_rows = []
     placed = {}
+    rows = physical_layout(drawn)
+    xpos = compute_x_positions(rows, shapes)
     base_y = 0
-    for row in physical_layout(drawn):
+    for row in rows:
         drive_row = row[0].path[0] in DRIVE_ROWS
         drive_rows.append(drive_row)
-        cursor, row_top = 0, base_y
+        row_top = base_y
         landings = defaultdict(list)
         for dev in row:
             shape = shapes[dev.key]
             bbox = shape.cell.bbox()
-            dx, dy = grid(cursor - bbox.left), grid(base_y - bbox.bottom)
+            dx = grid(xpos[dev] - bbox.left)
+            dy = grid(base_y - bbox.bottom)
             top.insert(pya.CellInstArray(shape.cell.cell_index(), pya.Trans(dx, dy)))
             placed[".".join(dev.path)] = [bbox.left + dx, bbox.bottom + dy, bbox.right + dx, bbox.top + dy]
             access = device_access(drawing, dev, shape, dx, dy)
             for terminal, net in zip(TERMINALS[dev.key[0]], dev.nets):
                 landings[net].append(access[terminal])
-            cursor = grid(dx + bbox.right + 2400)
             row_top = max(row_top, grid(dy + bbox.top))
         pin_rows.append(landings)
         channel_y.append(row_top + 1440)
@@ -420,7 +515,7 @@ def build(out, pdk):
             if net in trunks:
                 x = trunks[net]
                 xs.append(x)
-                if drive_rows[i] and net in DRIVE_NETS:
+                if drive_rows[i] and net in HEAVY_NETS:
                     drawing.cut_array(4, x, y, 3, 3)
                 else:
                     drawing.cut_array(4, x, y, 1, 2 if width >= 900 else 1)
@@ -439,7 +534,14 @@ def build(out, pdk):
             drawing.pin(net, x, y, wide(net))
         if net == "VSSIO":
             ends.append(yb)
-        drawing.wire(5, x, min(ends), x, max(ends), wide(net))
+        if net == "PAD" and "PAD" in trunk_ys:
+            # Only the top TX/ESD strap carries 20 mA. The branch down to
+            # the XRP gate is a high-impedance receiver node; keep it thin.
+            split = max(y for y in trunk_ys[net] if y <= channel_y[5] + 2000)
+            drawing.wire(5, x, min(ends), x, split, 520)
+            drawing.wire(5, x, split, x, max(ends), 1200)
+        else:
+            drawing.wire(5, x, min(ends), x, max(ends), wide(net))
     box = top.bbox()
     drawing.guard(grid(box.left - 3900), yb, grid(box.right + 3900), yt, trunks["VSSIO"])
     box = top.bbox()

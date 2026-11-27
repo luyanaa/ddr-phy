@@ -24,6 +24,10 @@ create_generated_clock -name pad_ck   -source [get_ports ck] -divide_by 1       
 create_generated_clock -name pad_ck_n -source [get_ports ck] -divide_by 1 -invert [get_ports pad_ck_n]
 
 set_propagated_clock [all_clocks]
+
+# sg13g2 liberty has default_max_fanout = 8; SDC cannot relax it.  The two
+# 16-load CTS roots are split into 2 x buf_8 by flow/patches/librelane-3.0.17-cts.patch.
+# MAX_FANOUT_CONSTRAINT=16 is kept for synthesis only, not as a PNR signoff claim.
 set_clock_uncertainty -setup $tUNC_SETUP [get_clocks {sys_clk ck ck90 dqs_capture pad_ck pad_ck_n}]
 set_clock_uncertainty -hold  $tUNC_HOLD  [get_clocks {sys_clk ck ck90 dqs_capture pad_ck pad_ck_n}]
 set_clock_groups -asynchronous -group {dqs_capture} \
