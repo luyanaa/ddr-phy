@@ -1,0 +1,39 @@
+* SPDX-License-Identifier: Apache-2.0
+* IHP SG13G2 DDR1 SSTL-2 local VREF source and unity buffer.
+* Schematic witness only: no mismatch, layout, PEX, or qualification claim.
+.subckt ihp130_sstl2_vref VREF VDDIO VSSIO
+* Matched high-resistor divider; equal device count and geometry on each leg.
+XRT0 VDDIO RT1 VSSIO rhigh w=1.2u l=13u
+XRT1 RT1 RT2 VSSIO rhigh w=1.2u l=13u
+XRT2 RT2 RT3 VSSIO rhigh w=1.2u l=13u
+XRT3 RT3 VREF_RAW VSSIO rhigh w=1.2u l=13u
+XRB0 VREF_RAW RB1 VSSIO rhigh w=1.2u l=13u
+XRB1 RB1 RB2 VSSIO rhigh w=1.2u l=13u
+XRB2 RB2 RB3 VSSIO rhigh w=1.2u l=13u
+XRB3 RB3 VSSIO VSSIO rhigh w=1.2u l=13u
+
+* Real resistor-to-diode MOS bias and a matched 1:1 tail mirror.
+XRB0BIAS VDDIO B1 VSSIO rhigh w=1.2u l=13u
+XRB1BIAS B1 B2 VSSIO rhigh w=1.2u l=13u
+XRB2BIAS B2 B3 VSSIO rhigh w=1.2u l=13u
+XRB3BIAS B3 B4 VSSIO rhigh w=1.2u l=13u
+XRB4BIAS B4 B5 VSSIO rhigh w=1.2u l=13u
+XRB5BIAS B5 B6 VSSIO rhigh w=1.2u l=13u
+XRB6BIAS B6 B7 VSSIO rhigh w=1.2u l=13u
+XRB7BIAS B7 VBIAS VSSIO rhigh w=1.2u l=13u
+XMBIAS VBIAS VBIAS VSSIO VSSIO sg13_hv_nmos w=3u l=0.65u ng=2
+XTAIL VTAIL VBIAS VSSIO VSSIO sg13_hv_nmos w=3u l=0.65u ng=2
+
+* HV NMOS differential pair with mirror load, closed by the output feedback.
+XMIN_FB VMIR VREF VTAIL VSSIO sg13_hv_nmos w=8u l=0.65u ng=4
+XMIN_RAW V1 VREF_RAW VTAIL VSSIO sg13_hv_nmos w=8u l=0.65u ng=4
+XMP_DIODE VMIR VMIR VDDIO VDDIO sg13_hv_pmos w=4u l=0.65u ng=2
+XMP_MIRROR V1 VMIR VDDIO VDDIO sg13_hv_pmos w=4u l=0.65u ng=2
+
+* CMOS common-source inverter provides bidirectional Class-A output drive.
+XMN_OUT VREF V1 VSSIO VSSIO sg13_hv_nmos w=5u l=0.45u ng=2
+XMP_OUT VREF V1 VDDIO VDDIO sg13_hv_pmos w=12.5u l=0.45u ng=5
+
+* 40 um x 40 um PDK MIM Miller compensation capacitor (nominal ~2.4 pF).
+XCC V1 VREF cap_cmim l=40u w=40u
+.ends ihp130_sstl2_vref

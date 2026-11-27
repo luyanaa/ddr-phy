@@ -44,7 +44,7 @@ All rights reserved
 
 模型 `include` 两个文件：`timescale.v`、`test-defines.v`。上游在同路径返回 404，因此本地补了两个**我们自己写的**占位文件（`third_party/reference/timescale.v` 只提供 ps 精度的时间单位指令；`test-defines.v` 只有注释，不注入任何宏）。模型自身的 `ifdef` 只用 `MT48LC*` / `INIT_CLEAR_MEM_BANKS` / `PRELOAD_RAM`，都在文件内定义。
 
-已用 Icarus `-g2012` 例化并跑通（`REF_MODEL_ELABORATED`）。这只是精化/加载验证，**没有把该模型接到本项目的 DFI/PHY 上，也没有用它的时序数做任何签核**。
+已用 Icarus `-g2012` 通过精化和 §3.4 的集成 PHY 差分回归；未用该模型的时序参数做签核。
 
 ### 1.3 重要发现：它的时序参数不是我们的 -75 档
 
@@ -127,7 +127,7 @@ Micron TN 的一句话值得记住：数据手册本身不足以完成设计，�
 | 18 | lpddr5-testbed | 板级平台 |
 | 19 | DDR2_Controller | DDR2 初始化状态机 + Micron 模型；本项目 DDR2 仍在 P4，先看命令顺序 |
 | 20 | DDR4MemoryController | 模块化 FSM 拆分（仲裁/读写/命令/时序） |
-| 21 | ddr_sdr_V1_1 | OpenCores 老牌 **DDR1** 控制器状态机；本项目 `rtl/ddr1_phy.sv` 还没写，可作命令顺序参考 |
+| 21 | ddr_sdr_V1_1 | OpenCores DDR1 控制器，可作命令顺序参考；本项目使用 LiteDRAM 驱动 `rtl/ddr1_phy.sv` |
 | 22 | ddr2_sdram | MIG 核接法，板级实战 |
 | 23 | ddr3_sdram | 紧凑控制器与软核对接 |
 | 24 | ddr3_synthesizable_bfm | 可综合内存 BFM：与本项目 `sim/sdram_model.sv` 思路相近 |
@@ -145,8 +145,8 @@ Micron TN 的一句话值得记住：数据手册本身不足以完成设计，�
 
 ### 3.4 可选差分运行
 
-- `tb/tb_micron_diff.sv` 把同一套 DFI 流量同时送进两个 PHY：一个接自研 `sim/sdram_model.sv`，一个接 Micron `mt48lc16m16a2`（x16，使用低字节，`Dqm[0]`）。逐拍比较 `dfi_rddata_valid` 和 `dfi_rddata`。
-- 覆盖 CL2/CL3、单读写、写屏蔽（DQM）、周期刷新（`T_REFI=40`）以及 READ→WRITE turnaround（`dq_turnaround` 的 busy 接回控制器）。控制器新增 `user_wmask`，把用户写屏蔽送到 DFI/PHY。
+- `tb/tb_micron_diff.sv` 把相同 DFI 流量送进两条独立路径：裸核 `sdr_phy` 接自研行为模型，`sdram_phy_top` 经仿真 pad 接 Micron `mt48lc16m16a2`（只用低字节）。按两者相差三拍的固定返回延迟对齐，逐拍比较 `dfi_rddata_valid` 和 `dfi_rddata`，并检查集成端的读超期和总线争用。
+- 覆盖 CL2/CL3、单读写、写屏蔽（DQM）、周期刷新（`T_REFI=40`）及 READ→WRITE 转向；控制器使用集成 PHY 的 `turnaround_busy`。
 - `tb/tb_micron_burst.sv` 另做模型级 Burst 差分（BL=2/4/8）；它绕过控制器，因为 `sdr_ctrl` 还没有 BL>1 事务路径。
 - `sim/micron_diff.sh` 在模型存在时编译/运行 CL2 和 CL3；模型不存在时打印 `SKIP` 并以 0 退出。模型仍在 `.gitignore`，不提交。
 - 测试把 `T_RFC` 设为 7 拍（10 ns 下 70 ns），以满足 Micron -7E 模型的 tRFC；这**不是**把模型的 -7E 参数写进本项目 -75 contract。

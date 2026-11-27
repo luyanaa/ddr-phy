@@ -63,3 +63,25 @@ slots:
   RX_INV:         {device: null, symbol: null, note: "composite overdrive inverter; Schmitt option TBD"}
 sdr: {status: IN_SCOPE, note: "section 6: DO but 3.3 V rating needs simulation first; ESD diode card is the current blocker"}
 ddr1: {status: IN_SCOPE, note: "only PDK with devices named 2.5 V (nm2p5_lp/pm2p5_lp + dio_2p5_*); VREF receiver topology only", vref_receiver: "topology only"}
+
+# DDR1 SSTL-2 witness-study characterization wiring. The foundry hspice
+# nested-.lib wrapper cannot be resolved by ngspice, so models are pulled in
+# FLAT: a generated cornerparams.inc (tt offsets zeroed) plus the individual
+# .mdl files. Only the tt corner is wired; ss/ff corner offsets require the
+# non-zero wrapper values and are NOT yet wired, so ss/ff cases are not
+# meaningful evidence yet. License: vendor evaluation/research only.
+char:
+  root_glob: "/grid/icsprout55-pdk"
+  cwd: ""
+  ngspice_flags: []
+  corners: {tt: tt, ss: tt, ff: tt, fnsp: tt, snfp: tt}
+  temps: {tt: 27, ss: 125, ff: -40}
+  spiceinit: "* local empty spiceinit: neutralizes global ~/.spiceinit\n"
+  includes:
+    # cornerparams_<corner>.inc is injected per-corner by the profile's
+    # extra_model_lines(); the flat zeroed cornerparams.inc is tt-only and must
+    # NOT be included here or it would double-define params before the corner file.
+    - {include: "libs.tech/spice/foundry/ngspice/mos/nio25.mdl"}
+    - {include: "libs.tech/spice/foundry/ngspice/mos/pio25.mdl"}
+    - {include: "libs.tech/spice/foundry/ngspice/res/resistor.ckt"}
+    - {include: "libs.tech/spice/foundry/ngspice/dio/dio_io25.mdl"}
