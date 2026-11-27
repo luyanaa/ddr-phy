@@ -1,0 +1,26 @@
+OpenROAD 26Q3 
+Features included (+) or not (-): +GPU +GUI +Python
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[ERROR STA-1000] cell type ddr1_top can not be linked.
+STA-1000
+[INFO PSM-0040] All shapes on net VPWR are connected.
+[INFO PSM-0040] All shapes on net VPWR are connected.
+########## IR report #################
+Net              : VPWR
+Corner           : default
+Total power      : 7.81e-03 W
+Supply voltage   : 1.20e+00 V
+Worstcase voltage: 1.20e+00 V
+Average voltage  : 1.20e+00 V
+Average IR drop  : 1.60e-04 V
+Worstcase IR drop: 6.33e-04 V
+Percentage drop  : 0.05 %
+######################################
+########## EM analysis ###############
+Net                : VPWR
+Corner             : default
+Maximum current    : 3.43e-05 A
+Average current    : 1.01e-06 A
+Number of resistors: 143295
+######################################

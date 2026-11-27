@@ -1,0 +1,54 @@
+{
+  "meta": {
+    "source": "reports/ddr1/qfn48_pkg_rlc.json",
+    "model": "first-order package RLC + estimated FR4 board; not IBIS/3D EM",
+    "signoff": false
+  },
+  "package": {
+    "l_nh": [
+      2.1945,
+      3.0365
+    ],
+    "r_ohm": [
+      0.10818,
+      0.14196
+    ],
+    "c_pf": 0.1,
+    "flight_l_over_50_ps": [
+      43.89,
+      60.73
+    ],
+    "flight_sqrt_lc_ps": [
+      14.813844875656018,
+      17.42555594522023
+    ],
+    "pin_to_pin_flight_skew_ps": 16.839999999999996
+  },
+  "board": {
+    "stackup": "4-layer FR4, 50 ohm microstrip",
+    "trace_len_mm": 25.0,
+    "eps_eff": 3.4,
+    "tpd_ps_per_mm": 6.2,
+    "length_mismatch_mm_max": 5.0,
+    "connector_ssn_ps": 20.0,
+    "flight_ps": 155.0,
+    "length_mismatch_skew_ps": 31.0
+  },
+  "channel_budget": {
+    "absolute_flight_ps": 215.73,
+    "matched_flight_cancels": true,
+    "skew_terms_ps": {
+      "package_pin_to_pin": 16.839999999999996,
+      "board_length_mismatch": 31.0,
+      "connector_ssn": 20.0
+    },
+    "total_skew_ps": 67.84,
+    "fraction_ui_133mhz": 0.009045333333333334,
+    "fraction_ui_166mhz": 0.011306666666666668
+  },
+  "sdc_recommendation": {
+    "pkg_flight_ns": 0.061,
+    "channel_skew_ns": 0.068,
+    "note": "add channel_skew to read/write uncertainty unless DQS training removes it"
+  }
+}

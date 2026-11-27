@@ -1,0 +1,95 @@
+VERSION 5.8 ;
+BUSBITCHARS "[]" ;
+DIVIDERCHAR "/" ;
+MACRO ihp130_sstl2_dq
+  CLASS BLOCK ;
+  ORIGIN 0 0 ;
+  FOREIGN ihp130_sstl2_dq ;
+  SIZE 125.670 BY 206.910 ;
+  SYMMETRY X Y R90 ;
+  PIN OUT
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 12.950 1.100 13.950 2.100 ;
+    END
+  END OUT
+  PIN IN
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 29.750 1.100 30.750 2.100 ;
+    END
+  END IN
+  PIN OE
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 62.950 1.100 63.950 2.100 ;
+    END
+  END OE
+  PIN VDD
+    DIRECTION INOUT ;
+    USE POWER ;
+    PORT
+      LAYER Metal1 ;
+        RECT 32.950 1.100 33.950 2.100 ;
+    END
+  END VDD
+  PIN PU_OK
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 66.950 1.100 67.950 2.100 ;
+    END
+  END PU_OK
+  PIN VREF
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 28.750 1.100 29.750 2.100 ;
+    END
+  END VREF
+  PIN PAD
+    DIRECTION INOUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal5 ;
+        RECT 24.450 204.810 25.450 205.810 ;
+    END
+  END PAD
+  PIN VSSIO
+    DIRECTION INOUT ;
+    USE GROUND ;
+    PORT
+      LAYER Metal5 ;
+        RECT 35.450 204.810 36.450 205.810 ;
+    END
+  END VSSIO
+  PIN VDDIO
+    DIRECTION INOUT ;
+    USE POWER ;
+    PORT
+      LAYER Metal5 ;
+        RECT 45.950 204.810 46.950 205.810 ;
+    END
+  END VDDIO
+  OBS
+    LAYER Metal1 ;
+      RECT 0.000 4.000 125.670 206.910 ;
+    LAYER Metal2 ;
+      RECT 0.000 0.000 125.670 206.910 ;
+    LAYER Metal3 ;
+      RECT 0.000 0.000 125.670 206.910 ;
+    LAYER Metal4 ;
+      RECT 0.000 0.000 125.670 206.910 ;
+    LAYER Metal5 ;
+      RECT 0.000 0.000 125.670 201.910 ;
+  END
+END ihp130_sstl2_dq
+END LIBRARY
