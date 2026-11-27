@@ -6,9 +6,10 @@ cd "$(dirname "$0")/.."
 # IHP130 pad-boundary DDR1 loop regression.
 #
 # PAD_PROFILE=tt (default): TT PEX pad delays 1300/1300/1500 ps.
-# PAD_PROFILE=ss: SS PEX pad delays 1865/1615/2332 ps. The SS profile exposes
-# the pad-induced write tDS loss; DQ_OE_PS can advance the DQ driver enable
-# relative to DQS, and DQS_CAPTURE_DELAY_PS trims the read capture point.
+# PAD_PROFILE=ss: opt1 SS PEX worst TX fall 1980 ps, old RX 1615 / OE 2332 ps.
+# RX 1.822 ns is not wired in yet: it trips the current read-capture loop.
+# This SS profile exposes the pad-induced write tDS loss; DQ_OE_PS can advance
+# the DQ driver enable relative to DQS, and DQS_CAPTURE_DELAY_PS trims read capture.
 python=${PYTHON:-python3}
 if ! "$python" -c 'import migen, litex' 2>/dev/null; then
     echo 'Install migen==0.9.2 and litex==2024.12 in the PYTHON environment.' >&2
@@ -26,7 +27,7 @@ dqs_tx_ps=${DQS_TX_PS:--1}
 dqs_rx_ps=${DQS_RX_PS:--1}
 case "$profile" in
     tt) pad_tx=1300; pad_rx=1300; pad_oe=1500 ;;
-    ss) pad_tx=1865; pad_rx=1615; pad_oe=2332 ;;
+    ss) pad_tx=1980; pad_rx=1615; pad_oe=2332 ;;
     *) echo "PAD_PROFILE must be tt or ss" >&2; exit 1 ;;
 esac
 
