@@ -17,7 +17,8 @@ module ddr_read_capture #(
 );
     reg [1:0] rise_count [0:LANES-1][0:SLOTS-1];
     reg [1:0] fall_count [0:LANES-1][0:SLOTS-1];
-    reg [7:0] beat       [0:LANES-1][0:SLOTS-1][0:3];
+    reg [7:0] beat_r     [0:LANES-1][0:SLOTS-1][0:1];
+    reg [7:0] beat_f     [0:LANES-1][0:SLOTS-1][0:1];
     wire [SLOTS-1:0] slot_reset;
 
     genvar lane, slot;
@@ -27,8 +28,8 @@ module ddr_read_capture #(
         end
         for (lane = 0; lane < LANES; lane = lane + 1) begin : g_lane
             assign word[32*lane +: 32] = {
-                beat[lane][return_slot][3], beat[lane][return_slot][2],
-                beat[lane][return_slot][1], beat[lane][return_slot][0]
+                beat_f[lane][return_slot][1], beat_r[lane][return_slot][1],
+                beat_f[lane][return_slot][0], beat_r[lane][return_slot][0]
             };
             assign good[lane] = (rise_count[lane][return_slot] == 2'd2) &&
                                 (fall_count[lane][return_slot] == 2'd2);
@@ -36,17 +37,21 @@ module ddr_read_capture #(
             for (slot = 0; slot < SLOTS; slot = slot + 1) begin : g_slot
                 // Rising and falling edge counters are independent. A count
                 // of three means the window had an extra edge and is invalid.
+                // Keep the two edges in separate always blocks: Yosys maps
+                // them to posedge/negedge flops, which is what the IHP130
+                // std-cell harden needs. Verilator MULTIDRIVEN is disabled for
+                // this dual-edge capture bring-up.
                 always @(posedge dqs_capture[lane] or posedge slot_reset[slot]) begin
                     if (slot_reset[slot]) begin
                         rise_count[lane][slot] <= 2'd0;
                     end else if (capture[slot]) begin
                         case (rise_count[lane][slot])
                             2'd0: begin
-                                beat[lane][slot][0] <= dq_i[8*lane +: 8];
+                                beat_r[lane][slot][0] <= dq_i[8*lane +: 8];
                                 rise_count[lane][slot] <= 2'd1;
                             end
                             2'd1: begin
-                                beat[lane][slot][2] <= dq_i[8*lane +: 8];
+                                beat_r[lane][slot][1] <= dq_i[8*lane +: 8];
                                 rise_count[lane][slot] <= 2'd2;
                             end
                             default: rise_count[lane][slot] <= 2'd3;
@@ -60,11 +65,11 @@ module ddr_read_capture #(
                     end else if (capture[slot]) begin
                         case (fall_count[lane][slot])
                             2'd0: begin
-                                beat[lane][slot][1] <= dq_i[8*lane +: 8];
+                                beat_f[lane][slot][0] <= dq_i[8*lane +: 8];
                                 fall_count[lane][slot] <= 2'd1;
                             end
                             2'd1: begin
-                                beat[lane][slot][3] <= dq_i[8*lane +: 8];
+                                beat_f[lane][slot][1] <= dq_i[8*lane +: 8];
                                 fall_count[lane][slot] <= 2'd2;
                             end
                             default: fall_count[lane][slot] <= 2'd3;

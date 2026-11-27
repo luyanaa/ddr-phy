@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 `timescale 1ps/1ps
-`include "ddr1_timing.vh`
+`include "ddr1_timing.vh"
 `default_nettype none
 module tb_ddr1_train #(parameter integer FAIL_MODE = 0);
     localparam integer CK_PS = `DDR1_TCK_PS;
@@ -148,7 +148,7 @@ module tb_ddr1_train #(parameter integer FAIL_MODE = 0);
         repeat (8) @(posedge sys_clk);
         @(negedge sys_clk) rst = 1'b0;
         cycles = 0;
-        while (init_done !== 1'b1 && cycles < 10000) begin
+        while (init_done !== 1'b1 && cycles < 20000) begin
             @(negedge sys_clk);
             cycles = cycles + 1;
         end

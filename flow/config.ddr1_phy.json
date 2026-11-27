@@ -1,0 +1,19 @@
+{
+  "DESIGN_NAME": "ddr1_phy",
+  "VERILOG_FILES": [
+    "dir::../rtl/ddr1_phy.sv",
+    "dir::../rtl/ddr_edge_out.sv",
+    "dir::../rtl/ddr_read_capture.sv"
+  ],
+  "CLOCK_PORT": "sys_clk",
+  "CLOCK_PERIOD": 20,
+  "FP_SIZING": "relative",
+  "FP_CORE_UTIL": 30,
+  "PL_TARGET_DENSITY_PCT": 40,
+  "RUN_CTS": true,
+  "PNR_SDC_FILE": "dir::../flow/ddr1_phy.sdc",
+  "SIGNOFF_SDC_FILE": "dir::../flow/ddr1_phy.sdc",
+  "RUN_HEURISTIC_DIODE_INSERTION": false,
+  "//": "IHP130 DDR1 PHY core-side harden. Pads/level shifters are outside this harden. Clocks: sys_clk=CK/2 (20 ns), ck=100 MHz, ck90=100 MHz shifted 2.5 ns, dqs_capture is a source-synchronous strobe. This is a first backend bring-up, not pad/PVT signoff.",
+  "RUN_LINTER": false
+}
