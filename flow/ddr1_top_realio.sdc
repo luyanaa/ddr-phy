@@ -24,6 +24,10 @@ create_generated_clock -name pad_ck   -source [get_ports ck] -divide_by 1       
 create_generated_clock -name pad_ck_n -source [get_ports ck] -divide_by 1 -invert [get_ports pad_ck_n]
 
 set_propagated_clock [all_clocks]
+
+# sg13g2 liberty has default_max_fanout = 8; SDC cannot relax it.  The two
+# 16-load CTS roots are split into 2 x buf_8 by flow/patches/librelane-3.0.17-cts.patch.
+# MAX_FANOUT_CONSTRAINT=16 is kept for synthesis only, not as a PNR signoff claim.
 set_clock_uncertainty -setup $tUNC_SETUP [get_clocks {sys_clk ck ck90 dqs_capture pad_ck pad_ck_n}]
 set_clock_uncertainty -hold  $tUNC_HOLD  [get_clocks {sys_clk ck ck90 dqs_capture pad_ck pad_ck_n}]
 set_clock_groups -asynchronous -group {dqs_capture} \
@@ -39,10 +43,13 @@ set PAD_RX_FAST 1.615
 set PKG_FLIGHT  0.050
 set DQS_OE_ADVANCE 0.400
 
-# CA is on the CK/CA pad, which is not extracted yet. Keep a conservative
-# 1.5/0.5 ns pad+package budget and flag it rather than pretending it is measured.
-set CA_TX_MAX 1.500
-set CA_TX_MIN 0.500
+# CK/CA use the same ihp130_sstl2_dq pad macro and the same 50 ohm / 5 pF
+# load as DQ, so the opt1 PEX TX numbers apply: SS rise/fall 1.865/1.980 ns.
+# Package flight is the same 0.050 ns first-order budget.
+set CA_PAD_TX_SLOW 1.980
+set CA_PAD_TX_FAST 1.865
+set CA_TX_MAX [expr {$CA_PAD_TX_SLOW + $PKG_FLIGHT}]
+set CA_TX_MIN [expr {$CA_PAD_TX_FAST + $PKG_FLIGHT}]
 
 set ca_ports [get_ports {a[*] ba[*] cke cs_n ras_n cas_n we_n}]
 set_output_delay -clock pad_ck -max $CA_TX_MAX $ca_ports

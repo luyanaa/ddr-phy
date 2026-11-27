@@ -1,0 +1,93 @@
+--- a/librelane/scripts/openroad/cts.tcl
++++ b/librelane/scripts/openroad/cts.tcl
+@@ -60,6 +60,71 @@
+     return $result
+ }
+ 
++# IHP SG13G2 liberty declares default_max_fanout = 8, so a sg13g2_buf_16
++# root buffer driving 16 leaf buffers is a real max-fanout violation.  SDC
++# set_max_fanout cannot relax a liberty limit (and is unsupported on nets),
++# so split the two 16-load roots into two symmetric buf_8 roots here.
++proc split_cts_root {block root_name} {
++    set root [$block findInst $root_name]
++    if {$root eq "NULL"} {
++        puts "\[WARNING\] CTS root $root_name not found; skip split"
++        return
++    }
++    set master [$root getMaster]
++    if {[$master getName] ne "sg13g2_buf_16"} {
++        puts "\[INFO\] CTS root $root_name is [$master getName]; skip split"
++        return
++    }
++    set out_net [[$root findITerm X] getNet]
++    set in_net  [[$root findITerm A] getNet]
++    set sinks {}
++    foreach it [$out_net getITerms] {
++        if {[[[$it getInst] getMaster] getName] eq "sg13g2_buf_8"} {
++            lappend sinks $it
++        }
++    }
++    if {[llength $sinks] != 16} {
++        error "expected 16 buf_8 sinks on $root_name, got [llength $sinks]"
++    }
++    set sinks [lsort -command {apply {{a b} {
++        set xa [[[$a getInst] getBBox] xMin]
++        set xb [[[$b getInst] getBBox] xMin]
++        expr {$xa < $xb ? -1 : ($xa > $xb ? 1 : 0)}
++    }}} $sinks]
++
++    set box [$root getBBox]
++    set x0 [$box xMin]
++    set y  [$box yMin]
++    set w  [$master getWidth]
++    set newmaster [[ord::get_db] findMaster sg13g2_buf_8]
++    set base    [string range $root_name 9 end]
++    set stem    [string range $root_name 0 7]
++    set outbase [string range [$out_net getName] 9 end]
++    set outstem [string range [$out_net getName] 0 7]
++
++    set nets {}
++    set n 0
++    foreach suffix {a b} {
++        set ni [odb::dbInst_create $block $newmaster "${stem}${suffix}_${base}"]
++        $ni setLocation [expr {$x0 + $n * $w}] $y
++        $ni setPlacementStatus placed
++        set nn [odb::dbNet_create $block "${outstem}${suffix}_${outbase}"]
++        [$ni findITerm A] connect $in_net
++        [$ni findITerm X] connect $nn
++        lappend nets $nn
++        incr n
++    }
++    set i 0
++    foreach it $sinks {
++        $it disconnect
++        $it connect [lindex $nets [expr {$i < 8 ? 0 : 1}]]
++        incr i
++    }
++    odb::dbInst_destroy $root
++    odb::dbNet_destroy $out_net
++    puts "\[INFO\] Split CTS root $root_name into 2 x sg13g2_buf_8 (8 loads each)"
++}
++
+ set arg_list [list]
+ lappend arg_list -buf_list [get_buflist]
+ lappend arg_list -root_buf $::env(CTS_ROOT_BUFFER)
+@@ -72,6 +137,7 @@
+ append_if_flag arg_list CTS_DISABLE_POST_PROCESSING -post_cts_disable
+ append_if_flag arg_list CTS_OBSTRUCTION_AWARE -obstruction_aware
+ append_if_flag arg_list CTS_BALANCE_LEVELS -balance_levels
++lappend arg_list -no_insertion_delay
+ append_if_exists_argument arg_list CTS_APPLY_NDR -apply_ndr
+ 
+ if { $::env(CTS_DISTANCE_BETWEEN_BUFFERS) != 0 } {
+@@ -88,6 +154,10 @@
+ 
+ log_cmd clock_tree_synthesis {*}$arg_list
+ 
++set cts_block [[[ord::get_db] getChip] getBlock]
++split_cts_root $cts_block clkbuf_0_dqs_capture
++split_cts_root $cts_block clkbuf_0_sys_clk
++
+ set_propagated_clock [all_clocks]
+ 
+ estimate_parasitics -placement
