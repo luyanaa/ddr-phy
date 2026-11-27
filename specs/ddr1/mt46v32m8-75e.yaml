@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0
+# Micron 256Mb DDR SDRAM Rev. O (01/2009), Table 21 (-75E), power-up steps and Fig. 33.
+# CL2 tCK is 7.5–13 ns for the device; this PHY generates the 10–12 ns window only.
+device: MT46V32M8-75E
+geometry: {bank_bits: 2, row_bits: 13, col_bits: 10, dq_bits: 8}
+ck_period_ps: 10000
+powerup_ps: 200000000
+dll_lock_ck: 200
+timing_ps:
+  RCD: 15000
+  RP: 15000
+  RAS: 40000
+  RC: 60000
+  RRD: 15000
+  RFC: 75000
+  REFI: 7800000
+  WR: 15000
+  MRD: 15000
+  DQSCK: 750
+  DQSQ: 500
+  DS: 500
+  DH: 500
+timing_ck:
+  WTR: 1

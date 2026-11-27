@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: Apache-2.0
+# ics55 DDR1 backend. License: foundry evaluation/research only; signoff=false
+# always, evidence is license=evaluation-only, never tapeout signoff.
+# Corners tt/ss/ff/fnsp/snfp wired via flat per-corner cornerparams_<corner>.inc
+# (extracted by generator/gen_ics55_corners.py). Development spans tt/ss_low/
+# ff_high PVT extremes; holdout is an independent tt termination offset.
+schema_version: 1
+name: ics55-sstl2
+adapter: generator/ddr1_ics55_backend.py
+characterization:
+  script: generator/char_ddr1_ics55.py
+  source_netlist: sch/pads/ics55/sstl2_dq.spice
+search:
+  sampler: grid
+  max_trials: 4
+  knobs:
+    - id: xrdriver_w_um
+      default: 8
+      values: [8, 12]
+      unit: um
+      description: XRDRIVER re_ppo_3t w
+    - id: xrbias_l_um
+      default: 13
+      values: [13, 10]
+      unit: um
+      description: XRBIAS re_ppo_3t l
+  development:
+    - id: tt_vtt_0mv
+      case: tt
+      vtt_offset_mv: 0
+    - id: ss_low_vtt_0mv
+      case: ss_low
+      vtt_offset_mv: 0
+    - id: ff_high_vtt_0mv
+      case: ff_high
+      vtt_offset_mv: 0
+  holdout:
+    id: tt_vtt_plus40mv
+    case: tt
+    vtt_offset_mv: 40

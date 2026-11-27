@@ -1,0 +1,80 @@
+* SPDX-License-Identifier: Apache-2.0
+* ICsprout55, pre-layout DDR1 SSTL-2 DQ pad, 1.2 V core / 2.5 V I/O.
+* ics55 is the ONLY lane with a true native 2.5 V IO device (nm2p5/pm2p5).
+* LICENSE: foundry models are vendor-supplied, evaluation/research only,
+* NOT Apache-2.0. signoff=false always; redistribution governed by vendor.
+* KNOWN TOOL BOUNDARY (evidence, not defect): the foundry resistor subckt
+* re_hrpo_3t uses hspice-style chained .param evaluation that ngspice
+* cannot resolve (Undefined parameter [weff]/[r0]); MOS devices (nm2p5_lp_core,
+* pm2p5_lp_core, nm1p2/pm1p2_svt) simulate correctly under a flat include with
+* tt corner offsets zeroed. Full-lane ngspice signoff is blocked on the
+* resistor model, not on circuit feasibility.
+* MOS devices are direct BSIM4 .model (M instances), w/l in metres.
+* Resistor re_hrpo_3t subckt n2 n1 sub, l/w in metres.
+
+.subckt ics55_sstl2_io_inv A Y VP VN params: wn=2.4u wp=4.8u
+MN Y A VN VN nm2p5_lp_core w={wn} l=0.28u
+MP Y A VP VP pm2p5_lp_core w={wp} l=0.28u
+.ends ics55_sstl2_io_inv
+
+.subckt ics55_sstl2_io_nand A B Y VP VN wn=4.8u wp=4.8u
+MNA Y A N VN nm2p5_lp_core w={wn} l=0.28u
+MNB N B VN VN nm2p5_lp_core w={wn} l=0.28u
+MPA Y A VP VP pm2p5_lp_core w={wp} l=0.28u
+MPB Y B VP VP pm2p5_lp_core w={wp} l=0.28u
+.ends ics55_sstl2_io_nand
+
+.subckt ics55_sstl2_core_inv A Y VDD VSS wn=2u wp=4u
+MN Y A VSS VSS nm2p5_lp_core w={wn} l=0.28u
+MP Y A VDD VDD pm2p5_lp_core w={wp} l=0.28u
+.ends ics55_sstl2_core_inv
+
+* Core (1.2 V) -> IO (2.5 V) level shifter.
+.subckt ics55_sstl2_up A Y YB VDD VSS VDDIO VSSIO
+XCINV A AB VDD VSS ics55_sstl2_core_inv wn=5u wp=12u
+MNA YB A  VSSIO VSSIO nm2p5_lp_core w=12u l=0.28u
+MNB Y  AB VSSIO VSSIO nm2p5_lp_core w=12u l=0.28u
+MPA Y  YB VDDIO VDDIO pm2p5_lp_core w=1u l=0.28u
+MPB YB Y  VDDIO VDDIO pm2p5_lp_core w=1u l=0.28u
+.ends ics55_sstl2_up
+
+.subckt ics55_sstl2_dq OUT OE IN PAD VREF PU_OK VDD VSS VDDIO VSSIO
+* RX: resistively fed current mirror, NMOS input pair, PMOS mirror load.
+XRBIAS VDDIO BIAS VSSIO re_hrpo_3t w=1.2u l=13u
+MBIAS BIAS BIAS VSSIO VSSIO nm2p5_lp_core w=3u l=0.4u
+MTAIL TAIL BIAS VSSIO VSSIO nm2p5_lp_core w=3u l=0.4u
+MRP MIRROR PAD  TAIL VSSIO nm2p5_lp_core w=5u l=0.3u
+MRR SENSE  VREF TAIL VSSIO nm2p5_lp_core w=5u l=0.3u
+MLP MIRROR MIRROR VDDIO VDDIO pm2p5_lp_core w=4u l=0.3u
+MLR SENSE  MIRROR VDDIO VDDIO pm2p5_lp_core w=4u l=0.3u
+XDET SENSE PU_OK DEC_B VDDIO VSSIO ics55_sstl2_io_nand
+* Resistively loaded pull-down translates DEC_B to the 1.2 V core domain.
+XRDOWN VDD RX_LEVEL VSS re_hrpo_3t w=1.2u l=5u
+MDOWN RX_LEVEL DEC_B VSS VSS nm2p5_lp_core w=5u l=0.28u
+XRXB0 RX_LEVEL RX_B VDD VSS ics55_sstl2_core_inv wn=6u wp=12u
+XRXB1 RX_B IN VDD VSS ics55_sstl2_core_inv wn=6u wp=12u
+
+* TX: independently move data and core OE into the I/O domain.
+XDATA OUT DATA_H DATA_L VDD VSS VDDIO VSSIO ics55_sstl2_up
+XOE   OE  OE_H   OE_L   VDD VSS VDDIO VSSIO ics55_sstl2_up
+XGUARD OE_H PU_OK EN_B VDDIO VSSIO ics55_sstl2_io_nand wn=8u wp=9.6u
+XEN EN_B EN VDDIO VSSIO ics55_sstl2_io_inv
+XUP DATA_H EN P_B VDDIO VSSIO ics55_sstl2_io_nand wn=10u wp=8u
+XDN DATA_L EN N_B VDDIO VSSIO ics55_sstl2_io_nand wn=8u wp=9.6u
+XPPRE P_B P1 VDDIO VSSIO ics55_sstl2_io_inv wn=11u wp=25u
+XPG P1 PG VDDIO VSSIO ics55_sstl2_io_inv wn=44u wp=40u
+XNG N_B NG VDDIO VSSIO ics55_sstl2_io_inv wn=24u wp=58u
+MDRVH DRIVER PG VDDIO VDDIO pm2p5_lp_core w=200u l=0.28u
+MDRVL DRIVER NG VSSIO VSSIO nm2p5_lp_core w=72u l=0.28u
+XRDRIVER DRIVER PAD VSSIO re_hrpo_3t w=8u l=0.6u
+
+* Foundry pad diodes for nominal leakage, not qualified HBM/CDM.
+* area=20um2/pj square-consistent is a pre-layout witness assumption, NOT a
+* foundry ESD signoff: larger area strengthens HBM clamping but raises the
+* power-up capacitive feedthrough this very test measures. Instances MUST
+* carry explicit area/pj; omitting them falls back to the model-card
+* placeholder pj=240um whose cjsw dominates the feedthrough (~18uA at 8ns).
+* dio_2p5_pp_nw_lp: P+ anode in NW (cathode to VDDIO); np_pw: cathode N+ in PW.
+DESDHI PAD VDDIO dio_2p5_pp_nw_lp area=20e-12 pj=17.9e-6
+DESDLO VSSIO PAD dio_2p5_np_pw_lp area=20e-12 pj=17.9e-6
+.ends ics55_sstl2_dq
