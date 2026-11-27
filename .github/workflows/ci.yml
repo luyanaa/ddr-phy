@@ -41,6 +41,18 @@ jobs:
           sh sim/pad.sh
           sh sim/sweep.sh
 
+      - name: DDR1 native LiteDRAM loop
+        run: |
+          git submodule update --init third_party/litedram
+          python3 -m pip install migen==0.9.2 litex==2024.12 pyyaml
+          sh sim/ddr1.sh
+
+      - name: DDR1 IHP130 pad-boundary loop
+        run: sh sim/ddr1_ihp130.sh
+
+      - name: DDR1 read-eye jitter/skew/SSO
+        run: sh sim/ddr1_read_eye.sh
+
       - name: Exit-code mutation test
         run: sh sim/mutation.sh
 

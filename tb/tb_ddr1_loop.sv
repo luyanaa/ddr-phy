@@ -2,7 +2,11 @@
 `timescale 1ps/1ps
 `include "ddr1_timing.vh"
 `default_nettype none
-module tb_ddr1_loop;
+module tb_ddr1_loop #(
+    parameter integer READ_DQS_JITTER_PS = 0,
+    parameter integer READ_DQ_SKEW_PS = 0,
+    parameter integer READ_SSO_PS = 0
+);
     localparam integer CK_PS = `DDR1_TCK_PS;
     localparam integer STREAM = 16;
     localparam [22:0] BANK1 = 23'h000100, ROW1 = 23'h000400;
@@ -45,7 +49,11 @@ module tb_ddr1_loop;
 
     wire dram_dq_oe, dram_dqs_oe, dram_fault, dram_initialized;
     wire [7:0] dram_fault_code;
-    ddr1_device_model dram (
+    ddr1_device_model #(
+        .READ_DQS_JITTER_PS(READ_DQS_JITTER_PS),
+        .READ_DQ_SKEW_PS(READ_DQ_SKEW_PS),
+        .READ_SSO_PS(READ_SSO_PS)
+    ) dram (
         .ck(pad_ck), .cke(cke), .cs_n(cs_n), .ras_n(ras_n), .cas_n(cas_n),
         .we_n(we_n), .a(a), .ba(ba), .dq(dq), .dm(dm), .dqs(dqs), .read_offset_ps(offset_ps),
         .read_dq_oe(dram_dq_oe), .read_dqs_oe(dram_dqs_oe),

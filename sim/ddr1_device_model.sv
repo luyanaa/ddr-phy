@@ -5,7 +5,11 @@
 `include "ddr1_timing.vh"
 `default_nettype none
 
-module ddr1_device_model (
+module ddr1_device_model #(
+    parameter integer READ_DQS_JITTER_PS = 0,
+    parameter integer READ_DQ_SKEW_PS = 0,
+    parameter integer READ_SSO_PS = 0
+) (
     input  wire        ck,
     input  wire        cke,
     input  wire        cs_n,
@@ -29,7 +33,7 @@ module ddr1_device_model (
     localparam integer CK_PS          = `DDR1_TCK_PS;
     localparam integer HALF_CK_PS     = CK_PS / 2;
     localparam integer BANKS          = 4;
-    localparam integer MEM_SLOTS      = 1024;
+    localparam integer MEM_BYTES      = 33554432; // 4 banks x 8192 rows x 1024 cols x 8 bit = 32 MiB
     localparam integer WRITE_QUEUE    = 16;
     localparam [7:0]   BAD_COMMAND    = 8'd1;
     localparam [7:0]   BAD_MODE       = 8'd2;
@@ -38,16 +42,14 @@ module ddr1_device_model (
     localparam [7:0]   REF_OPEN       = 8'd5;
     localparam [7:0]   BAD_DQS        = 8'd6;
     localparam [7:0]   BAD_DQ         = 8'd7;
-    localparam [7:0]   MEM_FULL       = 8'd8;
     localparam [7:0]   BAD_POWERUP    = 8'd9;
 
     reg                  bank_open [0:BANKS-1];
     reg [12:0]           bank_row  [0:BANKS-1];
-    reg                  mem_valid [0:MEM_SLOTS-1];
-    reg [1:0]            mem_bank  [0:MEM_SLOTS-1];
-    reg [12:0]           mem_row   [0:MEM_SLOTS-1];
-    reg [12:0]           mem_col   [0:MEM_SLOTS-1];
-    reg [7:0]            mem_data  [0:MEM_SLOTS-1];
+    // Full 32 MiB x8 array, addressed by {bank, row, column}. This replaces
+    // the old 1024-entry sparse slot list; unwritten bytes read as x, which
+    // is the correct "no data" state for this functional model.
+    reg [7:0]            mem [0:MEM_BYTES-1];
 
     reg [1:0]            wq_bank [0:WRITE_QUEUE-1];
     reg [12:0]           wq_row  [0:WRITE_QUEUE-1];
@@ -97,21 +99,22 @@ module ddr1_device_model (
         end
     endtask
 
+    function automatic integer mem_index;
+        input [1:0] bank;
+        input [12:0] row;
+        input [9:0] column;
+        begin
+            mem_index = {bank, row, column};
+        end
+    endfunction
+
     task automatic load_byte;
         input [1:0] bank;
         input [12:0] row;
         input [12:0] column;
         output reg [7:0] value;
-        integer slot;
-        integer found;
         begin
-            value = 8'hxx;
-            found = -1;
-            for (slot = 0; slot < MEM_SLOTS; slot = slot + 1)
-                if (mem_valid[slot] && mem_bank[slot] == bank &&
-                    mem_row[slot] == row && mem_col[slot] == column && found < 0)
-                    found = slot;
-            if (found >= 0) value = mem_data[found];
+            value = mem[mem_index(bank, row, column[9:0])];
         end
     endtask
 
@@ -120,29 +123,8 @@ module ddr1_device_model (
         input [12:0] row;
         input [12:0] column;
         input [7:0] value;
-        integer slot;
-        integer found;
-        integer empty;
         begin
-            found = -1;
-            empty = -1;
-            for (slot = 0; slot < MEM_SLOTS; slot = slot + 1) begin
-                if (mem_valid[slot] && mem_bank[slot] == bank &&
-                    mem_row[slot] == row && mem_col[slot] == column && found < 0)
-                    found = slot;
-                if (!mem_valid[slot] && empty < 0) empty = slot;
-            end
-            if (found >= 0) begin
-                mem_data[found] = value;
-            end else if (empty >= 0) begin
-                mem_valid[empty] = 1'b1;
-                mem_bank[empty] = bank;
-                mem_row[empty]  = row;
-                mem_col[empty]  = column;
-                mem_data[empty] = value;
-            end else begin
-                raise_fault(MEM_FULL, "sparse byte store exhausted");
-            end
+            mem[mem_index(bank, row, column[9:0])] = value;
         end
     endtask
 
@@ -166,27 +148,48 @@ module ddr1_device_model (
         end
     endtask
 
+    function automatic integer popcount8;
+        input [7:0] value;
+        integer idx;
+        begin
+            popcount8 = 0;
+            for (idx = 0; idx < 8; idx = idx + 1)
+                popcount8 = popcount8 + value[idx];
+        end
+    endfunction
+
     task automatic schedule_read;
         input integer tag;
         input [7:0] beat0, beat1, beat2, beat3;
         integer first_ps;
+        integer idx;
+        integer sso0, sso1, sso2, sso3;
         begin
             first_ps = `DDR1_CL * CK_PS + read_offset_ps;
             // CL2, 1 CK low preamble, 4 data edges, 0.5 CK postamble.
             // Separate start/end tags merge adjacent bursts without
             // releasing OE or resetting DQS in an older burst.
-            dqs_started <= #(first_ps - CK_PS) tag;
-            dq_started  <= #(first_ps) tag;
-            read_stopped <= #(first_ps + 2*CK_PS) tag;
-            read_dqs <= #(first_ps) 1'b1;
-            read_dqs <= #(first_ps + HALF_CK_PS) 1'b0;
-            read_dqs <= #(first_ps + CK_PS) 1'b1;
-            read_dqs <= #(first_ps + 3*HALF_CK_PS) 1'b0;
+            // READ_DQS_JITTER_PS models per-burst tDQSCK excursion; the DQ
+            // beats stay on the nominal grid, so positive jitter eats the
+            // read setup window. READ_DQ_SKEW_PS models per-bit flight skew.
+            sso0 = READ_SSO_PS * popcount8(beat0 ^ read_dq);
+            sso1 = READ_SSO_PS * popcount8(beat1 ^ read_dq);
+            sso2 = READ_SSO_PS * popcount8(beat2 ^ read_dq);
+            sso3 = READ_SSO_PS * popcount8(beat3 ^ read_dq);
+            dqs_started <= #(first_ps - CK_PS + READ_DQS_JITTER_PS) tag;
+            dq_started  <= #(first_ps + sso0) tag;
+            read_stopped <= #(first_ps + 2*CK_PS + READ_DQS_JITTER_PS) tag;
+            read_dqs <= #(first_ps + READ_DQS_JITTER_PS) 1'b1;
+            read_dqs <= #(first_ps + HALF_CK_PS + READ_DQS_JITTER_PS) 1'b0;
+            read_dqs <= #(first_ps + CK_PS + READ_DQS_JITTER_PS) 1'b1;
+            read_dqs <= #(first_ps + 3*HALF_CK_PS + READ_DQS_JITTER_PS) 1'b0;
             // Worst late DQ relative to DQS in the device profile.
-            read_dq <= #(first_ps + `DDR1_T_DQSQ_PS) beat0;
-            read_dq <= #(first_ps + HALF_CK_PS + `DDR1_T_DQSQ_PS) beat1;
-            read_dq <= #(first_ps + CK_PS + `DDR1_T_DQSQ_PS) beat2;
-            read_dq <= #(first_ps + 3*HALF_CK_PS + `DDR1_T_DQSQ_PS) beat3;
+            for (idx = 0; idx < 8; idx = idx + 1) begin
+                read_dq[idx] <= #(first_ps + `DDR1_T_DQSQ_PS + idx*READ_DQ_SKEW_PS + sso0) beat0[idx];
+                read_dq[idx] <= #(first_ps + HALF_CK_PS + `DDR1_T_DQSQ_PS + idx*READ_DQ_SKEW_PS + sso1) beat1[idx];
+                read_dq[idx] <= #(first_ps + CK_PS + `DDR1_T_DQSQ_PS + idx*READ_DQ_SKEW_PS + sso2) beat2[idx];
+                read_dq[idx] <= #(first_ps + 3*HALF_CK_PS + `DDR1_T_DQSQ_PS + idx*READ_DQ_SKEW_PS + sso3) beat3[idx];
+            end
         end
     endtask
 
@@ -214,13 +217,6 @@ module ddr1_device_model (
         for (i = 0; i < BANKS; i = i + 1) begin
             bank_open[i] = 1'b0;
             bank_row[i]  = 13'd0;
-        end
-        for (i = 0; i < MEM_SLOTS; i = i + 1) begin
-            mem_valid[i] = 1'b0;
-            mem_bank[i]  = 2'd0;
-            mem_row[i]   = 13'd0;
-            mem_col[i]   = 13'd0;
-            mem_data[i]  = 8'd0;
         end
     end
 
