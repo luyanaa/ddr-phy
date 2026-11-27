@@ -7,6 +7,9 @@ drift.  The electrical numbers come from the SPICE characterization already
 in reports/pad_char_gf180mcuD_*.json and reports/pad_delay_gf180mcuD_*.json
 (worst-case over the three characterized corners), not from a datasheet.
 
+The LEF OBS geometry is extracted from the GDS with KLayout's `pya`, so run
+this generator inside the LibreLane nix-shell environment.
+
 Status: design-assumption views for place-and-route and chip-top STA.  They
 are NOT ESD-qualified and carry no IBIS/package model.
 """
@@ -17,6 +20,8 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "sch" / "pads" / "gf180mcuD" / "pcell"
 
 # GDS-frame pin geometry (um), straight from generator/gf180_pad_layout.py
+# Shift GDS-frame pin coordinates into the positive LEF macro bbox.
+LEF_SHIFT = (66.5, 65.0)
 PINS = {
     "OUT":   ("INPUT",  [("Metal2", (-66.5, 54.5, -64.5, 56.5))]),
     "OE_N":  ("INPUT",  [("Metal2", (-63.5, 57.5, -61.5, 59.5))]),
@@ -33,6 +38,64 @@ PINS = {
 }
 SIZE = (111.5, 185.0)   # bbox -66.5,-65 .. 45,120
 
+
+def obstruction_lines():
+    """Emit the pad master's exact routing-metal occupancy as LEF OBS."""
+    import pya
+
+    gds_path = OUT / "gf180_pad_tile.gds"
+    layout = pya.Layout()
+    layout.read(str(gds_path))
+    cell = layout.cell("gf180_pad_tile")
+    if cell is None:
+        raise RuntimeError("gf180_pad_tile missing from %s" % gds_path)
+
+    layers = (
+        ("Metal1", 34),
+        ("Metal2", 36),
+        ("Metal3", 42),
+        ("Metal4", 46),
+        ("MetalTop", 81),  # PAD top-metal geometry in the GDS layer map
+    )
+    shift_x = int(round(LEF_SHIFT[0] / layout.dbu))
+    shift_y = int(round(LEF_SHIFT[1] / layout.dbu))
+    max_x = int(round(SIZE[0] / layout.dbu))
+    max_y = int(round(SIZE[1] / layout.dbu))
+    lines = ["  OBS"]
+
+    for name, number in layers:
+        layer_index = layout.find_layer(number, 0)
+        if layer_index is None or layer_index < 0:
+            raise RuntimeError("GDS layer %d/0 missing for %s" % (number, name))
+        lines.append("    LAYER %s ;" % name)
+        count = 0
+        iterator = cell.begin_shapes_rec(layer_index)
+        while not iterator.at_end():
+            shape = iterator.shape()
+            if not shape.is_text():
+                if not shape.is_box():
+                    raise RuntimeError(
+                        "expected rectangular %s geometry in %s" % (name, gds_path))
+                box = shape.box.transformed(iterator.trans())
+                x0 = max(0, box.left + shift_x)
+                y0 = max(0, box.bottom + shift_y)
+                x1 = min(max_x, box.right + shift_x)
+                y1 = min(max_y, box.top + shift_y)
+                if x0 < x1 and y0 < y1:
+                    scale = layout.dbu
+                    lines.append(
+                        "      RECT %.3f %.3f %.3f %.3f ;" %
+                        (x0 * scale, y0 * scale, x1 * scale, y1 * scale))
+                    count += 1
+            iterator.next()
+        if count == 0:
+            raise RuntimeError("no metal occupancy found for %s" % name)
+
+    lines.append("  END")
+    return lines
+
+
+
 # SPICE numbers (worst over tt/ss/ff characterization)
 T_OUT_PAD = 0.441      # ns, pad_delay out_max
 T_PAD_IN = 0.096       # ns, pad_delay in_max
@@ -47,7 +110,7 @@ C_CTRL = 0.05          # pF
 def lef():
     lines = [
         "VERSION 5.8 ;",
-        "BUSBITCHARS \";\" ;",
+        "BUSBITCHARS \"[]\" ;",
         "DIVIDERCHAR \"/\" ;",
         "MACRO gf180_pad_tile",
         "  CLASS PAD ;",
@@ -65,11 +128,14 @@ def lef():
         else:
             lines.append("    USE SIGNAL ;")
         lines.append("    PORT")
+        sx, sy = LEF_SHIFT
         for layer, (x0, y0, x1, y1) in rects:
             lines.append("      LAYER %s ;" % layer)
-            lines.append("        RECT %.3f %.3f %.3f %.3f ;" % (x0, y0, x1, y1))
+            lines.append("        RECT %.3f %.3f %.3f %.3f ;"
+                         % (x0 + sx, y0 + sy, x1 + sx, y1 + sy))
         lines.append("    END")
         lines.append("  END %s" % name)
+    lines += obstruction_lines()
     lines += ["END gf180_pad_tile", "END LIBRARY", ""]
     return "\n".join(lines)
 

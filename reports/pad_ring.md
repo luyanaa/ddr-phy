@@ -77,12 +77,18 @@ qualification.
 
 ## 5. Open items and user decisions (2026-11-27)
 
-1. **Chip top (1b)**: **hierarchical LVS is the accepted method** (pad tile
-   + black-box `sdram_phy_core` at the top).  Still to build: place the
-   hardened core (274 × 292 µm) inside the ring, assign the 30 signal pads,
-   add VDDIO/VSSIO and core PDN, route pad pins to core pins, then run
-   hierarchical DRC/LVS.  The ring GDS and tile/core LEFs are ready; the
-   top-level route is the remaining work.
+1. **Chip top (1b)**: **routing, placement, pad assignment, and hierarchical
+   DRC/LVS are now built** — see `reports/chip_top.md`.  The hardened core is
+   placed inside the ring, all 30 signal pads are assigned, VDDIO/VSSIO and
+   core PDN are added, and the pad pins are routed to the core pins by
+   OpenROAD's global+detail router.  After correcting the pad LEF to declare
+   its internal metal obstructions, the interconnect is verified clean: zero
+   pad-plate crossings, zero detail-route violations.  Hierarchical signoff
+   (fill/seal, density DRC, black-box-core LVS) is integrated end-to-end; the
+   remaining residuals — a core-domain `VDD`/`VSS` power alias and
+   density/antenna DRC — are precisely characterized in `reports/chip_top.md`.
+   The custom Python maze/channel routers are permanently abandoned as
+   computationally infeasible for the cavity.
 2. **ESD/latch-up (1c)**: **user accepted the current evidence** — BSIM
    pulse stress (32.2 V @ 1 A/100 ns, no snapback) plus GF180 DRC ESD/LU
    rules.  This is not TLP/HBM silicon qualification, so `esd_verified`

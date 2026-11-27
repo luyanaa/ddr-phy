@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: Apache-2.0
+# Pad assignment for the GF180 Class-S SDRAM chip top (sdram_chip_top).
+#
+# Ring geometry (sch/pads/gf180mcuD/pcell/gf180_pad_ring.gds): 32 sites,
+# bottom 9 / right 7 / top 9 / left 7, pitch 190 um.  Index order follows
+# generator/probe order: bottom row west-to-east, right column south-to-north,
+# top row east-to-west, left column north-to-south.  30 sites carry the SDRAM
+# signals; the two corner-most bottom-row sites (index 0 west, index 8 east)
+# are the VDDIO / VSSIO power positions.  cmd bit mapping is
+# rtl/sdram_phy_core.sv:97: cmd_o[20:8]=a[12:0], [7:6]=ba, [5]=ras_n,
+# [4]=cas_n, [3]=we_n, [2]=cs_n, [1]=cke, [0]=dm.
+#
+# Grouping rationale: the byte lane (dq0..dq7) sits on the right column so
+# the read-capture CDC pins (west edge dq_i) and the east-edge dq_o both
+# have short routes; ck is the bottom row next to the core's east-edge ck_o;
+# the command bus fills the top row in bit order.
+meta:
+  die_um: [1800, 1800]
+  pitch_um: 190
+  tile_cell: gf180_pad_tile
+  core_cell: sdram_phy_core
+  core_size_um: [274.035, 291.955]
+  core_center_um: [900, 900]
+  ring_gds: sch/pads/gf180mcuD/pcell/gf180_pad_ring.gds
+
+# net -> ring site index.  Power sites use the special names VDDIO/VSSIO.
+assignments:
+  # bottom row (index 0..8, west to east).  0 and 8 are power corners.
+  - {index: 0, net: VDDIO,  role: power}
+  - {index: 1, net: "cmd_o[11]", role: signal, bit: a3}
+  - {index: 2, net: "cmd_o[12]", role: signal, bit: a4}
+  - {index: 3, net: "cmd_o[13]", role: signal, bit: a5}
+  - {index: 4, net: pad_ck,     role: signal, bit: ck}
+  - {index: 5, net: "cmd_o[14]", role: signal, bit: a6}
+  - {index: 6, net: "cmd_o[15]", role: signal, bit: a7}
+  - {index: 7, net: "cmd_o[16]", role: signal, bit: a8}
+  - {index: 8, net: VSSIO,  role: power}
+  # right column (index 9..15, south to north): the DQ byte lane.
+  - {index: 9,  net: "dq[0]", role: signal, bit: dq0}
+  - {index: 10, net: "dq[1]", role: signal, bit: dq1}
+  - {index: 11, net: "dq[2]", role: signal, bit: dq2}
+  - {index: 12, net: "dq[3]", role: signal, bit: dq3}
+  - {index: 13, net: "dq[4]", role: signal, bit: dq4}
+  - {index: 14, net: "dq[5]", role: signal, bit: dq5}
+  - {index: 15, net: "dq[6]", role: signal, bit: dq6}
+  # top row (index 16..24, east to west): dq7 then the command bus high bits.
+  - {index: 16, net: "dq[7]", role: signal, bit: dq7}
+  - {index: 17, net: "cmd_o[20]", role: signal, bit: a12}
+  - {index: 18, net: "cmd_o[19]", role: signal, bit: a11}
+  - {index: 19, net: "cmd_o[18]", role: signal, bit: a10}
+  - {index: 20, net: "cmd_o[17]", role: signal, bit: a9}
+  - {index: 21, net: "cmd_o[10]", role: signal, bit: a2}
+  - {index: 22, net: "cmd_o[9]",  role: signal, bit: a1}
+  - {index: 23, net: "cmd_o[8]",  role: signal, bit: a0}
+  - {index: 24, net: "cmd_o[7]",  role: signal, bit: ba1}
+  # left column (index 25..31, north to south): ba0 + the strobe/mask bits.
+  - {index: 25, net: "cmd_o[6]", role: signal, bit: ba0}
+  - {index: 26, net: "cmd_o[5]", role: signal, bit: ras_n}
+  - {index: 27, net: "cmd_o[4]", role: signal, bit: cas_n}
+  - {index: 28, net: "cmd_o[3]", role: signal, bit: we_n}
+  - {index: 29, net: "cmd_o[2]", role: signal, bit: cs_n}
+  - {index: 30, net: "cmd_o[1]", role: signal, bit: cke}
+  - {index: 31, net: "cmd_o[0]", role: signal, bit: dm}
