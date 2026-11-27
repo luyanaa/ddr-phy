@@ -190,7 +190,7 @@ gf180 必须用 3.3 V AS 标准单元视图（先在 `./pdks/gf180mcuD` 组好�
 - [PAD_GENERATOR.md](docs/PAD_GENERATOR.md) / [PAD_ADAPTER.md](docs/PAD_ADAPTER.md) — pad 生成器与适配契约
 - [ESD_STRESS_PLAN.md](docs/ESD_STRESS_PLAN.md) / [ICS55_ESD_3V3.md](docs/ICS55_ESD_3V3.md) — ESD 计划与 ics55 3.3 V 缺口
 - [DRAM_MODEL_REFERENCES.md](docs/DRAM_MODEL_REFERENCES.md) — DRAM 参考模型的来源与许可边界
-- [SI_PI_PACKAGE_PCB.md](docs/SI_PI_PACKAGE_PCB.md) / [PACKAGING_PROFILES.md](docs/PACKAGING_PROFILES.md) — 封装与板级
+- [SI_PI_PACKAGE_PCB.md](docs/SI_PI_PACKAGE_PCB.md) / [PACKAGING_PROFILES.md](docs/PACKAGING_PROFILES.md) — 封装与板级；QFN64 来源记录见 [IHP130_QFN64.md](docs/packages/IHP130_QFN64.md)
 - [ihp130-layout-eye.md](reports/ddr1/ihp130-layout-eye.md) — IHP130 全顶、QFN48 装配版图与 DQ 写眼导出
 
 ## 许可
