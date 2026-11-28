@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-// Per-byte source-synchronous DQS capture. Capture/clear_slot are timed
-// controls from the SYS scheduler, not clocks and not asynchronous FIFO flags.
+// Per-byte source-synchronous DQS capture. The SYS capture pulse only arms
+// the slot; the first rising DQS edge after the arm starts the burst and the
+// slot stays armed across the full 2-rise/2-fall BL4 burst. clear_slot is a
+// timed control from the SYS scheduler, not an asynchronous FIFO flag.
 `default_nettype none
 module ddr_read_capture #(
     parameter integer LANES = 1,
@@ -19,6 +21,11 @@ module ddr_read_capture #(
     reg [1:0] fall_count [0:LANES-1][0:SLOTS-1];
     reg [7:0] beat_r     [0:LANES-1][0:SLOTS-1][0:1];
     reg [7:0] beat_f     [0:LANES-1][0:SLOTS-1][0:1];
+    // A slot is armed by the SYS capture pulse but stays armed until it has
+    // seen a complete 2-rise/2-fall burst.  Capture therefore starts on the
+    // first rising DQS edge after the arm, not on a fixed SYS slot boundary.
+    reg armed   [0:LANES-1][0:SLOTS-1];
+    reg started [0:LANES-1][0:SLOTS-1];
     wire [SLOTS-1:0] slot_reset;
 
     genvar lane, slot;
@@ -35,6 +42,9 @@ module ddr_read_capture #(
                                 (fall_count[lane][return_slot] == 2'd2);
 
             for (slot = 0; slot < SLOTS; slot = slot + 1) begin : g_slot
+                wire slot_done = armed[lane][slot] && started[lane][slot] &&
+                                 (rise_count[lane][slot] == 2'd2) &&
+                                 (fall_count[lane][slot] == 2'd2);
                 // Rising and falling edge counters are independent. A count
                 // of three means the window had an extra edge and is invalid.
                 // Keep the two edges in separate always blocks: Yosys maps
@@ -44,17 +54,29 @@ module ddr_read_capture #(
                 always @(posedge dqs_capture[lane] or posedge slot_reset[slot]) begin
                     if (slot_reset[slot]) begin
                         rise_count[lane][slot] <= 2'd0;
-                    end else if (capture[slot]) begin
+                        armed[lane][slot] <= 1'b0;
+                        started[lane][slot] <= 1'b0;
+                    end else if (!armed[lane][slot] && capture[slot]) begin
+                        // First rising edge after the SYS arm: this is beat 0.
+                        armed[lane][slot] <= 1'b1;
+                        started[lane][slot] <= 1'b1;
+                        beat_r[lane][slot][0] <= dq_i[8*lane +: 8];
+                        rise_count[lane][slot] <= 2'd1;
+                    end else if (armed[lane][slot] && started[lane][slot] &&
+                                 !slot_done) begin
                         case (rise_count[lane][slot])
-                            2'd0: begin
-                                beat_r[lane][slot][0] <= dq_i[8*lane +: 8];
-                                rise_count[lane][slot] <= 2'd1;
-                            end
                             2'd1: begin
                                 beat_r[lane][slot][1] <= dq_i[8*lane +: 8];
                                 rise_count[lane][slot] <= 2'd2;
                             end
-                            default: rise_count[lane][slot] <= 2'd3;
+                            2'd2: begin
+                                // A third rising edge means the window had an
+                                // extra burst and is invalid.
+                                rise_count[lane][slot] <= 2'd3;
+                            end
+                            default: begin
+                                rise_count[lane][slot] <= 2'd3;
+                            end
                         endcase
                     end
                 end
@@ -62,7 +84,8 @@ module ddr_read_capture #(
                 always @(negedge dqs_capture[lane] or posedge slot_reset[slot]) begin
                     if (slot_reset[slot]) begin
                         fall_count[lane][slot] <= 2'd0;
-                    end else if (capture[slot]) begin
+                    end else if (armed[lane][slot] && started[lane][slot] &&
+                                 !slot_done) begin
                         case (fall_count[lane][slot])
                             2'd0: begin
                                 beat_f[lane][slot][0] <= dq_i[8*lane +: 8];

@@ -286,20 +286,19 @@ tapeout-ready?” — that is still a full custom-layout task.
 
 ## 4. DQS delay instance status
 
-`rtl/ddr_dqs_delay_adpll.sv` is a structural request/acknowledge delay line
-around `PLL_DCDL_TAP_BUS_PHYS`. It is **not instantiated** in `ddr1_top`;
-`rtl/ddr1_ihp130_io.sv` still uses the ideal
-`assign #(DQS_CAPTURE_DELAY_PS) dqs_capture_int = dqs_pad_i;`.
+**2026-11-28 update: the ideal `#delay` has been replaced.**  The wrapper now
+uses the repaired 128-tap `DDR1_DQS_DELAY_LINE_PHYS` (2 fine cells/tap,
+7-bit code), and `ddr1_ihp130_io.sv` instantiates it.  `ddr1_top` defaults to
+`TAP_BITS=7` and applies `DQS_TAP_CODE` once at startup when training is off.
+`read_capture_busy` gates delay-line updates to idle windows.  The 100 MHz
+TT and SS regressions pass with the line at code 9/35 ps and 5/61 ps
+respectively.  The 133/166 MHz sweeps in this report are still ideal-delay
+results and must be re-run with the line before they are quoted as physical.
 
-The speed experiments above therefore use the ideal delay. The 133 TT
-`DQS_CAPTURE_DELAY=500 ps` point is a useful target for the repaired instance,
-but it is not evidence that the physical delay line will hit it. Once the
-instance is fixed, re-run:
-
-1. Delay-line range and step over PVT; confirm 500 ps is reachable with margin.
-2. The same 133 TT `DQ_OE=800/1000/1200` sweep and the SS 1770/1775 ps
-   boundary.
-3. Capture-slot alignment with the repaired instance, not the ideal delay.
+Remaining limits: `LINE_IMPL=0` is the behavioral cell model in simulation;
+there is no routed IHP130 structural delay line, no SDF/GLS, and the hardened
+`ddr1_top` ODB still has the old 4-bit tap port.  The 133 TT 500 ps target is
+therefore still not proven on a physical line.
 
 The instance cannot fix the SS **write** tDS/tDQSS gap; that is a TX launch
 problem. It can fix the read capture slot and track PVT once it works.
@@ -377,8 +376,10 @@ re-extracted before this budget is used for signoff.
    level shifters, no ESD/latch-up ring, no merged-ring DRC/LVS.
 6. **Chip-top PDN** — the 8-lane prototype does not connect power pins; no
    power pad ring or package-aware PDN.
-7. **DQS delay instance** — still a bug; `DQS_CAPTURE_DELAY_PS` is an ideal
-   `#delay`; no PVT tracking or tap calibration.
+7. **DQS delay instance** — RTL integration is done: repaired 128-tap wrapper
+   replaces the ideal `#delay` in `ddr1_ihp130_io`, and 100 MHz TT/SS pass in
+   behavioral simulation.  Still open: structural IHP130 line/SDF/GLS, PVT
+   tap calibration, and a hardened top re-run with the 7-bit tap port.
 8. **Package SI** — QFN48 first-order RLC only, QFN64 has no bondplan/RLC;
    `PKG_FLIGHT=0.050` is a placeholder; no IBIS/3D EM/VTT/VREF/SSN.
 9. **Post-route GLS** — the DDR1 SDF exists but there is no DDR1 gate-level TB
@@ -396,8 +397,9 @@ re-extracted before this budget is used for signoff.
 
 1. Freeze 100 MHz as the release point. Keep 133.33 MHz as an experimental
    TT-only mode; do not claim SS or production.
-2. Fix the DQS delay instance, then re-run the 133 TT capture sweep and the
-   SS 1770/1775 ps boundary. Target a 5–10 ps trim, not a bulk OE change.
+2. Re-run the 133 TT capture sweep and the SS 1770/1775 ps boundary with the
+   repaired line (the earlier sweeps were ideal-delay only). Target a 5–10 ps
+   trim, not a bulk OE change.
 3. Decide 133 vs 166: 166 should be dropped for this pad unless a quarter-cycle
    launch or a faster pad is funded.
 4. Generate a gate-level VCD/SAIF and run PSM with a bond-pad `vsrc`; replace

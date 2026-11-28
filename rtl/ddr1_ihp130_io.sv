@@ -9,12 +9,16 @@
 `default_nettype none
 module ddr1_ihp130_io #(
     parameter integer TRAIN_ENABLE = 0,
-    parameter integer TAP_BITS = 4,
+    parameter integer TAP_BITS = 7,
     parameter [22:0] TRAIN_ADDR = 23'h7fffff,
     parameter integer PAD_TX_PS = 1300,
     parameter integer PAD_RX_PS = 1300,
     parameter integer PAD_OE_PS = 1500,
+    // Kept for compatibility; the ideal #delay is no longer used.
     parameter integer DQS_CAPTURE_DELAY_PS = 1500,
+    parameter integer DQS_TAP_CODE = 9,
+    parameter integer DQS_LINE_CELL_PS = 35,
+    parameter integer DQS_LINE_IMPL = 0,
     // Per-lane overrides. -1 keeps the legacy single PAD_* value.
     parameter integer DQ_TX_PS = -1,
     parameter integer DQ_RX_PS = -1,
@@ -71,17 +75,20 @@ module ddr1_ihp130_io #(
     wire        dm_int, dqs_o_int, dqs_oe_int;
     wire [7:0]  dq_o_int, dq_i_int;
     wire        dq_oe_int, dqs_capture_int, dqs_pad_i;
+    wire        read_capture_busy_int;
+    wire        dqs_tap_ready_line;
+    wire        dqs_tap_error;
 
     ddr1_top #(
         .TRAIN_ENABLE(TRAIN_ENABLE), .TAP_BITS(TAP_BITS),
-        .TRAIN_ADDR(TRAIN_ADDR)
+        .TRAIN_ADDR(TRAIN_ADDR), .DQS_TAP_CODE(DQS_TAP_CODE)
     ) u_top (
         .sys_clk(sys_clk), .ck(ck), .ck90(ck90), .rst(rst),
         .dqs_capture(dqs_capture_int),
         .init_done(init_done), .read_error(read_error), .dfi_error(dfi_error),
         .phy_ready(phy_ready), .train_busy(train_busy), .train_failed(train_failed),
-        .dqs_tap_ready(dqs_tap_ready), .dqs_tap_valid(dqs_tap_valid),
-        .dqs_tap_value(dqs_tap_value),
+        .dqs_tap_ready(dqs_tap_ready_line), .dqs_tap_valid(dqs_tap_valid),
+        .dqs_tap_value(dqs_tap_value), .read_capture_busy(read_capture_busy_int),
         .cmd_valid(cmd_valid), .cmd_we(cmd_we), .cmd_addr(cmd_addr),
         .cmd_ready(cmd_ready), .w_data(w_data), .w_we(w_we),
         .w_ready(w_ready), .r_valid(r_valid), .r_data(r_data),
@@ -183,9 +190,21 @@ module ddr1_ihp130_io #(
         .VREF(VREF), .PU_OK(PU_OK), .DQ_I()
     );
 
-    // Ideal stand-in for the missing on-chip DQS delay line. The real
-    // adpll_gen DQS line replaces this #delay before physical signoff.
-    assign #(DQS_CAPTURE_DELAY_PS) dqs_capture_int = dqs_pad_i;
+    // Repaired adpll_gen DDR1 DQS line: 128 x 2 fine cells, 7-bit code,
+    // output settle gate.  The old ideal #delay is removed.  update_idle is
+    // asserted only when no read burst is in flight and neither DQ nor DQS
+    // is being driven.
+    ddr_dqs_delay_adpll #(
+        .LANES(1), .TAP_BITS(TAP_BITS), .FIRST_STAGE(0), .STEP_CELLS(1),
+        .SETTLE_CYCLES(2), .CELLS_PER_TAP(2), .CELL_PS(DQS_LINE_CELL_PS),
+        .LINE_NTAPS(128), .LINE_IMPL(DQS_LINE_IMPL)
+    ) u_dqs_delay (
+        .sys_clk(sys_clk), .rst(rst),
+        .update_idle(!read_capture_busy_int && !dqs_oe_int && !dq_oe_int),
+        .dqs_in(dqs_pad_i), .dqs_capture(dqs_capture_int),
+        .tap_valid(dqs_tap_valid), .tap_value(dqs_tap_value),
+        .tap_ready(dqs_tap_ready_line), .tap_error(dqs_tap_error)
+    );
 
     assign DQ_OE  = dq_oe_int;
     assign DQS_OE = dqs_oe_int;
