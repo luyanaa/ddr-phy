@@ -1,0 +1,17 @@
+== 1/4 seal ring + density fill
+seal ring drawn
+Metal1: 36469 dummy tiles
+Metal2: 34503 dummy tiles
+Metal3: 33869 dummy tiles
+Metal4: 36299 dummy tiles
+Metal5: 36850 dummy tiles
+MetalTop: 37046 dummy tiles
+Comp+Poly2: 28674 coincident dummy tile pairs
+wrote /grid/ddr-phy/generator/../sch/pads/gf180mcuD/pcell/gf180mcu_sdram_chip_top_filled.gds
+== 2/4 LVS view: swap full core for pin-only abstract
+wrote LVS view (abstract core) to /grid/ddr-phy/generator/../sch/pads/gf180mcuD/pcell/gf180mcu_sdram_chip_top_lvsview.gds
+== 3/4 full-die DRC incl. density (LibreLane KLayout, flat)
+CHECK gf180_chip_top DRC: see reports/gf180_chip_top_drc.lyrdb
+== 4/4 black-box core LVS
+CHECK gf180_chip_top LVS: see reports/gf180_chip_top_lvs.lyrdb
+GF180_CHIP_TOP_DONE

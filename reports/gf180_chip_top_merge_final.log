@@ -1,0 +1,6 @@
+normalized pad GDS /grid/ddr-phy/sch/pads/gf180mcuD/pcell/gf180_pad_tile_norm.gds: raw bbox (-66500,-65000;45160,120160), shift (66.5,65) um, result (0,0;111660,185160)
+verified normalized GDS: M2 signal pad + M3 VDDIO + M4 VSSIO at 30 sites
+added Metal2 labels for 30 signal top-level ports
+verified perimeter power mesh intersections: VDDIO 30/30, VSSIO 30/30
+connected core east M4 straps to inverter M1 rails: VDD, VSS
+wrote /grid/ddr-phy/sch/pads/gf180mcuD/pcell/gf180mcu_sdram_chip_top.gds

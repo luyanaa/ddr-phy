@@ -1,0 +1,93 @@
+* SPDX-License-Identifier: Apache-2.0
+* sdram_chip_top LVS schematic.  Black-box core; see header comment in
+* generator/emit_chip_top_spice.py.  Generated - do not edit by hand.
+
+.SUBCKT sdram_phy_core VDD VSS cap_clk capture_ready ck_active ck_o ck_phase_clks[0] ck_phase_clks[1] ck_phase_clks[2] ck_phase_clks[3] ck_phase_clocks_ready ck_phase_sel[0] ck_phase_sel[1] clk cmd_o[0] cmd_o[10] cmd_o[11] cmd_o[12] cmd_o[13] cmd_o[14] cmd_o[15] cmd_o[16] cmd_o[17] cmd_o[18] cmd_o[19] cmd_o[1] cmd_o[20] cmd_o[2] cmd_o[3] cmd_o[4] cmd_o[5] cmd_o[6] cmd_o[7] cmd_o[8] cmd_o[9] contention dfi_act_n dfi_address[0] dfi_address[10] dfi_address[11] dfi_address[12] dfi_address[1] dfi_address[2] dfi_address[3] dfi_address[4] dfi_address[5] dfi_address[6] dfi_address[7] dfi_address[8] dfi_address[9] dfi_bank[0] dfi_bank[1] dfi_cas_n dfi_cke dfi_cs_n dfi_odt dfi_ras_n dfi_rddata[0] dfi_rddata[1] dfi_rddata[2] dfi_rddata[3] dfi_rddata[4] dfi_rddata[5] dfi_rddata[6] dfi_rddata[7] dfi_rddata_en dfi_rddata_valid dfi_reset_n dfi_we_n dfi_wrdata[0] dfi_wrdata[1] dfi_wrdata[2] dfi_wrdata[3] dfi_wrdata[4] dfi_wrdata[5] dfi_wrdata[6] dfi_wrdata[7] dfi_wrdata_en dfi_wrdata_mask dq_i[0] dq_i[1] dq_i[2] dq_i[3] dq_i[4] dq_i[5] dq_i[6] dq_i[7] dq_o[0] dq_o[1] dq_o[2] dq_o[3] dq_o[4] dq_o[5] dq_o[6] dq_o[7] dq_oe io_power_ok pad_config[0] pad_config[1] pad_config[2] pad_config[3] pad_config[4] pad_config[5] pad_config[6] pad_config[7] pad_ready phase_clks[0] phase_clks[1] phase_clks[2] phase_clks[3] phase_clocks_ready phase_sel[0] phase_sel[1] phase_sel_valid read_latency_error rst turnaround_busy
+.ENDS
+
+.SUBCKT gf180mcu_sdram_chip_top pad_cmd[0] pad_cmd[1] pad_cmd[2] pad_cmd[3] pad_cmd[4] pad_cmd[5] pad_cmd[6] pad_cmd[7] pad_cmd[8] pad_cmd[9] pad_cmd[10] pad_cmd[11] pad_cmd[12] pad_cmd[13] pad_cmd[14] pad_cmd[15] pad_cmd[16] pad_cmd[17] pad_cmd[18] pad_cmd[19] pad_cmd[20] pad_dq[0] pad_dq[1] pad_dq[2] pad_dq[3] pad_dq[4] pad_dq[5] pad_dq[6] pad_dq[7] pad_ck VDDIO VSSIO VDD VSS
+Xcmd0 n_cmd_o_0 VSSIO nc_pu_cmd0 pad_cmd[0] nc_in_cmd0 VDDIO VSSIO gf180_pad_tile
+Xcmd1 n_cmd_o_1 VSSIO nc_pu_cmd1 pad_cmd[1] nc_in_cmd1 VDDIO VSSIO gf180_pad_tile
+Xcmd2 n_cmd_o_2 VSSIO nc_pu_cmd2 pad_cmd[2] nc_in_cmd2 VDDIO VSSIO gf180_pad_tile
+Xcmd3 n_cmd_o_3 VSSIO nc_pu_cmd3 pad_cmd[3] nc_in_cmd3 VDDIO VSSIO gf180_pad_tile
+Xcmd4 n_cmd_o_4 VSSIO nc_pu_cmd4 pad_cmd[4] nc_in_cmd4 VDDIO VSSIO gf180_pad_tile
+Xcmd5 n_cmd_o_5 VSSIO nc_pu_cmd5 pad_cmd[5] nc_in_cmd5 VDDIO VSSIO gf180_pad_tile
+Xcmd6 n_cmd_o_6 VSSIO nc_pu_cmd6 pad_cmd[6] nc_in_cmd6 VDDIO VSSIO gf180_pad_tile
+Xcmd7 n_cmd_o_7 VSSIO nc_pu_cmd7 pad_cmd[7] nc_in_cmd7 VDDIO VSSIO gf180_pad_tile
+Xcmd8 n_cmd_o_8 VSSIO nc_pu_cmd8 pad_cmd[8] nc_in_cmd8 VDDIO VSSIO gf180_pad_tile
+Xcmd9 n_cmd_o_9 VSSIO nc_pu_cmd9 pad_cmd[9] nc_in_cmd9 VDDIO VSSIO gf180_pad_tile
+Xcmd10 n_cmd_o_10 VSSIO nc_pu_cmd10 pad_cmd[10] nc_in_cmd10 VDDIO VSSIO gf180_pad_tile
+Xcmd11 n_cmd_o_11 VSSIO nc_pu_cmd11 pad_cmd[11] nc_in_cmd11 VDDIO VSSIO gf180_pad_tile
+Xcmd12 n_cmd_o_12 VSSIO nc_pu_cmd12 pad_cmd[12] nc_in_cmd12 VDDIO VSSIO gf180_pad_tile
+Xcmd13 n_cmd_o_13 VSSIO nc_pu_cmd13 pad_cmd[13] nc_in_cmd13 VDDIO VSSIO gf180_pad_tile
+Xcmd14 n_cmd_o_14 VSSIO nc_pu_cmd14 pad_cmd[14] nc_in_cmd14 VDDIO VSSIO gf180_pad_tile
+Xcmd15 n_cmd_o_15 VSSIO nc_pu_cmd15 pad_cmd[15] nc_in_cmd15 VDDIO VSSIO gf180_pad_tile
+Xcmd16 n_cmd_o_16 VSSIO nc_pu_cmd16 pad_cmd[16] nc_in_cmd16 VDDIO VSSIO gf180_pad_tile
+Xcmd17 n_cmd_o_17 VSSIO nc_pu_cmd17 pad_cmd[17] nc_in_cmd17 VDDIO VSSIO gf180_pad_tile
+Xcmd18 n_cmd_o_18 VSSIO nc_pu_cmd18 pad_cmd[18] nc_in_cmd18 VDDIO VSSIO gf180_pad_tile
+Xcmd19 n_cmd_o_19 VSSIO nc_pu_cmd19 pad_cmd[19] nc_in_cmd19 VDDIO VSSIO gf180_pad_tile
+Xcmd20 n_cmd_o_20 VSSIO nc_pu_cmd20 pad_cmd[20] nc_in_cmd20 VDDIO VSSIO gf180_pad_tile
+Xdq0 n_dq_o_0 n_dq_oe_b nc_pu_dq0 pad_dq[0] n_dq_i_0 VDDIO VSSIO gf180_pad_tile
+Xdq1 n_dq_o_1 n_dq_oe_b nc_pu_dq1 pad_dq[1] n_dq_i_1 VDDIO VSSIO gf180_pad_tile
+Xdq2 n_dq_o_2 n_dq_oe_b nc_pu_dq2 pad_dq[2] n_dq_i_2 VDDIO VSSIO gf180_pad_tile
+Xdq3 n_dq_o_3 n_dq_oe_b nc_pu_dq3 pad_dq[3] n_dq_i_3 VDDIO VSSIO gf180_pad_tile
+Xdq4 n_dq_o_4 n_dq_oe_b nc_pu_dq4 pad_dq[4] n_dq_i_4 VDDIO VSSIO gf180_pad_tile
+Xdq5 n_dq_o_5 n_dq_oe_b nc_pu_dq5 pad_dq[5] n_dq_i_5 VDDIO VSSIO gf180_pad_tile
+Xdq6 n_dq_o_6 n_dq_oe_b nc_pu_dq6 pad_dq[6] n_dq_i_6 VDDIO VSSIO gf180_pad_tile
+Xdq7 n_dq_o_7 n_dq_oe_b nc_pu_dq7 pad_dq[7] n_dq_i_7 VDDIO VSSIO gf180_pad_tile
+Xck n_ck_o VSSIO nc_pu_ck pad_ck nc_in_ck VDDIO VSSIO gf180_pad_tile
+Xinv_oe VDD VDD VSS VSS n_dq_oe_b n_dq_oe gf180mcu_as_sc_mcu7t3v3__inv_2
+
+Xcore VDD VSS n_open_cap_clk n_open_capture_ready n_open_ck_active n_ck_o VSS VSS VSS VSS VSS VSS VSS VSS n_cmd_o_0 n_cmd_o_10 n_cmd_o_11 n_cmd_o_12 n_cmd_o_13 n_cmd_o_14 n_cmd_o_15 n_cmd_o_16 n_cmd_o_17 n_cmd_o_18 n_cmd_o_19 n_cmd_o_1 n_cmd_o_20 n_cmd_o_2 n_cmd_o_3 n_cmd_o_4 n_cmd_o_5 n_cmd_o_6 n_cmd_o_7 n_cmd_o_8 n_cmd_o_9 n_open_contention VDD VSS VSS VSS VSS VSS VSS VSS VSS VSS VSS VSS VSS VSS VSS VSS VDD VSS VDD VSS VDD n_open_dfi_rddata n_open_dfi_rddata n_open_dfi_rddata n_open_dfi_rddata n_open_dfi_rddata n_open_dfi_rddata n_open_dfi_rddata n_open_dfi_rddata VSS n_open_dfi_rddata_valid VDD VDD VSS VSS VSS VSS VSS VSS VSS VSS VSS VSS n_dq_i_0 n_dq_i_1 n_dq_i_2 n_dq_i_3 n_dq_i_4 n_dq_i_5 n_dq_i_6 n_dq_i_7 n_dq_o_0 n_dq_o_1 n_dq_o_2 n_dq_o_3 n_dq_o_4 n_dq_o_5 n_dq_o_6 n_dq_o_7 n_dq_oe VDD VSS VSS VSS VSS VSS VSS VSS VSS n_open_pad_ready VSS VSS VSS VSS VSS VSS VSS VSS n_open_read_latency_error VDD n_open_turnaround_busy sdram_phy_core
+
+.ENDS
+
+.SUBCKT gf180_pad_tile OUT OE_N PU_OK PAD IN VDDIO VSSIO
+Xpad OUT OE_N PU_OK PAD IN VDDIO VSSIO gf180_pad_core
+.ENDS
+
+.SUBCKT gf180_pad_core OUT OE_N PU_OK PAD IN VDDIO VSSIO
+MP NPRE GP VDDIO VDDIO pfet_03v3 W=200u L=0.28u
+MN NPRE GN VSSIO VSSIO nfet_03v3 W=80u L=0.28u
+R1 NPRE PAD VSSIO ppolyf_u L=1.4u W=22u
+DUP PAD VDDIO diode_pd2nw_03v3 A=64p P=32u
+DDN VSSIO PAD diode_nd2ps_03v3 A=64p P=32u
+DDN2 VSSIO PAD diode_nd2ps_03v3 A=64p P=32u
+DCLAMP VSSIO VDDIO diode_pd2nw_03v3 A=100p P=40u
+MRN IN PAD VSSIO VSSIO nfet_03v3 W=2u L=0.28u
+MRP IN PAD VDDIO VDDIO pfet_03v3 W=4u L=0.28u
+MPOB OUTB_I OUT VDDIO VDDIO pfet_03v3 W=2u L=0.28u
+MNOB OUTB_I OUT VSSIO VSSIO nfet_03v3 W=1u L=0.28u
+MCLAMP PAD VSSIO VSSIO VSSIO nfet_03v3 W=160u L=0.28u
+MPOE OENB OE_N VDDIO VDDIO pfet_03v3 W=2u L=0.28u
+MNOE OENB OE_N VSSIO VSSIO nfet_03v3 W=1u L=0.28u
+MPNGP N_GP NGPB VDDIO VDDIO pfet_03v3 W=2u L=0.28u
+MNGNP N_GP NGPB VSSIO VSSIO nfet_03v3 W=1u L=0.28u
+MPNA1 EN_N PU_OK VDDIO VDDIO pfet_03v3 W=2u L=0.28u
+MPNA2 EN_N OENB VDDIO VDDIO pfet_03v3 W=2u L=0.28u
+MNNA1 EN_N PU_OK MID_NA VSSIO nfet_03v3 W=1u L=0.28u
+MNNA2 MID_NA OENB VSSIO VSSIO nfet_03v3 W=1u L=0.28u
+MPG1 MID_GP EN_N VDDIO VDDIO pfet_03v3 W=2u L=0.28u
+MPG2 NGPB OUTB_I MID_GP VDDIO pfet_03v3 W=2u L=0.28u
+MNG1 NGPB EN_N VSSIO VSSIO nfet_03v3 W=1u L=0.28u
+MNG2 NGPB OUTB_I VSSIO VSSIO nfet_03v3 W=1u L=0.28u
+MPH1 MID_GN EN_N VDDIO VDDIO pfet_03v3 W=2u L=0.28u
+MPH2 N_GN OUT MID_GN VDDIO pfet_03v3 W=2u L=0.28u
+MNH1 N_GN EN_N VSSIO VSSIO nfet_03v3 W=1u L=0.28u
+MNH2 N_GN OUT VSSIO VSSIO nfet_03v3 W=1u L=0.28u
+MPGP1 N_GP_S1 N_GP VDDIO VDDIO pfet_03v3 W=2u L=0.28u
+MNGP1 N_GP_S1 N_GP VSSIO VSSIO nfet_03v3 W=1u L=0.28u
+MPGP2 GP N_GP_S1 VDDIO VDDIO pfet_03v3 W=2u L=0.28u
+MNGP2 GP N_GP_S1 VSSIO VSSIO nfet_03v3 W=1u L=0.28u
+MPGN1 N_GN_S1 N_GN VDDIO VDDIO pfet_03v3 W=2u L=0.28u
+MNGN1 N_GN_S1 N_GN VSSIO VSSIO nfet_03v3 W=1u L=0.28u
+MPGN2 GN N_GN_S1 VDDIO VDDIO pfet_03v3 W=2u L=0.28u
+MNGN2 GN N_GN_S1 VSSIO VSSIO nfet_03v3 W=1u L=0.28u
+.ENDS
+
+.SUBCKT gf180mcu_as_sc_mcu7t3v3__inv_2 VDD VNW VPW VSS Y A
+X_M0 VDD A Y VNW pfet_03v3 ad=0.6072p pd=3.64u as=0.3588p ps=1.9u w=1.38u l=0.28u
+X_M1 Y A VSS VPW nfet_03v3 ad=0.26p pd=1.52u as=0.44p ps=2.88u w=1u l=0.28u
+X_M2 Y A VDD VNW pfet_03v3 ad=0.3588p pd=1.9u as=0.6072p ps=3.64u w=1.38u l=0.28u
+X_M3 VSS A Y VPW nfet_03v3 ad=0.44p pd=2.88u as=0.26p ps=1.52u w=1u l=0.28u
+.ENDS

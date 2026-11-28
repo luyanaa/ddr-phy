@@ -1,0 +1,32 @@
+OpenROAD 26Q3 
+Features included (+) or not (-): +GPU +GUI +Python
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[ERROR STA-1000] cell type ddr1_top can not be linked.
+STA-1000
+[WARNING STA-0351] clock '*' not found.
+[ERROR STA-0307] -activity requires a clock to be defined
+STA-0307
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             4.57e-03   5.26e-07   6.32e-07   4.58e-03  58.6%
+Combinational          1.74e-03   1.48e-03   9.73e-07   3.22e-03  41.2%
+Clock                 -4.40e-11   0.00e+00   1.56e-05   1.56e-05   0.2%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  6.32e-03   1.48e-03   1.72e-05   7.81e-03 100.0%
+                          80.9%      18.9%       0.2%
+[INFO PSM-0040] All shapes on net VPWR are connected.
+########## IR report #################
+Net              : VPWR
+Corner           : default
+Total power      : 7.81e-03 W
+Supply voltage   : 1.20e+00 V
+Worstcase voltage: 1.20e+00 V
+Average voltage  : 1.20e+00 V
+Average IR drop  : 1.60e-04 V
+Worstcase IR drop: 6.33e-04 V
+Percentage drop  : 0.05 %
+######################################
