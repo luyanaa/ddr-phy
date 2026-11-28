@@ -5,3 +5,10 @@
 	path = third_party/t1_ddr2
 	url = https://github.com/luyanaa/t1_ddr2
 	branch = main
+[submodule "third_party/uberddr3"]
+	path = third_party/uberddr3
+	url = https://github.com/AngeloJacobo/UberDDR3.git
+	branch = main
+[submodule "third_party/t2_ddr2"]
+	path = third_party/t2_ddr2
+	url = https://github.com/luyanaa/t2_ddr2
