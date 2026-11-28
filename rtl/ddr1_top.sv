@@ -4,7 +4,8 @@
 `default_nettype none
 module ddr1_top #(
     parameter integer TRAIN_ENABLE = 0,
-    parameter integer TAP_BITS = 4,
+    parameter integer TAP_BITS = 7,
+    parameter integer DQS_TAP_CODE = 9,
     parameter [22:0] TRAIN_ADDR = 23'h7fffff
 ) (
     input  wire        sys_clk, ck, ck90, rst,
@@ -12,6 +13,7 @@ module ddr1_top #(
     output wire        init_done, read_error, dfi_error,
     output wire        phy_ready, train_busy, train_failed,
     input  wire [0:0]  dqs_tap_ready,
+    output wire        read_capture_busy,
     output wire [0:0]  dqs_tap_valid,
     output wire [TAP_BITS-1:0] dqs_tap_value,
 
@@ -122,7 +124,8 @@ module ddr1_top #(
         .dqs_o(phy_dqs_o), .dqs_oe(phy_dqs_oe), .dqs_capture(dqs_capture),
         .probe_mode(phy_probe_mode), .read_frame_done(phy_frame_done),
         .read_frame_good(phy_frame_good), .read_frame_data(phy_frame_data),
-        .read_error(read_error), .dfi_error(dfi_error)
+        .read_error(read_error), .dfi_error(dfi_error),
+        .read_capture_busy(read_capture_busy)
     );
     assign dq_oe = phy_dq_oe[0];
     assign dm = phy_dm[0];
@@ -210,8 +213,17 @@ module ddr1_top #(
             assign train_busy = trainer_busy;
             assign train_failed = trainer_failed;
         end else begin : g_no_trainer
-            assign dqs_tap_valid = 1'b0;
-            assign dqs_tap_value = {TAP_BITS{1'b0}};
+            // One-shot code application.  Holding tap_valid would reapply
+            // the same code every idle edge and gate DQS_CAPTURE during
+            // every settle window, so drop it after the first ack.
+            reg tap_init_valid;
+            always @(posedge sys_clk or posedge rst) begin
+                if (rst) tap_init_valid <= 1'b1;
+                else if (tap_init_valid && dqs_tap_ready[0])
+                    tap_init_valid <= 1'b0;
+            end
+            assign dqs_tap_valid = tap_init_valid;
+            assign dqs_tap_value = DQS_TAP_CODE;
             assign train_busy = 1'b0;
             assign train_failed = 1'b0;
             assign trainer_tap_valid = 1'b0;

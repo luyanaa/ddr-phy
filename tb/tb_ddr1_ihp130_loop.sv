@@ -7,7 +7,10 @@ module tb_ddr1_ihp130_loop #(
     parameter integer PAD_TX_PS = 1300,
     parameter integer PAD_RX_PS = 1300,
     parameter integer PAD_OE_PS = 1500,
-    parameter integer DQS_CAPTURE_DELAY_PS = 1500,
+    parameter integer DQS_CAPTURE_DELAY_PS = 1500, // legacy, unused
+    parameter integer DQS_TAP_CODE = 9,
+    parameter integer DQS_LINE_CELL_PS = 35,
+    parameter integer DQS_LINE_IMPL = 0,
     parameter integer DQ_TX_PS = -1,
     parameter integer DQ_RX_PS = -1,
     parameter integer DQ_OE_PS = -1,

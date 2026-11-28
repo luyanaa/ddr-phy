@@ -5,11 +5,11 @@ cd "$(dirname "$0")/.."
 
 # IHP130 pad-boundary DDR1 loop regression.
 #
-# PAD_PROFILE=tt (default): TT PEX pad delays 1300/1300/1500 ps.
-# PAD_PROFILE=ss: opt1 SS PEX worst TX fall 1980 ps, old RX 1615 / OE 2332 ps.
-# RX 1.822 ns is not wired in yet: it trips the current read-capture loop.
-# This SS profile exposes the pad-induced write tDS loss; DQ_OE_PS can advance
-# the DQ driver enable relative to DQS, and DQS_CAPTURE_DELAY_PS trims read capture.
+# PAD_PROFILE=tt (default): opt1 TT profile, PAD_RX=1822 ps.
+# PAD_PROFILE=ss: opt1 SS PEX worst TX fall 1980 ps, RX 1822 / OE 2332 ps.
+# Read capture is now DQS-first-edge armed (2 rise + 2 fall), so RX=1.822 ns
+# runs without a fixed sys_clk slot.  DQS_CAPTURE is the repaired physical
+# 128-tap line; DQS_TAP_CODE/DQS_LINE_CELL_PS select the nominal delay.
 python=${PYTHON:-python3}
 if ! "$python" -c 'import migen, litex' 2>/dev/null; then
     echo 'Install migen==0.9.2 and litex==2024.12 in the PYTHON environment.' >&2
@@ -26,8 +26,11 @@ dq_rx_ps=${DQ_RX_PS:--1}
 dqs_tx_ps=${DQS_TX_PS:--1}
 dqs_rx_ps=${DQS_RX_PS:--1}
 case "$profile" in
-    tt) pad_tx=1300; pad_rx=1300; pad_oe=1500 ;;
-    ss) pad_tx=1980; pad_rx=1615; pad_oe=2332 ;;
+    tt) pad_tx=1300; pad_rx=1822; pad_oe=1500
+        dqs_tap_code=${DQS_TAP_CODE:-9}; dqs_cell_ps=${DQS_LINE_CELL_PS:-35} ;;
+    ss) pad_tx=1980; pad_rx=1822; pad_oe=2332
+        dq_oe_ps=${DQ_OE_PS:-1820}
+        dqs_tap_code=${DQS_TAP_CODE:-5}; dqs_cell_ps=${DQS_LINE_CELL_PS:-61} ;;
     *) echo "PAD_PROFILE must be tt or ss" >&2; exit 1 ;;
 esac
 
@@ -57,6 +60,8 @@ for ck in 10000 11000 12000; do
         -Ptb_ddr1_ihp130_loop.DQ_OE_PS="$dq_oe_ps" \
         -Ptb_ddr1_ihp130_loop.DQS_OE_PS="$dqs_oe_ps" \
         -Ptb_ddr1_ihp130_loop.DQS_CAPTURE_DELAY_PS="$cap_ps" \
+        -Ptb_ddr1_ihp130_loop.DQS_TAP_CODE="$dqs_tap_code" \
+        -Ptb_ddr1_ihp130_loop.DQS_LINE_CELL_PS="$dqs_cell_ps" \
         -Ptb_ddr1_ihp130_loop.DQ_TX_PS="$dq_tx_ps" \
         -Ptb_ddr1_ihp130_loop.DQ_RX_PS="$dq_rx_ps" \
         -Ptb_ddr1_ihp130_loop.DQS_TX_PS="$dqs_tx_ps" \
@@ -64,7 +69,8 @@ for ck in 10000 11000 12000; do
         -o "$work/ddr1_pad.vvp" \
         "$work/ddr1_controller_net.v" "$work/ddr1_top.sv" "$work/ddr1_init.sv" \
         "$work/ddr1_phy.sv" "$work/ddr_edge_out.sv" "$work/ddr_read_capture.sv" \
-        "$work/ddr_dqs_train.sv" rtl/ihp130_sstl2_dq_model.sv rtl/ddr1_ihp130_io.sv \
+        "$work/ddr_dqs_train.sv" rtl/ddr1_dqs_delay_line_phys.v \
+        rtl/ddr_dqs_delay_adpll.sv rtl/ihp130_sstl2_dq_model.sv rtl/ddr1_ihp130_io.sv \
         sim/ddr1_device_model.sv sim/ddr1_timing_checker.sv tb/tb_ddr1_ihp130_loop.sv; then
         echo "iverilog failed at CK=$ck pad=$profile" >&2
         rm -rf "$work"

@@ -34,7 +34,8 @@ module ddr1_phy #(
     output reg                         read_frame_done,
     output reg  [LANES-1:0]            read_frame_good,
     output reg  [4*DQ_WIDTH-1:0]       read_frame_data,
-    output reg                         read_error, dfi_error
+    output reg                         read_error, dfi_error,
+    output wire                        read_capture_busy
 );
     assign pad_ck   = ck;
     assign pad_ck_n = ~ck;
@@ -150,6 +151,9 @@ module ddr1_phy #(
         read_pipe[1] ? (SLOT_ONE << next_slot) : {CAPTURE_SLOTS{1'b0}};
     wire [CAPTURE_SLOTS-1:0] release_slots =
         return_due ? (SLOT_ONE << return_slot) : {CAPTURE_SLOTS{1'b0}};
+    // Physical DQS delay updates are only legal with no read burst in flight.
+    assign read_capture_busy = |slot_busy || capture_frame || return_due ||
+                               read_pipe[1];
     wire [4*DQ_WIDTH-1:0] rx_words;
     wire [LANES-1:0] rx_good;
 

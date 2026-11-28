@@ -13,7 +13,7 @@ work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
 iverilog -g2012 -s tb_ddr_dqs_delay_adpll -o "$work/dqs.vvp" \
-    "$adpll/pll_dcdl_tap_bus_phys.v" \
+    rtl/ddr1_dqs_delay_line_phys.v \
     rtl/ddr_dqs_delay_adpll.sv tb/tb_ddr_dqs_delay_adpll.sv
 vvp "$work/dqs.vvp"
 
