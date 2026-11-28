@@ -50,3 +50,5 @@ run_model 3
 run_loop 2
 run_loop 3
 run_checker
+# DDR2 pin-level device model smoke (tb_ddr2_model_smoke).
+sh sim/ddr2_model.sh
