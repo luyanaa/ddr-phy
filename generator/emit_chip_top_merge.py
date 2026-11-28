@@ -30,7 +30,7 @@ METAL = {
     "Metal1": (34, 0), "Metal2": (36, 0), "Metal3": (42, 0),
     "Metal4": (46, 0), "Metal5": (81, 0),
 }
-VIA = {"Via1": (35, 0), "Via2": (38, 0), "Via3": (40, 0)}
+VIA = {"Via1": (35, 0), "Via2": (38, 0), "Via3": (40, 0), "Via4": (41, 0)}
 LABEL = {
     "Metal1": (34, 10), "Metal2": (36, 10), "Metal3": (42, 10),
     "Metal4": (46, 10), "Metal5": (81, 10),
@@ -276,35 +276,86 @@ def draw_via_stack(top, layout, x, y):
                     dbu(x + half_via), dbu(y + half_via)))
 
 
+def draw_via4_stack(top, layout, x, y):
+    """Metal4<->Metal5 transition via with legal enclosures."""
+    via_size = 0.26
+    # MetalTop (= Metal5 in 5LM) min width is 0.44 (MT.1); the pads must be
+    # at least that wide in every dimension or the pad corners flag width
+    # violations.  0.48 keeps the pads legal and overlaps the via by 0.11.
+    enclosure = 0.48
+    half_via = via_size / 2.0
+    half_enc = enclosure / 2.0
+    for name in ("Metal4", "Metal5"):
+        rect(top, layout, name, x - half_enc, y - half_enc,
+             x + half_enc, y + half_enc)
+    ln, dt = VIA["Via4"]
+    top.shapes(layout.layer(ln, dt)).insert(
+        pya.Box(dbu(x - half_via), dbu(y - half_via),
+                dbu(x + half_via), dbu(y + half_via)))
+
+
 def draw_core_power(top, layout):
-    """Connect east core power straps to the placed inverter's M1 rails."""
+    """Connect east core power straps to the placed inverter's M1 rails.
+
+    The two nets share the cavity on the way to the inverter.  Their core
+    straps and inverter taps are both ordered VDD-left / VSS-right, but each
+    net needs a full-height vertical at both ends and the horizontal runs are
+    nested in x, so they cannot be routed crossing-free on a single metal
+    layer.  Routing both on Metal4 made the VSS riser punch through the VDD
+    horizontal bar, shorting VDD to VSS (the extracted VDD|VSS alias).
+
+    The fix keeps VDD entirely on Metal4 and moves the VSS horizontal run to
+    Metal5 (which is empty in this corridor), transitioning with Via4 stacks.
+    The VSS Metal4 riser and drop both stay below the VDD horizontal bar, so
+    no same-layer crossing remains.
+    """
     # Exact FIXED origins from chiptop_routed.def (DEF units 2000/um).
     core_x, core_y = 762.985, 754.025
     inv_x, inv_y = 1042.020, 985.995
 
     core_top_strap_y = core_y + 274.7
-    power_routes = (
-        # net, core strap x (local), inverter M1 tap (local x/y), route y
-        ("VDD", 176.64, 0.30, 3.92, 1050.0),
-        ("VSS", 179.94, 1.12, 0.00, 1055.0),
+    routes = (
+        # net, core strap x (local), inverter M1 tap (local x/y)
+        ("VDD", 176.64, 0.30, 3.92),
+        ("VSS", 179.94, 1.12, 0.00),
     )
-    for net, core_local_x, inv_local_x, inv_local_y, track_y in power_routes:
+    vdd_track_y = 1050.0   # VDD horizontal bar on Metal4
+    vss_transit_y = 1047.5  # VSS riser/drop stay below the VDD bar
+
+    for net, core_local_x, inv_local_x, inv_local_y in routes:
         cx = core_x + core_local_x
         iy = inv_y + inv_local_y
         ix = inv_x + inv_local_x
         # The core M4 straps end at local y=274.7.  The 0.2 um overlap makes
         # the continuation unambiguously touch the existing stripe.
-        wire_segment(top, layout, "Metal4", (cx, core_top_strap_y - 0.2),
-                     (cx, track_y), 0.44)
-        wire_segment(top, layout, "Metal4", (cx, track_y), (ix, track_y), 0.44)
-        wire_segment(top, layout, "Metal4", (ix, track_y), (ix, iy), 0.44)
+        if net == "VDD":
+            # Entirely on Metal4: riser, horizontal bar, drop.
+            wire_segment(top, layout, "Metal4", (cx, core_top_strap_y - 0.2),
+                         (cx, vdd_track_y), 0.44)
+            wire_segment(top, layout, "Metal4", (cx, vdd_track_y),
+                         (ix, vdd_track_y), 0.44)
+            wire_segment(top, layout, "Metal4", (ix, vdd_track_y),
+                         (ix, iy), 0.44)
+        else:
+            # VSS: Metal4 riser up to the transit track (below the VDD bar),
+            # cross over to Metal5 for the horizontal run, then back down to
+            # Metal4 for the drop to the inverter tap.
+            wire_segment(top, layout, "Metal4", (cx, core_top_strap_y - 0.2),
+                         (cx, vss_transit_y), 0.44)
+            draw_via4_stack(top, layout, cx, vss_transit_y)
+            wire_segment(top, layout, "Metal5", (cx, vss_transit_y),
+                         (ix, vss_transit_y), 0.44)
+            draw_via4_stack(top, layout, ix, vss_transit_y)
+            wire_segment(top, layout, "Metal4", (ix, vss_transit_y),
+                         (ix, iy), 0.44)
         draw_via_stack(top, layout, ix, iy)
         # Keep top-level port labels on the actual core strap and on the
         # power distribution net; the inverter's own VDD/VSS/VNW/VPW labels
         # remain in its standard-cell master.
         text(top, layout, "Metal4", net,
              cx, core_y + 145.04)
-    print("connected core east M4 straps to inverter M1 rails: VDD, VSS")
+    print("connected core east M4 straps to inverter M1 rails: VDD, VSS"
+          " (VSS horizontal on Metal5)")
 
 
 def add_top_labels(top, layout, sites):

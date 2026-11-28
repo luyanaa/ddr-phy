@@ -86,6 +86,13 @@ against the rerouted layout: 30/30 pin-strap intersections on both rails, zero
 route overlap on either ring (including after a 2 µm ring expansion), no routed
 Via3 in either ring.
 
+Core-domain VDD/VSS connect the east core M4 straps to the placed inverter M1
+rails. The two nets cross in plan view (nested horizontal runs + full-height
+verticals), so they cannot share one metal layer. VDD routes entirely on
+Metal4; the VSS horizontal crossover uses Metal5 (empty in the corridor) with
+Via4 transition stacks, the VSS Metal4 riser/drop held below the VDD bar.
+Extraction confirms the rails are disjoint (zero `VDD|VSS` aliases).
+
 ## Evidence — hierarchical signoff (sim/gf180_chip_top.sh)
 
 | step | result | log |
@@ -93,7 +100,7 @@ Via3 in either ring.
 | 1/4 seal ring + density fill | PASS — seal drawn; ~34k dummy tiles/metal layer | `gf180_chip_top_signoff_final.log` |
 | 2/4 LVS view (abstract core) | PASS — pin-only core abstract swapped in | `gf180mcu_sdram_chip_top_lvsview.gds` |
 | 3/4 full-die DRC incl density | **193 violations** (down from 360 before the routing fix) | `gf180_chip_top_drc.log` / `.lyrdb` |
-| 4/4 black-box core LVS | **netlists don't match** — one residual power-domain alias | `gf180_chip_top_lvs.log` |
+| 4/4 black-box core LVS | **netlists don't match** — residual inverter-cell abstraction mismatch (power alias fixed) | `gf180_chip_top_lvs.log` |
 
 ### DRC breakdown (final, 193 total)
 
@@ -111,26 +118,49 @@ shorts were geometric and are fixed by the re-route — they never appear here.
 | PP.5di | 8 | poly2/density |
 | MT.2a / DF.12 / DF.13_LV / M3.2a | 6 | misc |
 
-### LVS connectivity — major progress, one residual
+### LVS connectivity — power alias fixed, one structural residual
 
 Before the routing fix, extraction merged all pads + both rails into one giant
 net. After the LEF-OBS re-route, extraction produces **distinct, correctly-named
 `pad_cmd[N]` / `pad_dq[N]` / `pad_ck` nets** — pad signal connectivity is
-correct; the earlier `VSSIO|pad_cmd[7]|pad_dq[7]` alias is gone. The one
-remaining compound net is **`VDD|VSS`**: the core/inverter power pins extract on
-a single merged net. `draw_core_power` connects the east core M4 power straps to
-the inverter M1 rails and must keep VDD and VSS disjoint; the residual indicates
-a bridge in that core-power connection. This is a power-domain short, separate
-from the now-correct signal connectivity.
+correct; the earlier `VSSIO|pad_cmd[7]|pad_dq[7]` alias is gone.
+
+The core-domain **`VDD|VSS` power alias is now fixed**. `draw_core_power`
+originally routed both core power nets entirely on Metal4; the two nets share
+the cavity with the same left/right ordering (VDD-left/VSS-right at both the
+core straps and the inverter taps) but each needs a full-height vertical at
+both ends and the horizontal runs are nested in x — a topology that cannot be
+routed crossing-free on one metal layer. The VSS riser punched through the VDD
+horizontal bar, shorting the rails. The fix keeps VDD on Metal4 and moves the
+VSS horizontal crossover to **Metal5** (empty in this corridor), transitioning
+with Via4 stacks; the VSS Metal4 riser/drop stay below the VDD bar. Verified
+in `gf180_chip_top_extracted.spice`: zero `VDD|VSS` aliases; the core instance
+power pins extract as distinct nets (`VDD`→`VDD`, `VSS`→`VSS`) and the inverter
+`X$72` connects VDD/VSS to separate nets. The crossover geometry is DRC-clean
+(the 193-violation total is unchanged — no new power-routing violations; an
+initial too-narrow Metal5 transition pad raised MT.1 width errors, fixed by
+widening the Via4 enclosure to 0.48 µm so the merged Metal5 shape is 0.48 µm
+wide).
+
+The one remaining mismatch is structural, not connectivity: the schematic
+inverter subcircuit is a 6-terminal behavioral view
+(`VDD VNW VPW VSS Y A`) while extraction yields the 5-terminal physical device
+(`VDD Y A VSS SUB`). These cannot pin-match as written; reconciling them is a
+black-box abstraction task separate from the power routing.
 
 ## Remaining residuals (open, precisely characterized)
 
-1. **Core-domain `VDD`/`VSS` alias** — the inverter/core power pins merge; the
-   core-power strap connection must be re-examined for a VDD↔VSS bridge.
+1. **Inverter-cell abstraction mismatch** — the schematic `inv_2` is a
+   6-terminal behavioral view (`VDD VNW VPW VSS Y A`); extraction yields the
+   5-terminal physical device (`VDD Y A VSS SUB`). Pins cannot match as
+   written. Power connectivity itself is correct — this is a black-box
+   abstraction reconciliation, not a layout defect.
 2. **Density/antenna DRC** — DM2/3/4/5 dummy-spacing (116 total), ANT.16 (33),
    DCF.1a (30). Fill-tuning and antenna iteration, not connectivity defects.
 
-The pad-signal interconnect is verified correct and clean. The residuals are in
-the power-distribution overlay and density fill — iterative signoff-convergence
-work layered on the now-correct routing, not defects in the interconnect itself.
+The pad-signal interconnect is verified correct and clean, and the core power
+distribution is now correct: VDD and VSS extract as separate nets end-to-end
+(core straps → inverter rails) with zero power aliases. The residuals are the
+inverter-cell abstraction view and density/antenna fill — iterative
+signoff-convergence work layered on correct connectivity, not layout defects.
 
