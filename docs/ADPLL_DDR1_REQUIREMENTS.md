@@ -1,6 +1,6 @@
-# adpll_gen DDR1 / IHP130 接口需求（v0.1）
+# adpll_gen DDR1 / IHP130 接口需求（v0.2）
 
-日期：2026-11-27
+日期：2026-11-27（v0.2 增补：2026-11-28，加入 §4.5 过程要求）
 用途：交给 `adpll_gen` 维护者的 handoff 需求，不是签核结论。
 范围：`ddr-phy` 的 IHP130 DDR1（MT46V32M8-75E，100 MHz，2.5 V SSTL-2）所需的核心时钟与 DQS 接收延迟线。
 边界：`adpll_gen` 只负责 **1.2 V core 时钟/延迟线 RTL 与 IHP130 标准单元实现**；IHP130 SSTL-2 pad、VREF/VTT、封装、SI/PI、全芯片电源由 `ddr-phy`/板级负责。DQS/DQ pad 之间的失配不计入 `adpll_gen` 的 CK90 预算，但 `ddr-phy` 必须单独约束。
@@ -100,6 +100,10 @@
    - `create_clock`/generated clock、CK/CK90 的 phase 约束、DQS delay 的 false/multicycle 约束；
    - 一张接口/参数表，列出 `TAP_BITS`、`STEP_CELLS`、`FIRST_STAGE`、`SETTLE_CYCLES` 的合法范围和 IHP130 推荐值；
    - 明确“core 1.2 V、非 2.5 V pad”的边界。
+5. **过程要求（P0，先于一切 pass-2 工作；源自二次检查 §2.3，`ADPLL_DDR1_SECOND_CHECK.md`）**：
+   - 目前全部 9 个 ddr1 源文件（`ddr1_clock_top.v`、`ddr1_clock_top_tb.v`、`ddr1_ck90_dll.v`、`ddr1_ck90_de2.v`、`ddr1_ck90_compare_tb.v`、`ddr1_dqs_delay.v`、`ddr1_dqs_delay_line_phys.v`、`ddr1_dqs_delay_tb.v` 及相关输出）是 **untracked 工作树文件**，必须先提交进 git；后续所有 pass-2 证据必须可从已提交内容复现。
+   - `sim/tests.mk` 中目前没有任何 ddr1 target（grep 零匹配），TB 靠 TB header 里的 ad-hoc iverilog 命令运行；必须为 `ddr1_clock_top_tb`、`ddr1_ck90_compare_tb`、`ddr1_dqs_delay_tb` 加正式 make target，并纳入回归（`test_p0` 或同级）。
+   - 证据目录命名需避免误导：`sim/outputs/ihp-sg13g2/dll_gate_*.log`、`tdc_phys_gl_*.log` 实际是 ics55 单元 build（`flow/sta/run_*.sh` 硬编码 ICS55 liberty），IHP130 证据必须与 ics55 证据分目录、分命名，不得混放。
 
 ## 5. 验收清单
 
